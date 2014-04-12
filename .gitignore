@@ -3,9 +3,12 @@
 *.a
 *.so
 
+*sublime*
+
 # Folders
 _obj
 _test
+_tests
 
 # Architecture specific extensions/prefixes
 *.[568vq]
