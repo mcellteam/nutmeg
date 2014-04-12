@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/haskelladdict/nutmeg/jsonParser"
 )
 
 const numSimJobs = 1
@@ -31,6 +33,7 @@ type runStatus struct {
 }
 
 func init() {
+	//tests = []string{}
 	tests = []string{
 		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/remove_per_species_list_from_ht"}
 
@@ -82,9 +85,16 @@ func simRunner(testPath string, output chan runStatus) {
 }
 
 // createSimJobs is responsbile for filling the worker queue with
-// jobs to be run via the simulation tool
+// jobs to be run via the simulation tool. It parses the test
+// description, assembles a TestDescription struct and adds it
+// to the simulation job queue.
 func createSimJobs(tests []string, simJobs chan string) {
 	for _, job := range tests {
+		testDescription, err := jsonParser.Parse(job)
+		if err != nil {
+			fmt.Println("Error parsing test description:", err)
+		}
+		fmt.Println("Successfully parsed test description:", testDescription)
 		simJobs <- job
 	}
 	close(simJobs)
@@ -134,5 +144,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("foo")
+	fmt.Println("done - all good")
 }
