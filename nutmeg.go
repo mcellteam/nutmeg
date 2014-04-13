@@ -16,7 +16,10 @@ import (
 	"time"
 )
 
-const numSimJobs = 1
+const (
+	numSimJobs  = 1
+	numTestJobs = 1
+)
 
 var tests []string
 var mcell_path string
@@ -43,6 +46,13 @@ type TestCase struct {
 	TestType string
 }
 
+// TestResults encapsulates the results of an individual test
+type TestResult struct {
+	path         string // path to test with was run
+	success      bool   // was test successful
+	errorMessage string // error message if test failed
+}
+
 // initialize list of available unit tests
 func init() {
 	//tests = []string{}
@@ -54,7 +64,18 @@ func init() {
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// test_runner runs mcell on the mdl file passed in as an
+// testRunner analyses the TestDescriptions coming from an MCell run on a
+// test and analyses them as requested per the TestDescription.
+func testRunner(test *TestDescription, result chan *TestResult) {
+	if !test.simStatus.success {
+		result <- &TestResult{test.Path, false, test.simStatus.message}
+		return
+	}
+
+	result <- &TestResult{test.Path, true, ""}
+}
+
+// simRunner runs mcell on the mdl file passed in as an
 // absolute path. The working directory is set to the base path
 // of the mdl file.
 func simRunner(test *TestDescription, output chan *TestDescription) {
@@ -107,7 +128,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 	output <- test
 }
 
-// createSimJobs is responsbile for filling the worker queue with
+// createSimJobs is responsible for filling a worker queue with
 // jobs to be run via the simulation tool. It parses the test
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
@@ -133,6 +154,14 @@ func runSimJobs(tests <-chan *TestDescription, simOutput chan *TestDescription) 
 	}
 }
 
+// runTestJobs loops over all available TestDescriptions coming from the
+// simulation engine and submits them to a test engine.
+func runTestJobs(tests <-chan *TestDescription, result chan *TestResult) {
+	for test := range tests {
+		testRunner(test, result)
+	}
+}
+
 // main routine
 func main() {
 
@@ -141,21 +170,26 @@ func main() {
 		return
 	}
 
-	simOutput := make(chan *TestDescription, len(tests))
 	simJobs := make(chan *TestDescription, numSimJobs)
 	go createSimJobs(tests, simJobs)
 
+	simOutput := make(chan *TestDescription, len(tests))
 	for i := 0; i < numSimJobs; i++ {
 		go runSimJobs(simJobs, simOutput)
 	}
 
+	testResults := make(chan *TestResult, len(tests))
+	for i := 0; i < numTestJobs; i++ {
+		go runTestJobs(simOutput, testResults)
+	}
+
 	for i := 0; i < len(tests); i++ {
-		result := <-simOutput
-		testName := filepath.Base(result.Path)
-		if result.simStatus.success {
+		result := <-testResults
+		testName := filepath.Base(result.path)
+		if result.success {
 			fmt.Println("Success running", testName)
 		} else {
-			fmt.Println("Failed running", testName, ":", result.simStatus.message)
+			fmt.Println("Failed running", testName, ":", result.errorMessage)
 		}
 	}
 
