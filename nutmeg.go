@@ -25,9 +25,8 @@ var rng *rand.Rand
 // data structure encapsulating the status of running the
 // mdl files underlying an mcell test
 type runStatus struct {
-	success  bool
-	testPath string
-	message  string
+	success bool // indicates if prepping/running the simulation succeeded
+	message string
 }
 
 // TestDescription encapsulates all information needed to describe a unit
@@ -37,6 +36,7 @@ type TestDescription struct {
 	CommandlineOpts []string
 	Path            string
 	Checks          []*TestCase
+	simStatus       runStatus
 }
 
 type TestCase struct {
@@ -57,7 +57,7 @@ func init() {
 // test_runner runs mcell on the mdl file passed in as an
 // absolute path. The working directory is set to the base path
 // of the mdl file.
-func simRunner(test *TestDescription, output chan runStatus) {
+func simRunner(test *TestDescription, output chan *TestDescription) {
 
 	mdlPath := filepath.Join(test.Path, "test.mdl")
 	argList := append(test.CommandlineOpts, "-seed", strconv.Itoa(rng.Intn(10000)),
@@ -67,37 +67,44 @@ func simRunner(test *TestDescription, output chan runStatus) {
 	// create outputDir
 	outputDir := filepath.Join(test.Path, "output")
 	if err := os.Mkdir(outputDir, 0744); err != nil {
-		output <- runStatus{false, test.Path, fmt.Sprint(err)}
+		test.simStatus = runStatus{false, fmt.Sprint(err)}
+		output <- test
 		return
 	}
 	cmd.Dir = outputDir
 
 	if err := WriteCmdLine(mcell_path, outputDir, argList); err != nil {
-		output <- runStatus{false, test.Path, fmt.Sprint(err)}
+		test.simStatus = runStatus{false, fmt.Sprint(err)}
+		output <- test
 		return
 	}
 
 	// connect stdout and stderr
 	stdOut, err := os.Create(filepath.Join(outputDir, "stdout.log"))
 	if err != nil {
-		output <- runStatus{false, test.Path, "error opening stdout"}
+		test.simStatus = runStatus{false, fmt.Sprint(err)}
+		output <- test
 		return
 	}
+	defer stdOut.Close()
 	cmd.Stdout = stdOut
 
 	stdErr, err := os.Create(filepath.Join(outputDir, "stderr.log"))
 	if err != nil {
-		output <- runStatus{false, test.Path, "error opening stderr"}
+		test.simStatus = runStatus{false, fmt.Sprint(err)}
+		output <- test
 		return
 	}
+	defer stdErr.Close()
 	cmd.Stderr = stdErr
 
 	err = cmd.Run()
 	if err != nil {
-		output <- runStatus{false, test.Path, fmt.Sprint(err)}
+		test.simStatus = runStatus{false, fmt.Sprint(err)}
 	} else {
-		output <- runStatus{true, test.Path, ""}
+		test.simStatus = runStatus{true, ""}
 	}
+	output <- test
 }
 
 // createSimJobs is responsbile for filling the worker queue with
@@ -111,7 +118,7 @@ func createSimJobs(tests []string, simJobs chan *TestDescription) {
 			log.Printf("Error parsing test description: %s: %v", testDir, err)
 			continue
 		}
-		fmt.Println("Successfully parsed test description:", testDescription)
+		//fmt.Println("Successfully parsed test description:", testDescription)
 		testDescription.Path = testDir
 		simJobs <- testDescription
 	}
@@ -120,7 +127,7 @@ func createSimJobs(tests []string, simJobs chan *TestDescription) {
 
 // runSimJobs loops over all available jobs and runs each of
 // them in a simRunner.
-func runSimJobs(tests <-chan *TestDescription, simOutput chan runStatus) {
+func runSimJobs(tests <-chan *TestDescription, simOutput chan *TestDescription) {
 	for test := range tests {
 		simRunner(test, simOutput)
 	}
@@ -134,7 +141,7 @@ func main() {
 		return
 	}
 
-	simOutput := make(chan runStatus, len(tests))
+	simOutput := make(chan *TestDescription, len(tests))
 	simJobs := make(chan *TestDescription, numSimJobs)
 	go createSimJobs(tests, simJobs)
 
@@ -144,10 +151,11 @@ func main() {
 
 	for i := 0; i < len(tests); i++ {
 		result := <-simOutput
-		if result.success {
-			fmt.Println("Success running ", result.testPath)
+		testName := filepath.Base(result.Path)
+		if result.simStatus.success {
+			fmt.Println("Success running", testName)
 		} else {
-			fmt.Println("Failed running ", result.testPath, "\n", result.message)
+			fmt.Println("Failed running", testName, ":", result.simStatus.message)
 		}
 	}
 
