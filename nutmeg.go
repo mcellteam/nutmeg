@@ -7,21 +7,19 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"github.com/haskelladdict/nutmeg/jsonParser"
 )
 
 const numSimJobs = 1
 
 var tests []string
 var mcell_path string
-
 var rng *rand.Rand
 
 // data structure encapsulating the status of running the
@@ -32,6 +30,20 @@ type runStatus struct {
 	message  string
 }
 
+// TestDescription encapsulates all information needed to describe a unit
+// or regression test of an MCell model
+type TestDescription struct {
+	Description     string
+	CommandlineOpts []string
+	Path            string
+	Checks          []*TestCase
+}
+
+type TestCase struct {
+	TestType string
+}
+
+// initialize list of available unit tests
 func init() {
 	//tests = []string{}
 	tests = []string{
@@ -45,42 +57,46 @@ func init() {
 // test_runner runs mcell on the mdl file passed in as an
 // absolute path. The working directory is set to the base path
 // of the mdl file.
-func simRunner(testPath string, output chan runStatus) {
+func simRunner(test *TestDescription, output chan runStatus) {
 
-	mdlPath := filepath.Join(testPath, "test.mdl")
-	fmt.Println("running ", mdlPath)
-	cmd := exec.Command(mcell_path, "-seed", strconv.Itoa(rng.Intn(10000)),
+	mdlPath := filepath.Join(test.Path, "test.mdl")
+	argList := append(test.CommandlineOpts, "-seed", strconv.Itoa(rng.Intn(10000)),
 		"-logfile", "run.log", "-errfile", "err.log", mdlPath)
+	cmd := exec.Command(mcell_path, argList...)
 
-	// create runDir
-	runDir := filepath.Join(testPath, "output")
-	if err := os.Mkdir(runDir, 0744); err != nil {
-		output <- runStatus{false, testPath, fmt.Sprint(err)}
+	// create outputDir
+	outputDir := filepath.Join(test.Path, "output")
+	if err := os.Mkdir(outputDir, 0744); err != nil {
+		output <- runStatus{false, test.Path, fmt.Sprint(err)}
+		return
+	}
+	cmd.Dir = outputDir
+
+	if err := WriteCmdLine(mcell_path, outputDir, argList); err != nil {
+		output <- runStatus{false, test.Path, fmt.Sprint(err)}
 		return
 	}
 
 	// connect stdout and stderr
-	stdOut, err := os.Create(filepath.Join(runDir, "stdout.log"))
+	stdOut, err := os.Create(filepath.Join(outputDir, "stdout.log"))
 	if err != nil {
-		output <- runStatus{false, testPath, "error opening stdout"}
+		output <- runStatus{false, test.Path, "error opening stdout"}
 		return
 	}
 	cmd.Stdout = stdOut
 
-	stdErr, err := os.Create(filepath.Join(runDir, "stderr.log"))
+	stdErr, err := os.Create(filepath.Join(outputDir, "stderr.log"))
 	if err != nil {
-		output <- runStatus{false, testPath, "error opening stderr"}
+		output <- runStatus{false, test.Path, "error opening stderr"}
 		return
 	}
 	cmd.Stderr = stdErr
 
-	cmd.Dir = runDir
-
 	err = cmd.Run()
 	if err != nil {
-		output <- runStatus{false, testPath, fmt.Sprint(err)}
+		output <- runStatus{false, test.Path, fmt.Sprint(err)}
 	} else {
-		output <- runStatus{true, testPath, ""}
+		output <- runStatus{true, test.Path, ""}
 	}
 }
 
@@ -88,47 +104,38 @@ func simRunner(testPath string, output chan runStatus) {
 // jobs to be run via the simulation tool. It parses the test
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
-func createSimJobs(tests []string, simJobs chan string) {
-	for _, job := range tests {
-		testDescription, err := jsonParser.Parse(job)
+func createSimJobs(tests []string, simJobs chan *TestDescription) {
+	for _, testDir := range tests {
+		testDescription, err := ParseJSON(testDir)
 		if err != nil {
-			fmt.Println("Error parsing test description:", err)
+			log.Printf("Error parsing test description: %s: %v", testDir, err)
+			continue
 		}
 		fmt.Println("Successfully parsed test description:", testDescription)
-		simJobs <- job
+		testDescription.Path = testDir
+		simJobs <- testDescription
 	}
 	close(simJobs)
 }
 
 // runSimJobs loops over all available jobs and runs each of
 // them in a simRunner.
-func runSimJobs(simJobs <-chan string, simOutput chan runStatus) {
-	for job := range simJobs {
-		simRunner(job, simOutput)
+func runSimJobs(tests <-chan *TestDescription, simOutput chan runStatus) {
+	for test := range tests {
+		simRunner(test, simOutput)
 	}
-}
-
-// clean_removes all files leftover from a previous test run
-func clean_output(tests []string) error {
-	for _, path := range tests {
-		outputPath := filepath.Join(path, "output")
-		if err := os.RemoveAll(outputPath); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // main routine
 func main() {
 
-	if err := clean_output(tests); err != nil {
+	if err := CleanOutput(tests); err != nil {
 		fmt.Println("Failed to clean up previous test results", err)
 		return
 	}
 
 	simOutput := make(chan runStatus, len(tests))
-	simJobs := make(chan string, numSimJobs)
+	simJobs := make(chan *TestDescription, numSimJobs)
 	go createSimJobs(tests, simJobs)
 
 	for i := 0; i < numSimJobs; i++ {
