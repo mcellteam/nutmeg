@@ -57,22 +57,12 @@ type TestResult struct {
 func init() {
 	//tests = []string{}
 	tests = []string{
-		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/remove_per_species_list_from_ht"}
+		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/remove_per_species_list_from_ht",
+		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/orient_flip_flip_rxn"}
 
 	mcell_path = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
 
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
-
-// testRunner analyses the TestDescriptions coming from an MCell run on a
-// test and analyses them as requested per the TestDescription.
-func testRunner(test *TestDescription, result chan *TestResult) {
-	if !test.simStatus.success {
-		result <- &TestResult{test.Path, false, test.simStatus.message}
-		return
-	}
-
-	result <- &TestResult{test.Path, true, ""}
 }
 
 // simRunner runs mcell on the mdl file passed in as an
@@ -148,18 +138,20 @@ func createSimJobs(tests []string, simJobs chan *TestDescription) {
 
 // runSimJobs loops over all available jobs and runs each of
 // them in a simRunner.
-func runSimJobs(tests <-chan *TestDescription, simOutput chan *TestDescription) {
+func runSimJobs(simOutput chan *TestDescription, tests <-chan *TestDescription) {
 	for test := range tests {
 		simRunner(test, simOutput)
 	}
+	close(simOutput)
 }
 
 // runTestJobs loops over all available TestDescriptions coming from the
 // simulation engine and submits them to a test engine.
-func runTestJobs(tests <-chan *TestDescription, result chan *TestResult) {
+func runTestJobs(result chan *TestResult, tests <-chan *TestDescription) {
 	for test := range tests {
 		testRunner(test, result)
 	}
+	close(result)
 }
 
 // main routine
@@ -175,16 +167,15 @@ func main() {
 
 	simOutput := make(chan *TestDescription, len(tests))
 	for i := 0; i < numSimJobs; i++ {
-		go runSimJobs(simJobs, simOutput)
+		go runSimJobs(simOutput, simJobs)
 	}
 
 	testResults := make(chan *TestResult, len(tests))
 	for i := 0; i < numTestJobs; i++ {
-		go runTestJobs(simOutput, testResults)
+		go runTestJobs(testResults, simOutput)
 	}
 
-	for i := 0; i < len(tests); i++ {
-		result := <-testResults
+	for result := range testResults {
 		testName := filepath.Base(result.path)
 		if result.success {
 			fmt.Println("Success running", testName)
@@ -192,6 +183,15 @@ func main() {
 			fmt.Println("Failed running", testName, ":", result.errorMessage)
 		}
 	}
+
+	// test count reader
+	countFile := filepath.Join(tests[1], "output", "counts.txt")
+	rows, err := readCounts(countFile, true)
+	if err != nil {
+		fmt.Println("error reading count file", err)
+	}
+
+	fmt.Println(rows)
 
 	fmt.Println("done - all good")
 }

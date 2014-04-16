@@ -24,7 +24,7 @@ func ParseJSON(testPath string) (*TestDescription, error) {
 	var test TestDescription
 	err = json.Unmarshal(content, &test)
 	if err != nil {
-		return nil, err
+		return &test, err
 	}
 
 	return &test, nil
