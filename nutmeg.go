@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	numSimJobs  = 1
-	numTestJobs = 1
+	numSimJobs  = 2
+	numTestJobs = 2
 )
 
 var tests []string
@@ -32,24 +32,11 @@ type runStatus struct {
 	message string
 }
 
-// TestDescription encapsulates all information needed to describe a unit
-// or regression test of an MCell model
-type TestDescription struct {
-	Description     string
-	CommandlineOpts []string
-	Path            string
-	Checks          []*TestCase
-	simStatus       runStatus
-}
-
-type TestCase struct {
-	TestType string
-}
-
 // TestResults encapsulates the results of an individual test
 type TestResult struct {
 	path         string // path to test with was run
 	success      bool   // was test successful
+	testName     string // name of test
 	errorMessage string // error message if test failed
 }
 
@@ -58,7 +45,8 @@ func init() {
 	//tests = []string{}
 	tests = []string{
 		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/remove_per_species_list_from_ht",
-		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/orient_flip_flip_rxn"}
+		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/orient_flip_flip_rxn",
+		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/coincident_surfaces"}
 
 	mcell_path = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
 
@@ -126,7 +114,7 @@ func createSimJobs(tests []string, simJobs chan *TestDescription) {
 	for _, testDir := range tests {
 		testDescription, err := ParseJSON(testDir)
 		if err != nil {
-			log.Printf("Error parsing test description: %s: %v", testDir, err)
+			log.Printf("Error parsing test description in %s: %v", testDir, err)
 			continue
 		}
 		//fmt.Println("Successfully parsed test description:", testDescription)
@@ -178,20 +166,14 @@ func main() {
 	for result := range testResults {
 		testName := filepath.Base(result.path)
 		if result.success {
-			fmt.Println("Success running", testName)
+			fmt.Printf("%-35s ::   %-20s            [SUCCESS]\n", testName, result.testName)
 		} else {
-			fmt.Println("Failed running", testName, ":", result.errorMessage)
+			fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
+			if result.errorMessage != "" {
+				fmt.Println("\t\t --> ", result.errorMessage)
+			}
 		}
 	}
-
-	// test count reader
-	countFile := filepath.Join(tests[1], "output", "counts.txt")
-	rows, err := readCounts(countFile, true)
-	if err != nil {
-		fmt.Println("error reading count file", err)
-	}
-
-	fmt.Println(rows)
 
 	fmt.Println("done - all good")
 }
