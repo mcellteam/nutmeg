@@ -22,7 +22,7 @@ const (
 )
 
 var tests []string
-var mcell_path string
+var mcellPath string
 var rng *rand.Rand
 
 // data structure encapsulating the status of running the
@@ -42,15 +42,47 @@ type TestResult struct {
 
 // initialize list of available unit tests
 func init() {
-	//tests = []string{}
-	tests = []string{
-		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/remove_per_species_list_from_ht",
-		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/orient_flip_flip_rxn",
-		"/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/coincident_surfaces"}
-
-	mcell_path = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
-
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+	testPath := "/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/"
+	mcellPath = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
+
+	testNames := []string{
+		"remove_per_species_list_from_ht",
+		"orient_flip_flip_rxn",
+		"coincident_surfaces",
+		"rx_flip_flip"}
+	tests = make([]string, len(testNames))
+	for i, name := range testNames {
+		tests[i] = filepath.Join(testPath, name)
+	}
+}
+
+// main routine
+func main() {
+
+	if err := CleanOutput(tests); err != nil {
+		fmt.Println("Failed to clean up previous test results", err)
+		return
+	}
+
+	simJobs := make(chan *TestDescription, numSimJobs)
+	go createSimJobs(tests, simJobs)
+
+	simOutput := make(chan *TestDescription, len(tests))
+	simsDone := make(chan struct{}, numSimJobs)
+	for i := 0; i < numSimJobs; i++ {
+		go runSimJobs(simOutput, simJobs, simsDone)
+	}
+	go closeSimOutput(simOutput, simsDone, numSimJobs)
+
+	testResults := make(chan *TestResult, len(tests))
+	testsDone := make(chan struct{}, numTestJobs)
+	for i := 0; i < numTestJobs; i++ {
+		go runTestJobs(testResults, simOutput, testsDone)
+	}
+
+	processResults(testResults, testsDone, numTestJobs)
+	fmt.Println("done - all good")
 }
 
 // simRunner runs mcell on the mdl file passed in as an
@@ -61,7 +93,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 	mdlPath := filepath.Join(test.Path, "test.mdl")
 	argList := append(test.CommandlineOpts, "-seed", strconv.Itoa(rng.Intn(10000)),
 		"-logfile", "run.log", "-errfile", "err.log", mdlPath)
-	cmd := exec.Command(mcell_path, argList...)
+	cmd := exec.Command(mcellPath, argList...)
 
 	// create outputDir
 	outputDir := filepath.Join(test.Path, "output")
@@ -72,7 +104,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 	}
 	cmd.Dir = outputDir
 
-	if err := WriteCmdLine(mcell_path, outputDir, argList); err != nil {
+	if err := WriteCmdLine(mcellPath, outputDir, argList); err != nil {
 		test.simStatus = runStatus{false, fmt.Sprint(err)}
 		output <- test
 		return
@@ -110,14 +142,13 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 // jobs to be run via the simulation tool. It parses the test
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
-func createSimJobs(tests []string, simJobs chan *TestDescription) {
-	for _, testDir := range tests {
+func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
+	for _, testDir := range testPaths {
 		testDescription, err := ParseJSON(testDir)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)
 			continue
 		}
-		//fmt.Println("Successfully parsed test description:", testDescription)
 		testDescription.Path = testDir
 		simJobs <- testDescription
 	}
@@ -126,54 +157,71 @@ func createSimJobs(tests []string, simJobs chan *TestDescription) {
 
 // runSimJobs loops over all available jobs and runs each of
 // them in a simRunner.
-func runSimJobs(simOutput chan *TestDescription, tests <-chan *TestDescription) {
-	for test := range tests {
-		simRunner(test, simOutput)
+func runSimJobs(simOutput chan *TestDescription, simJobs <-chan *TestDescription,
+	simsDone chan struct{}) {
+	for job := range simJobs {
+		simRunner(job, simOutput)
+	}
+	simsDone <- struct{}{}
+}
+
+// closeSimOutput is in charge of closing the simOutput channels once all
+// simRunners have finished.
+func closeSimOutput(simOutput chan *TestDescription, simsDone chan struct{},
+	numSimJobs int) {
+
+	for i := 0; i < numSimJobs; i++ {
+		<-simsDone
 	}
 	close(simOutput)
 }
 
 // runTestJobs loops over all available TestDescriptions coming from the
 // simulation engine and submits them to a test engine.
-func runTestJobs(result chan *TestResult, tests <-chan *TestDescription) {
-	for test := range tests {
-		testRunner(test, result)
+func runTestJobs(results chan *TestResult, simOutput <-chan *TestDescription,
+	testsDone chan struct{}) {
+	for test := range simOutput {
+		testRunner(test, results)
 	}
-	close(result)
+	testsDone <- struct{}{}
 }
 
-// main routine
-func main() {
+// processResults process all produced test results and displays them in the
+// fashion requested
+func processResults(results chan *TestResult, testsDone chan struct{}, numTestJobs int) {
 
-	if err := CleanOutput(tests); err != nil {
-		fmt.Println("Failed to clean up previous test results", err)
-		return
-	}
-
-	simJobs := make(chan *TestDescription, numSimJobs)
-	go createSimJobs(tests, simJobs)
-
-	simOutput := make(chan *TestDescription, len(tests))
-	for i := 0; i < numSimJobs; i++ {
-		go runSimJobs(simOutput, simJobs)
-	}
-
-	testResults := make(chan *TestResult, len(tests))
-	for i := 0; i < numTestJobs; i++ {
-		go runTestJobs(testResults, simOutput)
-	}
-
-	for result := range testResults {
-		testName := filepath.Base(result.path)
-		if result.success {
-			fmt.Printf("%-35s ::   %-20s            [SUCCESS]\n", testName, result.testName)
-		} else {
-			fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
-			if result.errorMessage != "" {
-				fmt.Println("\t\t --> ", result.errorMessage)
-			}
+	t := 0
+	for t < numTestJobs {
+		select {
+		case r := <-results:
+			printResult(r)
+		case <-testsDone:
+			t += 1
 		}
 	}
 
-	fmt.Println("done - all good")
+	// clear out remaining test result queue
+Done:
+	for {
+		select {
+		case r := <-results:
+			printResult(r)
+		default:
+			break Done
+		}
+	}
+}
+
+// printResults displays the outcome for a single test result
+func printResult(result *TestResult) {
+
+	testName := filepath.Base(result.path)
+	if result.success {
+		fmt.Printf("%-35s ::   %-20s            [SUCCESS]\n", testName, result.testName)
+	} else {
+		fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
+		if result.errorMessage != "" {
+			fmt.Println("\t\t --> ", result.errorMessage)
+		}
+	}
 }

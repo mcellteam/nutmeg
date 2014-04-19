@@ -7,7 +7,6 @@
 package main
 
 import (
-	"fmt"
 	"path/filepath"
 )
 
@@ -69,7 +68,6 @@ func checkCountConstraints(filePath string, haveHeader bool,
 	// read data
 	rows, err := readCounts(filePath, haveHeader)
 	if err != nil {
-		fmt.Println(filePath)
 		return false, err
 	}
 
