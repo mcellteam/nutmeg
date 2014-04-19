@@ -7,6 +7,8 @@ package main
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -62,5 +64,11 @@ func readCounts(fileName string, haveHeader bool) (*Columns, error) {
 			cols.counts[i] = append(cols.counts[i], c)
 		}
 	}
+
+	// sanity check - we expect at least one row of data
+	if len(cols.times) == 0 {
+		return nil, errors.New(fmt.Sprintf("%s: contains no data", fileName))
+	}
+
 	return &cols, nil
 }

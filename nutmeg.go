@@ -221,7 +221,7 @@ func printResult(result *TestResult) {
 	} else {
 		fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
 		if result.errorMessage != "" {
-			fmt.Println("\t\t --> ", result.errorMessage)
+			fmt.Println("\t ERROR: ", result.errorMessage)
 		}
 	}
 }

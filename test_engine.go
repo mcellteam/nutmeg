@@ -7,6 +7,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 )
 
@@ -25,10 +27,13 @@ type TestCase struct {
 	Description      string
 	HaveHeader       bool
 	DataFile         string
-	CountConstraints []*Constraint
+	MinTime          float64
+	CountConstraints []*ConstraintSpec
+	CountMaximum     []int
+	CountMinimum     []int
 }
 
-type Constraint struct {
+type ConstraintSpec struct {
 	Target int
 	Query  []int
 }
@@ -48,22 +53,31 @@ func testRunner(test *TestDescription, result chan *TestResult) {
 
 		case "COUNT_CONSTRAINTS":
 			dataPath := filepath.Join(test.Path, "output", c.DataFile)
-			success, err := checkCountConstraints(dataPath, c.HaveHeader, c.CountConstraints)
+			success, err := checkCountConstraints(dataPath, c.HaveHeader, c.MinTime,
+				c.CountConstraints)
 			if !success || err != nil {
-				result <- &TestResult{test.Path, false, "COUNT_CONSTRAINTS", ""}
+				result <- &TestResult{test.Path, false, "COUNT_CONSTRAINTS", fmt.Sprint(err)}
 			} else {
 				result <- &TestResult{test.Path, true, "COUNT_CONSTRAINTS", ""}
+			}
+
+		case "COUNT_MINMAX":
+			dataPath := filepath.Join(test.Path, "output", c.DataFile)
+			success, err := checkCountMinmax(dataPath, c.HaveHeader, c.MinTime,
+				c.CountMaximum, c.CountMinimum)
+			if !success || err != nil {
+				result <- &TestResult{test.Path, false, "COUNT_MINMAX", fmt.Sprint(err)}
+			} else {
+				result <- &TestResult{test.Path, true, "COUNT_MINMAX", ""}
 			}
 		}
 	}
 }
 
-// checkCountConstraints test the provided array of constraints
+// checkCountConstraints tests the provided array of constraints
 // on the simulation output data contained in the file filePath
-// NOTE: Currenty this function assumes that the column counts
-// in the Constrains match what's contained in the file.
-func checkCountConstraints(filePath string, haveHeader bool,
-	constraints []*Constraint) (bool, error) {
+func checkCountConstraints(filePath string, haveHeader bool, minTime float64,
+	constraints []*ConstraintSpec) (bool, error) {
 
 	// read data
 	rows, err := readCounts(filePath, haveHeader)
@@ -71,16 +85,60 @@ func checkCountConstraints(filePath string, haveHeader bool,
 		return false, err
 	}
 
-	// check constraints for each data row
-	for r := 0; r < len(rows.times); r++ {
+	// check constraints for each row of data
+	for r, time := range rows.times {
+		if time < minTime {
+			continue
+		}
+
 		for _, con := range constraints {
+			// sanity check - the number of columns has to match the number of constraints
+			if len(con.Query) != len(rows.counts) {
+				return false, errors.New(
+					fmt.Sprintf("%s: length of constraints (%d) does not match number of data columns (%d)",
+						filePath, len(rows.counts), len(con.Query)))
+			}
+
 			result := 0
 			for c, q := range con.Query {
 				result += (q * rows.counts[c][r])
 			}
 
 			if result != con.Target {
-				return false, nil
+				return false, errors.New(
+					fmt.Sprintf("constraint mismatch: result (%d) - actual (%d)", result, con.Target))
+			}
+		}
+	}
+
+	return true, nil
+}
+
+// checkCountMinmax tests that each column of the parsed data is larger
+// equal than CountMinimum and smaller equal than CountMaximum.
+func checkCountMinmax(filePath string, haveHeader bool, minTime float64,
+	countMaximum, countMinimum []int) (bool, error) {
+
+	// read data
+	rows, err := readCounts(filePath, haveHeader)
+	if err != nil {
+		return false, err
+	}
+
+	for r, time := range rows.times {
+		if time < minTime {
+			continue
+		}
+
+		for i := 0; i < len(rows.counts); i++ {
+			c := rows.counts[i][r]
+			if countMaximum != nil && c > countMaximum[i] {
+				return false, errors.New(
+					fmt.Sprintf("maximum exceeded: data (%d) > max(%d) %f %f", c, countMaximum[i], time, minTime))
+			}
+			if countMinimum != nil && c < countMinimum[i] {
+				return false, errors.New(
+					fmt.Sprintf("minimum undershot: data (%d) < max(%d)", c, countMaximum[i]))
 			}
 		}
 	}

@@ -24,12 +24,12 @@
 			]
 		},
 		{
-			"testType" : "COUNT_CONSTRAINTS",
+			"testType" : "COUNT_MINMAX",
 			"dataFile" : "counts.txt",
 			"haveHeader" : true,
 			"minTime"	: 5e-5,
 			"countMinimum" : [40, 40, 40, 40, 10000],
-			"countMaximum" : [260, 260, 260, 260, 1e300]
+			"countMaximum" : [260, 260, 260, 260, 100000000]
 		}
 	]
 }
