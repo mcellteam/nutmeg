@@ -1,0 +1,30 @@
+{
+	"description" : "When a surface molecule undergoes a reaction to become a volume molecule, orientation must be respected.\nFailure: as g decreases, mi increases faster than m.\nSuccess: at all times m == mi\nat all times m + g == 1000",
+        "author" : "Jed Wing <jed@salk.edu>",
+        "date" : "2008-09-10",
+	"keywords" : ["regression"],
+
+	"commandlineOpts" : ["-quiet"],
+
+	"checks" : [
+		{
+			"testType" : "CHECK_SUCCESS"
+		},
+		{
+			"testType" : "COUNT_CONSTRAINTS",
+			"dataFile" : "molecules.txt",
+			"haveHeader" : true,
+
+			"countConstraints" : [
+				{
+					"target" : 1000,
+					"query" : [1, 1, 0]
+				},
+				{
+					"target" : 0,
+					"query"  : [0, 1, -1]
+				}
+			]
+		}
+	]
+}

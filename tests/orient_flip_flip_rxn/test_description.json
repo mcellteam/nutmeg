@@ -1,5 +1,8 @@
 {          
 	"description" : "In a grid mol + vol mol reaction V' + G' -> V, + G, (i.e. where both molecules are preserved and change orientation), the updated orientation of the grid molecule is not counted.",
+        "author" : "Jed Wing <jed@salk.edu>",
+        "date" : "2008-09-05",
+        "keywords" : ["regression"],
 
 	"commandlineOpts" : ["-quiet"],
 

@@ -23,14 +23,15 @@ type TestDescription struct {
 }
 
 type TestCase struct {
-	TestType         string
-	Description      string
-	HaveHeader       bool
-	DataFile         string
-	MinTime          float64
-	CountConstraints []*ConstraintSpec
-	CountMaximum     []int
-	CountMinimum     []int
+	TestType         string            // test type - used to dispatch appropriate testing function
+	Description      string            // textual description of test case
+	HaveHeader       bool              // indicates if DataFile contains a header
+	DataFile         string            // name of (output) file to test
+	MinTime          float64           // ignore all data items before MinTime for testing
+	MaxTime          float64           // ignore all data items after MaxTime for testing
+	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
+	CountMaximum     []int             // test if counts are larger than provided minmum
+	CountMinimum     []int             // test if counts are smaller than provided maximum
 }
 
 type ConstraintSpec struct {

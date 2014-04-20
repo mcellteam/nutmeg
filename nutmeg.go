@@ -62,7 +62,8 @@ func init() {
 		"remove_per_species_list_from_ht",
 		"orient_flip_flip_rxn",
 		"coincident_surfaces",
-		"rx_flip_flip"}
+		"rx_flip_flip",
+		"rx_dissociate_inwards"}
 }
 
 // main routine

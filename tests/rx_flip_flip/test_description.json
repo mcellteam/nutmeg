@@ -1,6 +1,9 @@
 {
 	"description" : "When two surface molecules undergo a reaction in which both reagents are preserved, and in which both reagents change orientation, counting does not occur properly. \nFailure: as flippy increases, a000- and b000- remain 0. \nSuccess: a000- and b000- increase to non-zero values\n flippy increases\n at all times a000- + a000+ == 300\n at all times b000- + b000+ == 300",
-	"keywords" : "regression",
+        "author" : "Jed Wing <jed@salk.edu>",
+        "date" : "2008-09-10",
+	"keywords" : ["regression"],
+
 	"commandlineOpts" : ["-quiet"],
 
 	"checks" : [
