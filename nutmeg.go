@@ -6,24 +6,16 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
-
-const (
-	numSimJobs  = 2
-	numTestJobs = 2
-)
-
-var tests []string
-var mcellPath string
-var rng *rand.Rand
 
 // data structure encapsulating the status of running the
 // mdl files underlying an mcell test
@@ -40,188 +32,140 @@ type TestResult struct {
 	errorMessage string // error message if test failed
 }
 
+// global settings
+// NOTE: With exception of rng these should eventually come from a settings file
+var testNames []string
+var mcellPath string
+var testDir string
+var rng *rand.Rand
+
+// command line flags
+var listTestsFlag bool
+var runTestsFlag bool
+var testSelection string
+var numSimJobs int
+var numTestJobs int
+
 // initialize list of available unit tests
 func init() {
+	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
+	flag.BoolVar(&runTestsFlag, "r", false, "run specified tests")
+	flag.StringVar(&testSelection, "s", "all", "select test to run (default: all tests)")
+	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
+	flag.IntVar(&numTestJobs, "m", 2, "number of concurrent test jobs (default: 2)")
+
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
-	testPath := "/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/"
+	testDir = "/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/"
 	mcellPath = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
 
-	testNames := []string{
+	testNames = []string{
 		"remove_per_species_list_from_ht",
 		"orient_flip_flip_rxn",
 		"coincident_surfaces",
 		"rx_flip_flip"}
-	tests = make([]string, len(testNames))
-	for i, name := range testNames {
-		tests[i] = filepath.Join(testPath, name)
-	}
 }
 
 // main routine
 func main() {
 
-	if err := CleanOutput(tests); err != nil {
-		fmt.Println("Failed to clean up previous test results", err)
-		return
+	flag.Parse()
+
+	switch {
+	case listTestsFlag:
+		fmt.Println("Available tests:")
+		fmt.Println("----------------")
+		for i, t := range testNames {
+			fmt.Printf("[%d] %-20s\n", i, t)
+		}
+
+	case runTestsFlag:
+		tests := extractTestCases(testSelection)
+		runTests(tests)
+
+	default:
+		flag.PrintDefaults()
 	}
-
-	simJobs := make(chan *TestDescription, numSimJobs)
-	go createSimJobs(tests, simJobs)
-
-	simOutput := make(chan *TestDescription, len(tests))
-	simsDone := make(chan struct{}, numSimJobs)
-	for i := 0; i < numSimJobs; i++ {
-		go runSimJobs(simOutput, simJobs, simsDone)
-	}
-	go closeSimOutput(simOutput, simsDone, numSimJobs)
-
-	testResults := make(chan *TestResult, len(tests))
-	testsDone := make(chan struct{}, numTestJobs)
-	for i := 0; i < numTestJobs; i++ {
-		go runTestJobs(testResults, simOutput, testsDone)
-	}
-
-	processResults(testResults, testsDone, numTestJobs)
-	fmt.Println("done - all good")
 }
 
-// simRunner runs mcell on the mdl file passed in as an
-// absolute path. The working directory is set to the base path
-// of the mdl file.
-func simRunner(test *TestDescription, output chan *TestDescription) {
+// extractTestCases parses the test selection string and assembles the list
+// of requested test cases as fully qualified paths.
+// NOTE: The form of the selection string is of the form
+//              1,2,5:10,55
+//
+// Here, each number or range of numbers refers to indexed test cases as
+// provided by the -s commandline flag.
+// A special case is "all" which refers to all tests.
+func extractTestCases(selection string) []string {
 
-	mdlPath := filepath.Join(test.Path, "test.mdl")
-	argList := append(test.CommandlineOpts, "-seed", strconv.Itoa(rng.Intn(10000)),
-		"-logfile", "run.log", "-errfile", "err.log", mdlPath)
-	cmd := exec.Command(mcellPath, argList...)
-
-	// create outputDir
-	outputDir := filepath.Join(test.Path, "output")
-	if err := os.Mkdir(outputDir, 0744); err != nil {
-		test.simStatus = runStatus{false, fmt.Sprint(err)}
-		output <- test
-		return
-	}
-	cmd.Dir = outputDir
-
-	if err := WriteCmdLine(mcellPath, outputDir, argList); err != nil {
-		test.simStatus = runStatus{false, fmt.Sprint(err)}
-		output <- test
-		return
-	}
-
-	// connect stdout and stderr
-	stdOut, err := os.Create(filepath.Join(outputDir, "stdout.log"))
-	if err != nil {
-		test.simStatus = runStatus{false, fmt.Sprint(err)}
-		output <- test
-		return
-	}
-	defer stdOut.Close()
-	cmd.Stdout = stdOut
-
-	stdErr, err := os.Create(filepath.Join(outputDir, "stderr.log"))
-	if err != nil {
-		test.simStatus = runStatus{false, fmt.Sprint(err)}
-		output <- test
-		return
-	}
-	defer stdErr.Close()
-	cmd.Stderr = stdErr
-
-	err = cmd.Run()
-	if err != nil {
-		test.simStatus = runStatus{false, fmt.Sprint(err)}
+	var selectedNames []string
+	if selection == "all" {
+		selectedNames = testNames
 	} else {
-		test.simStatus = runStatus{true, ""}
-	}
-	output <- test
-}
+		for _, s := range strings.Split(selection, ",") {
+			item := strings.TrimSpace(s)
 
-// createSimJobs is responsible for filling a worker queue with
-// jobs to be run via the simulation tool. It parses the test
-// description, assembles a TestDescription struct and adds it
-// to the simulation job queue.
-func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
-	for _, testDir := range testPaths {
-		testDescription, err := ParseJSON(testDir)
-		if err != nil {
-			log.Printf("Error parsing test description in %s: %v", testDir, err)
-			continue
-		}
-		testDescription.Path = testDir
-		simJobs <- testDescription
-	}
-	close(simJobs)
-}
+			var items []int
+			var err error
+			if strings.Contains(item, ":") {
+				if items, err = convertRangeToList(item); err != nil {
+					log.Printf(fmt.Sprint(err))
+					continue
+				}
+			} else {
+				i, err := strconv.Atoi(item)
+				if err != nil {
+					log.Printf("invalid test selection %s ... skipping", item)
+					continue
+				}
+				items = []int{i}
+			}
 
-// runSimJobs loops over all available jobs and runs each of
-// them in a simRunner.
-func runSimJobs(simOutput chan *TestDescription, simJobs <-chan *TestDescription,
-	simsDone chan struct{}) {
-	for job := range simJobs {
-		simRunner(job, simOutput)
-	}
-	simsDone <- struct{}{}
-}
-
-// closeSimOutput is in charge of closing the simOutput channels once all
-// simRunners have finished.
-func closeSimOutput(simOutput chan *TestDescription, simsDone chan struct{},
-	numSimJobs int) {
-
-	for i := 0; i < numSimJobs; i++ {
-		<-simsDone
-	}
-	close(simOutput)
-}
-
-// runTestJobs loops over all available TestDescriptions coming from the
-// simulation engine and submits them to a test engine.
-func runTestJobs(results chan *TestResult, simOutput <-chan *TestDescription,
-	testsDone chan struct{}) {
-	for test := range simOutput {
-		testRunner(test, results)
-	}
-	testsDone <- struct{}{}
-}
-
-// processResults process all produced test results and displays them in the
-// fashion requested
-func processResults(results chan *TestResult, testsDone chan struct{}, numTestJobs int) {
-
-	t := 0
-	for t < numTestJobs {
-		select {
-		case r := <-results:
-			printResult(r)
-		case <-testsDone:
-			t += 1
+			for _, i := range items {
+				if i < 0 || i >= len(testNames) {
+					log.Printf("test selection %d out of valid range (%d-%d) ... skipping",
+						i, 0, len(testNames)-1)
+					continue
+				}
+				selectedNames = append(selectedNames, testNames[i])
+			}
 		}
 	}
 
-	// clear out remaining test result queue
-Done:
-	for {
-		select {
-		case r := <-results:
-			printResult(r)
-		default:
-			break Done
-		}
+	testPaths := make([]string, len(selectedNames))
+	for i, name := range selectedNames {
+		testPaths[i] = filepath.Join(testDir, name)
 	}
+	return testPaths
 }
 
-// printResults displays the outcome for a single test result
-func printResult(result *TestResult) {
+// convertRangeToList converts a single string containing a range statement
+// of the form "4:9" into an explicit integer list describing the
+// range [4, 5, 6, 7, 8, 9]
+func convertRangeToList(rangeStatement string) ([]int, error) {
 
-	testName := filepath.Base(result.path)
-	if result.success {
-		fmt.Printf("%-35s ::   %-20s            [SUCCESS]\n", testName, result.testName)
-	} else {
-		fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
-		if result.errorMessage != "" {
-			fmt.Println("\t ERROR: ", result.errorMessage)
-		}
+	rangeEndpoints := strings.Split(rangeStatement, ":")
+	if len(rangeEndpoints) != 2 {
+		return nil, errors.New(
+			fmt.Sprintf("range selection %s not valid", rangeStatement))
 	}
+
+	var rangeBegin int
+	var err error
+	if rangeBegin, err = strconv.Atoi(rangeEndpoints[0]); err != nil {
+		return nil, errors.New(
+			fmt.Sprintf("invalid range start character %s", rangeEndpoints[0]))
+	}
+
+	var rangeEnd int
+	if rangeEnd, err = strconv.Atoi(rangeEndpoints[1]); err != nil {
+		return nil, errors.New(
+			fmt.Sprintf("invalid range end character %s", rangeEndpoints[1]))
+	}
+
+	var newRange []int
+	for i := rangeBegin; i <= rangeEnd; i++ {
+		newRange = append(newRange, i)
+	}
+
+	return newRange, nil
 }

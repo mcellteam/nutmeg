@@ -1,4 +1,4 @@
 
 
 all:
-	go run *.go
+	go build -o nutmeg *.go
