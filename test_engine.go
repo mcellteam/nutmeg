@@ -9,7 +9,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
+	"regexp"
 )
 
 // TestDescription encapsulates all information needed to describe a unit
@@ -32,6 +34,8 @@ type TestCase struct {
 	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
 	CountMaximum     []int             // test if counts are larger than provided minmum
 	CountMinimum     []int             // test if counts are smaller than provided maximum
+	MatchPattern     string            // test pattern to match file against
+	NumMatches       int               // number of expected pattern matches
 }
 
 type ConstraintSpec struct {
@@ -43,6 +47,9 @@ type ConstraintSpec struct {
 // test and analyses them as requested per the TestDescription.
 func testRunner(test *TestDescription, result chan *TestResult) {
 	for _, c := range test.Checks {
+
+		dataPath := filepath.Join(test.Path, "output", c.DataFile)
+
 		switch c.TestType {
 		case "CHECK_SUCCESS":
 			if !test.simStatus.success {
@@ -53,7 +60,6 @@ func testRunner(test *TestDescription, result chan *TestResult) {
 			}
 
 		case "COUNT_CONSTRAINTS":
-			dataPath := filepath.Join(test.Path, "output", c.DataFile)
 			success, err := checkCountConstraints(dataPath, c.HaveHeader, c.MinTime,
 				c.CountConstraints)
 			if !success || err != nil {
@@ -63,13 +69,20 @@ func testRunner(test *TestDescription, result chan *TestResult) {
 			}
 
 		case "COUNT_MINMAX":
-			dataPath := filepath.Join(test.Path, "output", c.DataFile)
 			success, err := checkCountMinmax(dataPath, c.HaveHeader, c.MinTime,
 				c.CountMaximum, c.CountMinimum)
 			if !success || err != nil {
 				result <- &TestResult{test.Path, false, "COUNT_MINMAX", fmt.Sprint(err)}
 			} else {
 				result <- &TestResult{test.Path, true, "COUNT_MINMAX", ""}
+			}
+
+		case "FILE_MATCH_PATTERN":
+			success, err := fileMatchPattern(dataPath, c.MatchPattern, c.NumMatches)
+			if !success || err != nil {
+				result <- &TestResult{test.Path, false, "FILE_MATCH_PATTERN", fmt.Sprint(err)}
+			} else {
+				result <- &TestResult{test.Path, true, "FILE_MATCH_PATTERN", ""}
 			}
 		}
 	}
@@ -135,13 +148,35 @@ func checkCountMinmax(filePath string, haveHeader bool, minTime float64,
 			c := rows.counts[i][r]
 			if countMaximum != nil && c > countMaximum[i] {
 				return false, errors.New(
-					fmt.Sprintf("maximum exceeded: data (%d) > max(%d) %f %f", c, countMaximum[i], time, minTime))
+					fmt.Sprintf("maximum exceeded: data (%d) > max(%d) %f %f", c, countMaximum[i],
+						time, minTime))
 			}
 			if countMinimum != nil && c < countMinimum[i] {
 				return false, errors.New(
 					fmt.Sprintf("minimum undershot: data (%d) < max(%d)", c, countMaximum[i]))
 			}
 		}
+	}
+
+	return true, nil
+}
+
+// fileMatchPattern matches the provided matchPattern against the content of
+// the datafile at filePath and checks that it matches numMatches times.
+func fileMatchPattern(filePath string, matchPattern string,
+	numExpectedMatches int) (bool, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return false, errors.New(
+			fmt.Sprintf("failed to open file %s", filePath))
+	}
+
+	matcher := regexp.MustCompile(matchPattern)
+	matches := matcher.FindAll(content, -1)
+	if len(matches) != numExpectedMatches {
+		return false, errors.New(
+			fmt.Sprintf("failed pattern match: %s matched %d times instead of %d",
+				matchPattern, len(matches), numExpectedMatches))
 	}
 
 	return true, nil

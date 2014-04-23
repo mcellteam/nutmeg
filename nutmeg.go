@@ -63,7 +63,8 @@ func init() {
 		"orient_flip_flip_rxn",
 		"coincident_surfaces",
 		"rx_flip_flip",
-		"rx_dissociate_inwards"}
+		"rx_dissociate_inwards",
+    "misreporting_rxn_products"}
 }
 
 // main routine
