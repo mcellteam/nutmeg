@@ -1,10 +1,15 @@
-{          
+{
 	"description" : "When two surfaces coincide and one of them is transparent, odd things happen.  Counting, for one, can become confused.  Essentially, the transparent surface may be re-collided in certain cases. Failure: counts go negative, or extremely positive; total count of cannonballs != 500. Success: for entire run, count 122L+122R == 122 == 500  AND for entire run, count r122L+r122R == r122 == 500",
         "author" : "Jed Wing <jed@salk.edu>",
         "date" : "2008-09-05",
         "keywords" : ["regression"],
 
-	"commandlineOpts" : ["-quiet"],
+  "runs" : [
+	  {
+	  	"mdlfile" : "test.mdl",
+			"commandlineOpts" : ["-quiet"]
+	  }
+  ],
 
 	"checks" : [
 		{
@@ -23,7 +28,7 @@
 					"target" : 0,
 					"query"  : [0, 0, 0, 1, 1, -1]
 				},
-				{ 
+				{
 					"target" : 500,
 					"query"  : [0, 0, 1, 0, 0, 0]
 				},

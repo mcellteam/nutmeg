@@ -12,77 +12,52 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
-
-// TestDescription encapsulates all information needed to describe a unit
-// or regression test of an MCell model
-type TestDescription struct {
-	Description     string
-	CommandlineOpts []string
-	Path            string
-	Checks          []*TestCase
-	simStatus       runStatus
-}
-
-type TestCase struct {
-	TestType         string            // test type - used to dispatch appropriate testing function
-	Description      string            // textual description of test case
-	HaveHeader       bool              // indicates if DataFile contains a header
-	DataFile         string            // name of (output) file to test
-	MinTime          float64           // ignore all data items before MinTime for testing
-	MaxTime          float64           // ignore all data items after MaxTime for testing
-	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
-	CountMaximum     []int             // test if counts are larger than provided minmum
-	CountMinimum     []int             // test if counts are smaller than provided maximum
-	MatchPattern     string            // test pattern to match file against
-	NumMatches       int               // number of expected pattern matches
-}
-
-type ConstraintSpec struct {
-	Target int
-	Query  []int
-}
 
 // testRunner analyses the TestDescriptions coming from an MCell run on a
 // test and analyses them as requested per the TestDescription.
-func testRunner(test *TestDescription, result chan *TestResult) {
+func testRunner(test *TestDescription, result chan *testResult) {
 	for _, c := range test.Checks {
 
 		dataPath := filepath.Join(test.Path, "output", c.DataFile)
 
 		switch c.TestType {
 		case "CHECK_SUCCESS":
-			if !test.simStatus.success {
-				result <- &TestResult{test.Path, false, "CHECK_SUCCESS", test.simStatus.message}
-				return // Special case - if simulation fails we won't continue testing
-			} else {
-				result <- &TestResult{test.Path, true, "CHECK_SUCCESS", ""}
+			for _, testRun := range test.simStatus {
+				if !testRun.success {
+					message := strings.Join([]string{testRun.exitMessage, testRun.stdErrContent}, "\n")
+					result <- &testResult{test.Path, false, "CHECK_SUCCESS", message}
+					return // Special case - if simulation fails we won't continue testing
+				} else {
+					result <- &testResult{test.Path, true, "CHECK_SUCCESS", ""}
+				}
 			}
 
 		case "COUNT_CONSTRAINTS":
 			success, err := checkCountConstraints(dataPath, c.HaveHeader, c.MinTime,
 				c.CountConstraints)
 			if !success || err != nil {
-				result <- &TestResult{test.Path, false, "COUNT_CONSTRAINTS", fmt.Sprint(err)}
+				result <- &testResult{test.Path, false, "COUNT_CONSTRAINTS", fmt.Sprint(err)}
 			} else {
-				result <- &TestResult{test.Path, true, "COUNT_CONSTRAINTS", ""}
+				result <- &testResult{test.Path, true, "COUNT_CONSTRAINTS", ""}
 			}
 
 		case "COUNT_MINMAX":
 			success, err := checkCountMinmax(dataPath, c.HaveHeader, c.MinTime,
 				c.CountMaximum, c.CountMinimum)
 			if !success || err != nil {
-				result <- &TestResult{test.Path, false, "COUNT_MINMAX", fmt.Sprint(err)}
+				result <- &testResult{test.Path, false, "COUNT_MINMAX", fmt.Sprint(err)}
 			} else {
-				result <- &TestResult{test.Path, true, "COUNT_MINMAX", ""}
+				result <- &testResult{test.Path, true, "COUNT_MINMAX", ""}
 			}
 
 		case "FILE_MATCH_PATTERN":
 			success, err := fileMatchPattern(dataPath, c.MatchPattern, c.NumMatches)
 			if !success || err != nil {
-				result <- &TestResult{test.Path, false, "FILE_MATCH_PATTERN", fmt.Sprint(err)}
+				result <- &testResult{test.Path, false, "FILE_MATCH_PATTERN", fmt.Sprint(err)}
 			} else {
-				result <- &TestResult{test.Path, true, "FILE_MATCH_PATTERN", ""}
+				result <- &testResult{test.Path, true, "FILE_MATCH_PATTERN", ""}
 			}
 		}
 	}

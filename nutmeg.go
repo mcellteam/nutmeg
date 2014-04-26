@@ -17,21 +17,6 @@ import (
 	"time"
 )
 
-// data structure encapsulating the status of running the
-// mdl files underlying an mcell test
-type runStatus struct {
-	success bool // indicates if prepping/running the simulation succeeded
-	message string
-}
-
-// TestResults encapsulates the results of an individual test
-type TestResult struct {
-	path         string // path to test with was run
-	success      bool   // was test successful
-	testName     string // name of test
-	errorMessage string // error message if test failed
-}
-
 // global settings
 // NOTE: With exception of rng these should eventually come from a settings file
 var testNames []string
@@ -64,7 +49,10 @@ func init() {
 		"coincident_surfaces",
 		"rx_flip_flip",
 		"rx_dissociate_inwards",
-    "misreporting_rxn_products"}
+		"misreporting_rxn_products",
+		"volvol_crash",
+		"find_corresponding_region",
+		"incorrect_times_in_chkpt"}
 }
 
 // main routine

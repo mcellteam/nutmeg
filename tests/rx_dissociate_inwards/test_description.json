@@ -4,7 +4,12 @@
         "date" : "2008-09-10",
 	"keywords" : ["regression"],
 
-	"commandlineOpts" : ["-quiet"],
+	"runs" : [
+		{
+			"mdlfile"	: "test.mdl",
+			"commandlineOpts" : ["-quiet"]
+		}
+	],
 
 	"checks" : [
 		{
