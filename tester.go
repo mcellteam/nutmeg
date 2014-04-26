@@ -34,6 +34,17 @@ func testRunner(test *TestDescription, result chan *testResult) {
 				}
 			}
 
+		case "CHECK_EXIT_CODE":
+			for _, testRun := range test.simStatus {
+				if c.ExitCode != testRun.exitCode {
+					message := fmt.Sprintf("Expected exit code %d but got %d instead",
+						c.ExitCode, testRun.exitCode)
+					result <- &testResult{test.Path, false, "CHECK_EXIT_CODE", message}
+				} else {
+					result <- &testResult{test.Path, true, "CHECK_EXIT_CODE", ""}
+				}
+			}
+
 		case "COUNT_CONSTRAINTS":
 			err := checkCountConstraints(dataPath, c.HaveHeader, c.MinTime, c.MaxTime,
 				c.CountConstraints)

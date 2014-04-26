@@ -55,14 +55,19 @@ type TestCase struct {
 	CountMinimum     []int             // test if counts are smaller than provided maximum
 	MatchPattern     string            // test pattern to match file against
 	NumMatches       int               // number of expected pattern matches
+	ExitCode         int               // expected exit code of MCell run
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
 // up a single test case
+// NOTE: a run might fail for a number of reasons, e.g., during preparation of
+// a run and patching in stderr, or during running of MCell itself. If running
+// MCell failed we try to figure out the exit code.
 type runStatus struct {
 	success       bool // indicates if prepping/running the simulation succeeded
 	exitMessage   string
 	stdErrContent string
+	exitCode      int // this is only used if mcell was actually run
 }
 
 // ConstraintSpec encapsulates a single constraint specification.
@@ -106,7 +111,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 	// create outputDir
 	outputDir := filepath.Join(test.Path, "output")
 	if err := os.Mkdir(outputDir, 0744); err != nil {
-		test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), ""})
+		test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
 		output <- test
 		return
 	}
@@ -122,7 +127,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 		cmd.Dir = outputDir
 
 		if err := WriteCmdLine(mcellPath, outputDir, argList); err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), ""})
+			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
@@ -131,7 +136,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 		stdOutPath := fmt.Sprintf("stdout_%d.log", i)
 		stdOut, err := os.Create(filepath.Join(outputDir, stdOutPath))
 		if err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), ""})
+			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
@@ -141,7 +146,7 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 		stdErrPath := fmt.Sprintf("stderr_%d.log", i)
 		stdErr, err := os.Create(filepath.Join(outputDir, stdErrPath))
 		if err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), ""})
+			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
@@ -151,10 +156,14 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 		err = cmd.Run()
 		if err != nil {
 			stdErrContent, _ := ioutil.ReadFile(filepath.Join(outputDir, errLog))
+			exitCode, err := determineExitCode(err)
+			if err != nil {
+				exitCode = -1
+			}
 			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err),
-				string(stdErrContent)})
+				string(stdErrContent), exitCode})
 		} else {
-			test.simStatus = append(test.simStatus, &runStatus{true, "", ""})
+			test.simStatus = append(test.simStatus, &runStatus{true, "", "", 0})
 		}
 	}
 	output <- test
@@ -239,9 +248,9 @@ func printResult(result *testResult) {
 
 	testName := filepath.Base(result.path)
 	if result.success {
-		fmt.Printf("%-35s ::   %-20s            [SUCCESS]\n", testName, result.testName)
+		fmt.Printf("%-40s ::   %-20s            [SUCCESS]\n", testName, result.testName)
 	} else {
-		fmt.Printf("%-35s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
+		fmt.Printf("%-40s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
 		if result.errorMessage != "" {
 			fmt.Println("\t ERROR: ", result.errorMessage)
 			// we also try to retrieve the content of stderr

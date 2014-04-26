@@ -57,7 +57,9 @@ func init() {
 		"incorrect_times_in_chkpt",
 		"counting_crashes_on_coincident_wall",
 		"quoted_tickmark_counts_parse_error",
-		"no_waypoints_counting_fail"}
+		"no_waypoints_counting_fail",
+		"find_corresponding_region_error_crash_1",
+		"find_corresponding_region_error_crash_2"}
 }
 
 // main routine

@@ -8,8 +8,10 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 )
 
 // clean_output removes all files leftover from a previous test run
@@ -31,4 +33,17 @@ func WriteCmdLine(mcell_path string, outputDir string, argList []string) error {
 	cmdline := strings.Join(cmdlineArgs, " ")
 	cmdlinePath := filepath.Join(outputDir, "commandline.txt")
 	return ioutil.WriteFile(cmdlinePath, []byte(cmdline), 0644)
+}
+
+// determineExitCode tries to figure out the exit code of a failed command
+// execution via exec.Command(...).Run().
+// NOTE: This will not work on windows - here we need
+//                 return int(s.ExitCode), nil
+func determineExitCode(err error) (int, error) {
+	if e, ok := err.(*exec.ExitError); ok {
+		if s, ok := e.Sys().(syscall.WaitStatus); ok {
+			return s.ExitStatus(), nil
+		}
+	}
+	return 0, err
 }
