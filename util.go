@@ -13,7 +13,7 @@ import (
 )
 
 // clean_output removes all files leftover from a previous test run
-func CleanOutput(tests []string) error {
+func cleanOutput(tests []string) error {
 	for _, path := range tests {
 		outputPath := filepath.Join(path, "output")
 		if err := os.RemoveAll(outputPath); err != nil {

@@ -74,7 +74,7 @@ type ConstraintSpec struct {
 // runTests runs the specified list of tests
 func runTests(tests []string) {
 
-	if err := CleanOutput(tests); err != nil {
+	if err := cleanOutput(tests); err != nil {
 		fmt.Println("Failed to clean up previous test results", err)
 		return
 	}
