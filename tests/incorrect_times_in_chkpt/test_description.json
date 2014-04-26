@@ -10,12 +10,12 @@
 			"commandlineOpts" : ["-quiet"]
 		},
 		{
-				"mdlfile" : "test_2.mdl",
-				"commandlineOpts" : ["-quiet"]
+			"mdlfile" : "test_2.mdl",
+			"commandlineOpts" : ["-quiet"]
 		},
 		{
-				"mdlfile" : "test_2.mdl",
-				"commandlineOpts" : ["-quiet"]
+			"mdlfile" : "test_2.mdl",
+			"commandlineOpts" : ["-quiet"]
 		}
 	],
 
@@ -24,9 +24,9 @@
 			"testType" : "CHECK_SUCCESS"
 		},
 		{
-			"testType" : "REQUIRE_COUNTS",
+			"testType" : "COMPARE_COUNTS",
 			"dataFile" : "A_World.dat",
-			"referenceCounts" : "reference_counts.dat"
+			"referenceFile" : "reference_counts.dat"
 		}
 	]
 }

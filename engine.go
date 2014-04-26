@@ -28,11 +28,10 @@ type testResult struct {
 // or regression test of an MCell model
 type TestDescription struct {
 	Description string
-	//CommandlineOpts []string
-	Path      string
-	Checks    []*TestCase
-	Runs      []*RunSpec   // simulation runs to conduct as part of this test
-	simStatus []*runStatus // status of all simulation runs
+	Path        string
+	Checks      []*TestCase
+	Runs        []*RunSpec   // simulation runs to conduct as part of this test
+	simStatus   []*runStatus // status of all simulation runs
 }
 
 // RunSpec describes an individual run to be conducted as part of a single
@@ -48,6 +47,7 @@ type TestCase struct {
 	Description      string            // textual description of test case
 	HaveHeader       bool              // indicates if DataFile contains a header
 	DataFile         string            // name of (output) file to test
+	ReferenceFile    string            // name of file with reference counts to compare against
 	MinTime          float64           // ignore all data items before MinTime for testing
 	MaxTime          float64           // ignore all data items after MaxTime for testing
 	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
