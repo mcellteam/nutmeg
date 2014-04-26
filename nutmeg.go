@@ -52,7 +52,10 @@ func init() {
 		"misreporting_rxn_products",
 		"volvol_crash",
 		"find_corresponding_region",
-		"incorrect_times_in_chkpt"}
+		"incorrect_times_in_chkpt",
+		"counting_crashes_on_coincident_wall",
+		"quoted_tickmark_counts_parse_error",
+		"no_waypoints_counting_fail"}
 }
 
 // main routine

@@ -119,6 +119,16 @@ func checkCountMinmax(filePath string, haveHeader bool, minTime, maxTime float64
 		return err
 	}
 
+	if countMaximum != nil && len(countMaximum) != len(rows.counts) {
+		return errors.New(
+			"number of constraints in countMaximum does not match number of data columns")
+	}
+
+	if countMinimum != nil && len(countMinimum) != len(rows.counts) {
+		return errors.New(
+			"number of constraints in countMinimum does not match number of data columns")
+	}
+
 	for r, time := range rows.times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
@@ -133,7 +143,7 @@ func checkCountMinmax(filePath string, haveHeader bool, minTime, maxTime float64
 			}
 			if countMinimum != nil && c < countMinimum[i] {
 				return errors.New(
-					fmt.Sprintf("minimum undershot: data (%d) < max(%d)", c, countMaximum[i]))
+					fmt.Sprintf("minimum undershot: data (%d) < min(%d)", c, countMinimum[i]))
 			}
 		}
 	}
