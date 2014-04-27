@@ -69,6 +69,10 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			err := checkCountEquilibrium(dataPath, c.HaveHeader, c.MinTime, c.MaxTime,
 				c.Means, c.Tolerances)
 			recordResult(result, "COUNT_EQUILIBRIUM", test.Path, err)
+
+		case "POSITIVE_COUNTS":
+			err := checkPositiveCounts(dataPath, c.HaveHeader, c.MinTime, c.MaxTime)
+			recordResult(result, "POSITIVE_COUNTS", test.Path, err)
 		}
 	}
 }
@@ -271,4 +275,32 @@ func checkCountEquilibrium(dataPath string, haveHeader bool, minTime, maxTime fl
 
 	return nil
 
+}
+
+// checkPosititveCounts tests that all counts of the data file are positive > 0
+func checkPositiveCounts(dataPath string, haveHeader bool, minTime,
+	maxTime float64) error {
+
+	// read data
+	rows, err := readCounts(dataPath, haveHeader)
+	if err != nil {
+		return err
+	}
+
+	numCols := len(rows.counts)
+	for r, time := range rows.times {
+		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
+			continue
+		}
+
+		for c := 0; c < numCols; c++ {
+			if rows.counts[c][r] <= 0 {
+				return errors.New(
+					fmt.Sprintf("value %d in column %d in row %d is not positive (<= 0)",
+						rows.counts[c][r], c, r))
+			}
+		}
+	}
+
+	return nil
 }

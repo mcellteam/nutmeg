@@ -64,7 +64,10 @@ func init() {
 		"mol_surf_grid_crash",
 		"uninstantiated_reference_crash_1",
 		"uninstantiated_reference_crash_2",
-		"enclosed_surfmol_miscount"}
+		"enclosed_surfmol_miscount",
+		"reaction_null_products_crash",
+		"enclosed_meshes_with_different_properties",
+		"rx_reflective_surface_bug"}
 }
 
 // main routine
