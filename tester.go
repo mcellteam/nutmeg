@@ -64,6 +64,11 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			err := compareCounts(dataPath, referencePath, c.HaveHeader, c.MinTime,
 				c.MaxTime)
 			recordResult(result, "COMPARE_COUNTS", test.Path, err)
+
+		case "COUNT_EQUILIBRIUM":
+			err := checkCountEquilibrium(dataPath, c.HaveHeader, c.MinTime, c.MaxTime,
+				c.Means, c.Tolerances)
+			recordResult(result, "COUNT_EQUILIBRIUM", test.Path, err)
 		}
 	}
 }
@@ -183,6 +188,8 @@ func fileMatchPattern(filePath string, matchPattern string,
 	return nil
 }
 
+// compareCounts checks that the test data matches the provided column counts
+// exactly
 func compareCounts(dataPath, referencePath string, haveHeader bool, minTime,
 	maxTime float64) error {
 
@@ -221,4 +228,47 @@ func compareCounts(dataPath, referencePath string, haveHeader bool, minTime,
 	}
 
 	return nil
+}
+
+// checkCountEqulibrium checks that the column means of the test data match the
+// provided target mean values withih tne provided tolerances.
+func checkCountEquilibrium(dataPath string, haveHeader bool, minTime, maxTime float64,
+	means, tolerances []float64) error {
+
+	// read data
+	rows, err := readCounts(dataPath, haveHeader)
+	if err != nil {
+		return err
+	}
+
+	if len(means) != len(rows.counts) {
+		return errors.New("number of provided means does not match number of data columns")
+	}
+
+	numCols := len(rows.counts)
+	averages := make([]float64, numCols)
+	var numValues int
+	for r, time := range rows.times {
+		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
+			continue
+		}
+
+		numValues += 1
+		for c := 0; c < numCols; c++ {
+			averages[c] += float64(rows.counts[c][r])
+		}
+	}
+
+	// compare averages with target means
+	for c := 0; c < numCols; c++ {
+		average := averages[c] / float64(numValues)
+		if (average < means[c]-tolerances[c]) || (average > means[c]+tolerances[c]) {
+			return errors.New(
+				fmt.Sprintf("average value %f of column %d outside of tolerance %f +/- %f",
+					average, c, means[c], tolerances[c]))
+		}
+	}
+
+	return nil
+
 }

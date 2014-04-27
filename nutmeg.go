@@ -59,7 +59,12 @@ func init() {
 		"quoted_tickmark_counts_parse_error",
 		"no_waypoints_counting_fail",
 		"find_corresponding_region_error_crash_1",
-		"find_corresponding_region_error_crash_2"}
+		"find_corresponding_region_error_crash_2",
+		"mol_grid_grid_crash",
+		"mol_surf_grid_crash",
+		"uninstantiated_reference_crash_1",
+		"uninstantiated_reference_crash_2",
+		"enclosed_surfmol_miscount"}
 }
 
 // main routine

@@ -50,6 +50,8 @@ type TestCase struct {
 	ReferenceFile    string            // name of file with reference counts to compare against
 	MinTime          float64           // ignore all data items before MinTime for testing
 	MaxTime          float64           // ignore all data items after MaxTime for testing
+	Means            []float64         // target column means for count equilibrium tests
+	Tolerances       []float64         // tolerances by which actual colummn means may deviate from target
 	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
 	CountMaximum     []int             // test if counts are larger than provided minmum
 	CountMinimum     []int             // test if counts are smaller than provided maximum
