@@ -1,0 +1,19 @@
+{
+  "description": "Two walls are coincident with accuracy of EPS_C.",
+  "author": "Boris Kaminsky <borisk@psc.edu>",
+  "date": "2011-10-17",
+  "keywords": [
+    "regression"
+  ],
+  "runs": [
+    {
+      "mdlfile": "test.mdl"
+    }
+  ],
+  "checks": [
+    {
+      "testType": "CHECK_EXIT_CODE",
+      "exitCode": 1
+    }
+  ]
+}

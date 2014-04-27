@@ -73,6 +73,10 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		case "POSITIVE_COUNTS":
 			err := checkPositiveCounts(dataPath, c.HaveHeader, c.MinTime, c.MaxTime)
 			recordResult(result, "POSITIVE_COUNTS", test.Path, err)
+
+		default:
+			recordResult(result, "----------------", test.Path,
+				errors.New(fmt.Sprintf("Unknown test type: %s", c.TestType)))
 		}
 	}
 }
@@ -158,8 +162,7 @@ func checkCountMinmax(filePath string, haveHeader bool, minTime, maxTime float64
 			c := rows.counts[i][r]
 			if countMaximum != nil && c > countMaximum[i] {
 				return errors.New(
-					fmt.Sprintf("maximum exceeded: data (%d) > max(%d) %f %f", c, countMaximum[i],
-						time, minTime))
+					fmt.Sprintf("maximum exceeded: data (%d) > max(%d)", c, countMaximum[i]))
 			}
 			if countMinimum != nil && c < countMinimum[i] {
 				return errors.New(

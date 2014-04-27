@@ -67,7 +67,14 @@ func init() {
 		"enclosed_surfmol_miscount",
 		"reaction_null_products_crash",
 		"enclosed_meshes_with_different_properties",
-		"rx_reflective_surface_bug"}
+		"rx_reflective_surface_bug",
+		"walls_overlap_two_objects",
+		"walls_overlap_partial",
+		"walls_overlap_complete",
+		"walls_overlap_share_edge",
+		"walls_coincident",
+		"unimolecular_reaction_after_chkpt",
+		"unimolecular_FOREVER"}
 }
 
 // main routine

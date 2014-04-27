@@ -1,0 +1,19 @@
+{
+  "description": "Two walls of the object Cylinder are partially overlapped.",
+  "author": "Boris Kaminsky <borisk@psc.edu>",
+  "date": "2011-05-25",
+  "keywords": [
+    "regression"
+  ],
+  "runs": [
+    {
+      "mdlfile": "test.mdl"
+    }
+  ],
+  "checks": [
+    {
+      "testType": "CHECK_EXIT_CODE",
+      "exitCode": 1
+    }
+  ]
+}

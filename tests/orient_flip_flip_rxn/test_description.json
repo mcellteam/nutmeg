@@ -1,50 +1,94 @@
 {
-	"description" : "In a grid mol + vol mol reaction V' + G' -> V, + G, (i.e. where both molecules are preserved and change orientation), the updated orientation of the grid molecule is not counted.",
-        "author" : "Jed Wing <jed@salk.edu>",
-        "date" : "2008-09-05",
-        "keywords" : ["regression"],
-
-	"runs" : [
-		{
-			"mdlfile"	: "test.mdl",
-			"commandlineOpts" : ["-quiet"]
-		}
-	],
-
-	"checks" : [
-		{
-			"testType" : "CHECK_SUCCESS"
-		},
-		{
-			"testType" : "COUNT_CONSTRAINTS",
-			"dataFile" : "counts.txt",
-			"haveHeader" : true,
-			"countConstraints" : [
-				{
-					"target" : 0,
-					"query" : [1, 0,  0,  0, -1,  0]
-				},
-				{
-					"target" : 0,
-					"query"  : [0, 1, 0, -1, 0, 0]
-				},
-				{
-					"target" : 0,
-					"query"  : [1, 1, -1, 0, 0, 0]
-				},
-				{
-					"target" : 0,
-					"query"  : [0, 0, 0, 1, 1, -1]
-				},
-				{
-					"target" : 1000,
-					"query"  : [0, 0, 1, 0, 0, 0]
-				},
-				{
-					"target" : 1000,
-					"query" : [0, 0, 0, 0, 0, 1]
-				}
-			]
-		}
-	]
+  "description": "In a grid mol + vol mol reaction V' + G' -> V, + G, (i.e. where both molecules are preserved and change orientation), the updated orientation of the grid molecule is not counted.",
+  "author": "Jed Wing <jed@salk.edu>",
+  "date": "2008-09-05",
+  "keywords": [
+    "regression"
+  ],
+  "runs": [
+    {
+      "mdlfile": "test.mdl",
+      "commandlineOpts": [
+        "-quiet"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COUNT_CONSTRAINTS",
+      "dataFile": "counts.txt",
+      "haveHeader": true,
+      "countConstraints": [
+        {
+          "target": 0,
+          "query": [
+            1,
+            0,
+            0,
+            0,
+            -1,
+            0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0,
+            1,
+            0,
+            -1,
+            0,
+            0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            1,
+            1,
+            -1,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            -1
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    }
+  ]
 }
