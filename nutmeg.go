@@ -9,9 +9,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -44,41 +46,15 @@ func init() {
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 	testDir = "/Users/markus/programming/go/src/github.com/haskelladdict/nutmeg/tests/"
 	mcellPath = "/Users/markus/programming/c/mcell/mcell-trunk/build/mcell"
-
-	testNames = []string{
-		"remove_per_species_list_from_ht",
-		"orient_flip_flip_rxn",
-		"coincident_surfaces",
-		"rx_flip_flip",
-		"rx_dissociate_inwards",
-		"misreporting_rxn_products",
-		"volvol_crash",
-		"find_corresponding_region",
-		"incorrect_times_in_chkpt",
-		"counting_crashes_on_coincident_wall",
-		"quoted_tickmark_counts_parse_error",
-		"no_waypoints_counting_fail",
-		"find_corresponding_region_error_crash_1",
-		"find_corresponding_region_error_crash_2",
-		"mol_grid_grid_crash",
-		"mol_surf_grid_crash",
-		"uninstantiated_reference_crash_1",
-		"uninstantiated_reference_crash_2",
-		"enclosed_surfmol_miscount",
-		"reaction_null_products_crash",
-		"enclosed_meshes_with_different_properties",
-		"rx_reflective_surface_bug",
-		"walls_overlap_two_objects",
-		"walls_overlap_partial",
-		"walls_overlap_complete",
-		"walls_overlap_share_edge",
-		"walls_coincident",
-		"unimolecular_reaction_after_chkpt",
-		"unimolecular_FOREVER"}
 }
 
 // main routine
 func main() {
+
+	testNames, err := gatherTests(testDir)
+	if err != nil {
+		log.Fatal("Could not determine list of available test cases")
+	}
 
 	flag.Parse()
 
@@ -186,4 +162,23 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 	}
 
 	return newRange, nil
+}
+
+// gatherTests determines the list of available test cases and orders them
+// alphabetically
+func gatherTests(testDir string) ([]string, error) {
+	dirContent, err := ioutil.ReadDir(testDir)
+	if err != nil {
+		return nil, err
+	}
+
+	var tests []string
+	for _, c := range dirContent {
+		if c.IsDir() {
+			tests = append(tests, c.Name())
+		}
+	}
+	sort.Strings(tests)
+
+	return tests, nil
 }
