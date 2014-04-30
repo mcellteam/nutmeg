@@ -21,15 +21,15 @@ import (
 
 // global settings
 // NOTE: With exception of rng these should eventually come from a settings file
-var testNames []string
 var mcellPath string
 var testDir string
 var rng *rand.Rand
 
 // command line flags
 var listTestsFlag bool
-var runTestsFlag bool
 var cleanTestOutput bool
+
+//var testSelection string
 var testSelection string
 var numSimJobs int
 var numTestJobs int
@@ -37,9 +37,8 @@ var numTestJobs int
 // initialize list of available unit tests
 func init() {
 	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
-	flag.BoolVar(&runTestsFlag, "r", false, "run specified tests")
 	flag.BoolVar(&cleanTestOutput, "c", false, "clean temporary test data")
-	flag.StringVar(&testSelection, "s", "all", "select test to run (default: all tests)")
+	flag.StringVar(&testSelection, "r", "", "run specified tests (i, i:j, or 'all')")
 	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
 	flag.IntVar(&numTestJobs, "m", 2, "number of concurrent test jobs (default: 2)")
 
@@ -67,13 +66,13 @@ func main() {
 		}
 
 	case cleanTestOutput:
-		tests := extractTestCases(testSelection)
+		tests := extractTestCases(testSelection, testNames)
 		if err := cleanOutput(tests); err != nil {
 			log.Fatal(err)
 		}
 
-	case runTestsFlag:
-		tests := extractTestCases(testSelection)
+	case testSelection != "":
+		tests := extractTestCases(testSelection, testNames)
 		runTests(tests)
 
 	default:
@@ -89,7 +88,7 @@ func main() {
 // Here, each number or range of numbers refers to indexed test cases as
 // provided by the -s commandline flag.
 // A special case is "all" which refers to all tests.
-func extractTestCases(selection string) []string {
+func extractTestCases(selection string, testNames []string) []string {
 
 	var selectedNames []string
 	if selection == "all" {
