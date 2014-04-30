@@ -28,9 +28,8 @@ var rng *rand.Rand
 // command line flags
 var listTestsFlag bool
 var cleanTestOutput bool
-
-//var testSelection string
 var testSelection string
+var descriptionSelectionShort string
 var numSimJobs int
 var numTestJobs int
 
@@ -39,6 +38,7 @@ func init() {
 	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
 	flag.BoolVar(&cleanTestOutput, "c", false, "clean temporary test data")
 	flag.StringVar(&testSelection, "r", "", "run specified tests (i, i:j, or 'all')")
+	flag.StringVar(&descriptionSelectionShort, "d", "", "show description for selected tests (i, i:j, or 'all')")
 	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
 	flag.IntVar(&numTestJobs, "m", 2, "number of concurrent test jobs (default: 2)")
 
@@ -70,6 +70,10 @@ func main() {
 		if err := cleanOutput(tests); err != nil {
 			log.Fatal(err)
 		}
+
+	case descriptionSelectionShort != "":
+		tests := extractTestCases(descriptionSelectionShort, testNames)
+		showTestDescription(tests)
 
 	case testSelection != "":
 		tests := extractTestCases(testSelection, testNames)

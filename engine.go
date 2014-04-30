@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strconv"
 )
@@ -186,6 +187,22 @@ func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
 		simJobs <- testDescription
 	}
 	close(simJobs)
+}
+
+// showTestDescription shows the description for the selected set of
+// tests.
+func showTestDescription(testPaths []string) {
+	for _, testDir := range testPaths {
+		testDescription, err := ParseJSON(testDir)
+		if err != nil {
+			log.Printf("Error parsing test description in %s: %v", testDir, err)
+			continue
+		}
+		fmt.Println("test name: ", path.Base(testDir))
+		fmt.Println("--------------------------------------------------------------")
+		fmt.Println(testDescription.Description)
+		fmt.Println()
+	}
 }
 
 // runSimJobs loops over all available jobs and runs each of
