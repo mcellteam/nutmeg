@@ -50,6 +50,8 @@ func init() {
 // main routine
 func main() {
 
+	startTime := time.Now()
+
 	testNames, err := gatherTests(testDir)
 	if err != nil {
 		log.Fatal("Could not determine list of available test cases")
@@ -77,11 +79,14 @@ func main() {
 
 	case testSelection != "":
 		tests := extractTestCases(testSelection, testNames)
-		runTests(tests)
+		numTest, _ := runTests(tests)
+		fmt.Println("-------------------------------------")
+		fmt.Printf("Ran %d tests in %f s\n", numTest, time.Now().Sub(startTime).Seconds())
 
 	default:
 		flag.PrintDefaults()
 	}
+
 }
 
 // extractTestCases parses the test selection string and assembles the list

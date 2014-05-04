@@ -90,11 +90,11 @@ func (t *TestDescription) Copy() *TestDescription {
 }
 
 // runTests runs the specified list of tests
-func runTests(tests []string) {
+func runTests(tests []string) (int, error) {
 
 	if err := cleanOutput(tests); err != nil {
 		fmt.Println("Failed to clean up previous test results", err)
-		return
+		return 0, err
 	}
 
 	simJobs := make(chan *TestDescription, numSimJobs)
@@ -119,8 +119,8 @@ func runTests(tests []string) {
 		go runTestJobs(testResults, testInput, testsDone)
 	}
 
-	processResults(testResults, testsDone, numTestJobs)
-	fmt.Println("done - all good")
+	numTests := processResults(testResults, testsDone, numTestJobs)
+	return numTests, nil
 }
 
 // collectSimResults collects all simulation results (e.g. multiple seeds) for
@@ -310,12 +310,15 @@ func runTestJobs(results chan *testResult, simOutput <-chan *TestDescription,
 
 // processResults process all produced test results and displays them in the
 // fashion requested
-func processResults(results chan *testResult, testsDone chan struct{}, numTestJobs int) {
+func processResults(results chan *testResult, testsDone chan struct{},
+	numTestJobs int) int {
 
+	numTests := 0
 	t := 0
 	for t < numTestJobs {
 		select {
 		case r := <-results:
+			numTests += 1
 			printResult(r)
 		case <-testsDone:
 			t += 1
@@ -327,11 +330,14 @@ Done:
 	for {
 		select {
 		case r := <-results:
+			numTests += 1
 			printResult(r)
 		default:
 			break Done
 		}
 	}
+
+	return numTests
 }
 
 // printResults displays the outcome for a single test result
