@@ -5,11 +5,9 @@
   "keywords": [
     "regression"
   ],
-  "runs": [
-    {
-      "mdlfile": "test.mdl"
-    }
-  ],
+  "run": {
+      "mdlfiles": ["test.mdl"]
+  },
   "checks": [
     {
       "testType": "CHECK_EXIT_CODE",
@@ -17,7 +15,7 @@
     },
     {
       "testType": "FILE_MATCH_PATTERN",
-      "dataFile": "err_0.log",
+      "dataFile": "err_%d.0.log",
       "matchPattern": "Region neither instanced nor grouped with release site.",
       "numMatches": 1
     }

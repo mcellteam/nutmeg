@@ -5,26 +5,12 @@
   "keywords": [
     "regression"
   ],
-  "runs": [
-    {
-      "mdlfile": "test_1.mdl",
-      "commandlineOpts": [
+  "run": {
+      "mdlfiles" : ["test_1.mdl", "test_2.mdl", "test_2.mdl"],
+      "commandlineOpts" : [
         "-quiet"
       ]
-    },
-    {
-      "mdlfile": "test_2.mdl",
-      "commandlineOpts": [
-        "-quiet"
-      ]
-    },
-    {
-      "mdlfile": "test_2.mdl",
-      "commandlineOpts": [
-        "-quiet"
-      ]
-    }
-  ],
+  },
   "checks": [
     {
       "testType": "CHECK_SUCCESS"

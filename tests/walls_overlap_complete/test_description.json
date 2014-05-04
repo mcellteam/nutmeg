@@ -5,11 +5,9 @@
   "keywords": [
     "regression"
   ],
-  "runs": [
-    {
-      "mdlfile": "test.mdl"
-    }
-  ],
+  "run": {
+      "mdlfiles": ["test.mdl"]
+  },
   "checks": [
     {
       "testType": "CHECK_EXIT_CODE",

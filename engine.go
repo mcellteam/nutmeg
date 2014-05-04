@@ -30,16 +30,19 @@ type testResult struct {
 type TestDescription struct {
 	Description string
 	Path        string
+	Run         RunSpec // simulation runs to conduct as part of this test
 	Checks      []*TestCase
-	Runs        []*RunSpec   // simulation runs to conduct as part of this test
-	simStatus   []*runStatus // status of all simulation runs
+	simStatus   []runStatus // status of all simulation runs
 }
 
 // RunSpec describes an individual run to be conducted as part of a single
 // mcell test.
 type RunSpec struct {
-	MdlFile         string   // name of mdl file to run
+	MdlFiles        []string // name of mdl file to run
+	NumSeeds        int      // number of seeds to run
 	CommandlineOpts []string // commandline options for this run
+	seed            int      // seed value for this particular run
+	runID           int      // unique ID for this run needed to collect results for multi seed runs
 }
 
 // TestCase describes an individual test case of an overall test
@@ -47,6 +50,7 @@ type TestCase struct {
 	TestType         string            // test type - used to dispatch appropriate testing function
 	Description      string            // textual description of test case
 	HaveHeader       bool              // indicates if DataFile contains a header
+	AverageData      bool              // test averaged data (only useful for multiple seeds)
 	DataFile         string            // name of (output) file to test
 	ReferenceFile    string            // name of file with reference counts to compare against
 	MinTime          float64           // ignore all data items before MinTime for testing
@@ -79,6 +83,12 @@ type ConstraintSpec struct {
 	Query  []int
 }
 
+// Copy member function for a TestDescription
+func (t *TestDescription) Copy() *TestDescription {
+	newT := TestDescription{t.Description, t.Path, t.Run, t.Checks, nil}
+	return &newT
+}
+
 // runTests runs the specified list of tests
 func runTests(tests []string) {
 
@@ -90,6 +100,7 @@ func runTests(tests []string) {
 	simJobs := make(chan *TestDescription, numSimJobs)
 	go createSimJobs(tests, simJobs)
 
+	// framework for running simulations
 	simOutput := make(chan *TestDescription, len(tests))
 	simsDone := make(chan struct{}, numSimJobs)
 	for i := 0; i < numSimJobs; i++ {
@@ -97,59 +108,91 @@ func runTests(tests []string) {
 	}
 	go closeSimOutput(simOutput, simsDone, numSimJobs)
 
+	// framework for collecting simulation results and funneling them into tests
+	testInput := make(chan *TestDescription, len(tests))
+	go collectSimResults(testInput, simOutput)
+
+	// framework for running tests
 	testResults := make(chan *testResult, len(tests))
 	testsDone := make(chan struct{}, numTestJobs)
 	for i := 0; i < numTestJobs; i++ {
-		go runTestJobs(testResults, simOutput, testsDone)
+		go runTestJobs(testResults, testInput, testsDone)
 	}
 
 	processResults(testResults, testsDone, numTestJobs)
 	fmt.Println("done - all good")
 }
 
+// collectSimResults collects all simulation results (e.g. multiple seeds) for
+// a single test case and dispatches them to the tester once they are done.
+func collectSimResults(testInput chan *TestDescription,
+	simOutput chan *TestDescription) {
+
+	simMap := make(map[int]int)
+	simResultsAccum := make([]runStatus, 0)
+	for sim := range simOutput {
+
+		numSeeds := sim.Run.NumSeeds
+		// for a single seed run we can forward the output to the testing framework right away
+		if numSeeds == 1 {
+			testInput <- sim
+		} else {
+			id := sim.Run.runID
+			if v, ok := simMap[id]; ok {
+				simMap[id] = v + 1
+			} else {
+				simMap[id] = 1
+			}
+
+			simResultsAccum = append(simResultsAccum, sim.simStatus...)
+
+			if simMap[id] == numSeeds {
+				// append final list of results
+				sim.simStatus = simResultsAccum
+				testInput <- sim
+			}
+		}
+	}
+	close(testInput)
+}
+
 // simRunner runs mcell on the mdl file passed in as an
 // absolute path. The working directory is set to the base path
 // of the mdl file.
 func simRunner(test *TestDescription, output chan *TestDescription) {
-	// create outputDir
-	outputDir := filepath.Join(test.Path, "output")
-	if err := os.Mkdir(outputDir, 0744); err != nil {
-		test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
-		output <- test
-		return
-	}
 
-	for i, run := range test.Runs {
+	outputDir := filepath.Join(test.Path, "output")
+	for i, runFile := range test.Run.MdlFiles {
 		// create run command
-		mdlPath := filepath.Join(test.Path, run.MdlFile)
-		runLog := fmt.Sprintf("run_%d.log", i)
-		errLog := fmt.Sprintf("err_%d.log", i)
-		argList := append(run.CommandlineOpts, "-seed", strconv.Itoa(rng.Intn(10000)),
+		mdlPath := filepath.Join(test.Path, runFile)
+		runLog := fmt.Sprintf("run_%d.%d.log", test.Run.seed, i)
+		errLog := fmt.Sprintf("err_%d.%d.log", test.Run.seed, i)
+		argList := append(test.Run.CommandlineOpts, "-seed", strconv.Itoa(test.Run.seed),
 			"-logfile", runLog, "-errfile", errLog, mdlPath)
 		cmd := exec.Command(mcellPath, argList...)
 		cmd.Dir = outputDir
 
 		if err := WriteCmdLine(mcellPath, outputDir, argList); err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
+			test.simStatus = append(test.simStatus, runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
 
 		// connect stdout and stderr
-		stdOutPath := fmt.Sprintf("stdout_%d.log", i)
+		stdOutPath := fmt.Sprintf("stdout_%d.%d.log", test.Run.seed, i)
 		stdOut, err := os.Create(filepath.Join(outputDir, stdOutPath))
 		if err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
+			test.simStatus = append(test.simStatus, runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
 		defer stdOut.Close()
 		cmd.Stdout = stdOut
 
-		stdErrPath := fmt.Sprintf("stderr_%d.log", i)
+		stdErrPath := fmt.Sprintf("stderr_%d.%d.log", test.Run.seed, i)
 		stdErr, err := os.Create(filepath.Join(outputDir, stdErrPath))
 		if err != nil {
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err), "", -1})
+			test.simStatus = append(test.simStatus, runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test
 			return
 		}
@@ -163,10 +206,10 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 			if err != nil {
 				exitCode = -1
 			}
-			test.simStatus = append(test.simStatus, &runStatus{false, fmt.Sprint(err),
+			test.simStatus = append(test.simStatus, runStatus{false, fmt.Sprint(err),
 				string(stdErrContent), exitCode})
 		} else {
-			test.simStatus = append(test.simStatus, &runStatus{true, "", "", 0})
+			test.simStatus = append(test.simStatus, runStatus{true, "", "", 0})
 		}
 	}
 	output <- test
@@ -177,14 +220,43 @@ func simRunner(test *TestDescription, output chan *TestDescription) {
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
 func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
+	runID := 0
 	for _, testDir := range testPaths {
 		testDescription, err := ParseJSON(testDir)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)
 			continue
 		}
+
+		// create output directory
+		outputDir := filepath.Join(testDir, "output")
+		if err := os.Mkdir(outputDir, 0744); err != nil {
+			log.Print(err)
+			continue
+		}
+
+		// set path and pick a seed value for run
 		testDescription.Path = testDir
+		testDescription.Run.runID = runID
+
+		// schedule requested number of seeds; if there is just a single
+		// seed requested we pick one randomly
+		switch testDescription.Run.NumSeeds {
+		case 0: // user didn't set number of seeds -- assume single seed
+			testDescription.Run.NumSeeds = 1
+			testDescription.Run.seed = rng.Intn(10000)
+		case 1:
+			testDescription.Run.seed = rng.Intn(10000)
+		default:
+			for i := 1; i < testDescription.Run.NumSeeds; i++ {
+				newTest := testDescription.Copy()
+				newTest.Run.seed = i
+				testDescription.Run.seed = i + 1
+				simJobs <- newTest
+			}
+		}
 		simJobs <- testDescription
+		runID++
 	}
 	close(simJobs)
 }

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,100 @@ import (
 type Columns struct {
 	times  []float64
 	counts [][]int
+}
+
+// loadData reads all the reaction count data in the file paths provided by dataPaths
+// and either returns the individually as a list or averages them
+func loadData(dataPaths []string, haveHeader, averageData bool) ([]*Columns, error) {
+
+	data := make([]*Columns, 0)
+
+	if averageData {
+		cols, err := readAverageCounts(dataPaths, haveHeader)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, cols)
+	} else {
+		for _, dataPath := range dataPaths {
+			cols, err := readCounts(dataPath, haveHeader)
+			if err != nil {
+				return nil, err
+			}
+			data = append(data, cols)
+		}
+	}
+	return data, nil
+}
+
+// getDataPaths returns a list of all reaction data files names that were
+// generated as part of this run (at least one but could be many for multi
+// seed runs)
+func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
+
+	dataPaths := make([]string, 0)
+	dataDir := filepath.Join(path, "output")
+
+	// check if data file has a single format specifier
+	count := strings.Count(dataFile, "%")
+
+	switch count {
+	case 0:
+		filePath := filepath.Join(dataDir, dataFile)
+		dataPaths = append(dataPaths, filePath)
+	case 1:
+		if numSeeds == 1 {
+			fileName := fmt.Sprintf(dataFile, seed)
+			filePath := filepath.Join(dataDir, fileName)
+			dataPaths = append(dataPaths, filePath)
+		} else {
+			for i := 1; i < numSeeds+1; i++ {
+				fileName := fmt.Sprintf(dataFile, i)
+				filePath := filepath.Join(dataDir, fileName)
+				dataPaths = append(dataPaths, filePath)
+			}
+		}
+	default:
+		return nil, errors.New("datafile has too many format specifiers")
+	}
+
+	return dataPaths, nil
+}
+
+// readAverageCounts parses all data in in the list of reaction data
+// filenames and computes and returns the average.
+//
+// NOTE: this function assumes that the data files all have the same
+// shape, i.e. the same number of rows and columns
+//
+// NOTE: the average computation is done with integer arithmetic
+func readAverageCounts(fileNames []string, haveHeader bool) (*Columns, error) {
+
+	var averageCols *Columns
+	for i, fileName := range fileNames {
+		col, err := readCounts(fileName, haveHeader)
+		if err != nil {
+			return nil, err
+		}
+
+		if i != 0 {
+			for r := 0; r < len(averageCols.times); r++ {
+				for c := 0; c < len(averageCols.counts); c++ {
+					averageCols.counts[c][r] += col.counts[c][r]
+				}
+			}
+		} else { // set the average to the first data set
+			averageCols = col
+		}
+	}
+
+	numDataSets := len(fileNames)
+	for r := 0; r < len(averageCols.times); r++ {
+		for c := 0; c < len(averageCols.counts); c++ {
+			averageCols.counts[c][r] = averageCols.counts[c][r] / numDataSets
+		}
+	}
+	return averageCols, nil
 }
 
 // readCounts reads in the time values and counts from the provided
