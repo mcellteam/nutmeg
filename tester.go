@@ -310,7 +310,7 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
     if (rate < means[c]-tolerances[c]) || (rate > means[c]+tolerances[c]) {
       return errors.New(fmt.Sprintf(
         "in %s: average reaction rate %f is outside of tolerance %f +/- %f",
-        rate, means[c], tolerances[c]))
+        dataPath, rate, means[c], tolerances[c]))
     }
   }
 

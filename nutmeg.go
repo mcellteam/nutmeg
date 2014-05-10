@@ -81,7 +81,7 @@ func main() {
     tests := extractTestCases(testSelection, testNames)
     numGoodTests, numBadTests, _ := runTests(tests)
     fmt.Println("-------------------------------------")
-    fmt.Printf("Ran %d tests in %f s:  SUCCESS[%d]  FAILURE[%d]\n",
+    fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
       (numGoodTests + numBadTests), time.Now().Sub(startTime).Seconds(),
       numGoodTests, numBadTests)
 

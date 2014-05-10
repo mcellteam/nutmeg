@@ -1,5 +1,5 @@
 {
-  "description": "A quantitative test of the basic volume-volume reaction types (uni, bi, tri).  Note that the bi-directional pathways are in here twice.  This is so that they can be tested via both the non-trimolecular and trimolecular code pathways.  The latter is accomplished by adding a bogus trimolecular reaction involving the relevant molecules.",
+  "description": "A quantitative test of the basic volume-volume reaction types (uni, bi, tri).  Note that the bi-directional pathways are in here twice.  This is so that they can be tested via both the non-trimolecular and trimolecular code pathways.  The latter is accomplished by adding a bogus trimolecular reaction involving the relevant molecules. This test uses no accurate 3D reactions.",
   "author": "Jed Wing <jed@salk.edu>",
   "date": "2008-11-07",
   "keywords": [
@@ -37,12 +37,12 @@
       "minTime": 5e-3,
       "baseTime": 0.0,
       "means": [
-        1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 3.33e4,
-        1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 3.33e4
+        1e5, 1e5, 1e5, 1e5, 1e5, 2e4, 2e4, 2e4,
+        1e5, 1e5, 1e5, 1e5, 1e5, 2e4, 2e4, 2e4
       ],
       "tolerances": [
-        1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 5e3,
-        1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 5e3
+        1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 6e3, 6e3, 5e3,
+        1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 6e3, 6e3, 5e3
       ]
     },
     {
