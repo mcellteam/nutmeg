@@ -1,0 +1,164 @@
+{
+  "description": "A quantitative test of the basic volume-volume reaction types (uni, bi, tri).  Note that the bi-directional pathways are in here twice.  This is so that they can be tested via both the non-trimolecular and trimolecular code pathways.  The latter is accomplished by adding a bogus trimolecular reaction involving the relevant molecules.",
+  "author": "Jed Wing <jed@salk.edu>",
+  "date": "2008-11-07",
+  "keywords": [
+    "reactions"
+  ],
+  "run": {
+      "mdlfiles": ["test.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COUNT_EQUILIBRIUM",
+      "dataFile": "V_out.dat",
+      "haveHeader": true,
+      "means": [
+        500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
+        500, 500, 500, 500, 500, 500, 500, 500, 500, 500,
+        500, 500, 500, 500, 500, 500
+      ],
+      "tolerances": [
+        25, 25, 25, 25, 25, 25, 25, 25, 25, 25,
+        25, 25, 25, 25, 25, 25, 25, 25, 25, 25,
+        25, 25, 25, 25, 25, 25
+      ]
+    },
+    {
+      "testType": "COUNT_RATES",
+      "dataFile": "rxn_out.dat",
+      "haveHeader": true,
+      "minTime": 5e-3,
+      "baseTime": 0.0,
+      "means": [
+        1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 3.33e4,
+        1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 1e5, 3.33e4
+      ],
+      "tolerances": [
+        1.5e1, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 5e3,
+        1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 1.5e4, 5e3
+      ]
+    },
+    {
+      "testType": "COUNT_CONSTRAINTS",
+      "dataFile": "V_out.dat",
+      "haveHeader": true,
+      "countConstraints": [
+        {
+          "target": 0,
+          "query": [
+            0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 0,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0
+          ]
+        },
+        {
+          "target": 1000,
+          "query": [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+          ]
+        }
+      ]
+    }
+  ]
+}
