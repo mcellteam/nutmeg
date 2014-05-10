@@ -22,7 +22,7 @@ WARNINGS
 
 countdir = ""
 
-iterations = 10000
+iterations = 1000
 timestep = 1.0e-6
 boxdims = 0.25
 voldiffconst = 2.0e-6
@@ -415,6 +415,8 @@ INSTANTIATE multiverse OBJECT {
   b20 OBJECT case20 {}
 }
 
+sprintf(seed, "%04d", SEED)
+
 REACTION_DATA_OUTPUT {
   OUTPUT_BUFFER_SIZE = 50
   STEP = timestep*10
@@ -482,7 +484,7 @@ REACTION_DATA_OUTPUT {
     COUNT[B_vvt,WORLD]    : "B_vvt",
     COUNT[B_vvt2,WORLD]   : "B_vvt2",
     COUNT[B_vvt3,WORLD]   : "B_vvt3"
-  }     => countdir & "V_out.dat"
+  }     => countdir & "V_out_" & seed & ".dat"
   {
     COUNT[fwd_u,WORLD]         : "fwd_u",
     COUNT[fwd_b,WORLD]         : "fwd_b",
@@ -520,19 +522,19 @@ REACTION_DATA_OUTPUT {
     COUNT[rev_vvt,WORLD]       : "rev_vvt",
     COUNT[rev_vvt2,WORLD]      : "rev_vvt2",
     COUNT[rev_vvt3,WORLD]      : "rev_vvt3"
-  }     => countdir & "rxn_out.dat"
+  }     => countdir & "rxn_out_" & seed & ".dat"
   {
     COUNT[fwd_D_t1,WORLD]         : "fwd_D_t1",
     COUNT[fwd_D_t2,WORLD]         : "fwd_D_t2",
     COUNT[fwd_D_t3,WORLD]         : "fwd_D_t3",
     COUNT[fwd_D_t4,WORLD]         : "fwd_D_t4"
-  }     => countdir & "b19_rxn_out.dat"
+  }     => countdir & "b19_rxn_out_" & seed & ".dat"
   {
     COUNT[fwd_D_t5,WORLD]         : "fwd_D_t5",
     COUNT[fwd_D_t6,WORLD]         : "fwd_D_t6",
     COUNT[fwd_D_t7,WORLD]         : "fwd_D_t7",
     COUNT[fwd_D_t8,WORLD]         : "fwd_D_t8"
-  }     => countdir & "b20_rxn_out.dat"
+  }     => countdir & "b20_rxn_out_" & seed & ".dat"
 
 }
 

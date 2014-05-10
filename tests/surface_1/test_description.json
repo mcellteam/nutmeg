@@ -9,6 +9,7 @@
     "mdlfiles": [
       "test.mdl"
     ],
+    "numSeeds" : 2,
     "commandlineOpts": [
       "-quiet"
     ]
@@ -19,7 +20,8 @@
     },
     {
       "testType": "COUNT_EQUILIBRIUM",
-      "dataFile": "V_out.dat",
+      "dataFile": "V_out_%04d.dat",
+      "averageData" : true,
       "haveHeader": true,
       "means": [
         500,
@@ -152,8 +154,9 @@
     },
     {
       "testType": "COUNT_RATES",
-      "dataFile": "rxn_out.dat",
+      "dataFile": "rxn_out_%04d.dat",
       "haveHeader": true,
+      "averageData" : true,
       "minTime": 0.005,
       "baseTime": 0,
       "means": [
@@ -235,8 +238,9 @@
     },
     {
       "testType": "COUNT_RATES",
-      "dataFile": "b19_rxn_out.dat",
+      "dataFile": "b19_rxn_out_%04d.dat",
       "haveHeader": true,
+      "averageData" : true,
       "minTime": 0.005,
       "baseTime": 0,
       "means": [
@@ -254,8 +258,9 @@
     },
     {
       "testType": "COUNT_RATES",
-      "dataFile": "b20_rxn_out.dat",
+      "dataFile": "b20_rxn_out_%04d.dat",
       "haveHeader": true,
+      "averageData": true,
       "minTime": 0.005,
       "baseTime": 0,
       "means": [
@@ -273,7 +278,7 @@
     },
     {
       "testType": "COUNT_CONSTRAINTS",
-      "dataFile": "V_out.dat",
+      "dataFile": "V_out_%04d.dat",
       "haveHeader": true,
       "countConstraints": [
         {
