@@ -1,0 +1,88 @@
+{
+  "description": "",
+  "author": "",
+  "date": "",
+  "keywords": [
+    ""
+  ],
+  "run": {
+      "mdlfiles": [""],
+      "commandlineOpts": [
+        ""
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "CHECK_EXIT_CODE",
+      "exitCode": 1
+    },
+    {
+      "testType": "COUNT_EQUILIBRIUM",
+      "dataFile": "",
+      "haveHeader": true,
+      "minTime": 0.0
+      "maxTime": 0.0
+      "means": [
+        0.0
+      ],
+      "tolerances": [
+        0.0
+      ]
+    },
+    {
+      "testType": "COUNT_CONSTRAINTS",
+      "dataFile": "",
+      "haveHeader": true,
+      "minTime": 0.0
+      "maxTime": 0.0
+      "countConstraints": [
+        {
+          "target": 0,
+          "query": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "dataFile": "",
+      "haveHeader": true,
+      "minTime": 0.0,
+      "countMinimum": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "countMaximum": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "testType": "POSITIVE_COUNTS",
+      "haveHeader": true,
+      "dataFile": ""
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "",
+      "referenceFile": ""
+    }
+
+
+
+
+  ]
+}
