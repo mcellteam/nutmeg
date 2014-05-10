@@ -275,6 +275,12 @@ func compareCounts(data, refData *Columns, dataPath string, minTime,
   return nil
 }
 
+// countRates checks that the average reaction rates match the provided means
+// and tolerances. The rates are computed as
+//
+// rate = instantaneous_count/(time_now - baseTime)
+//
+// and then averages accross the interval maxTime - minTime
 func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float64,
   means, tolerances []float64) error {
 
@@ -303,8 +309,8 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
     rate := averageRate[c] / float64(numValues)
     if (rate < means[c]-tolerances[c]) || (rate > means[c]+tolerances[c]) {
       return errors.New(fmt.Sprintf(
-        "in %s: average reactiorate %f is outside of tolerance %f +/- %f",
-        means[c], tolerances[c]))
+        "in %s: average reaction rate %f is outside of tolerance %f +/- %f",
+        rate, means[c], tolerances[c]))
     }
   }
 
