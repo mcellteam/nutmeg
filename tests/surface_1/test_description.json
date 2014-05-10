@@ -9,7 +9,7 @@
     "mdlfiles": [
       "test.mdl"
     ],
-    "numSeeds" : 2,
+    "numSeeds" : 10,
     "commandlineOpts": [
       "-quiet"
     ]
