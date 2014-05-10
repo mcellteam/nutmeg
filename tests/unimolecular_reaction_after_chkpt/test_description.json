@@ -17,7 +17,7 @@
     },
     {
       "testType": "COUNT_MINMAX",
-      "dataFile": "B_world.dat",
+      "dataFile": "B_World.dat",
       "haveHeader": true,
       "CountMaximum": [
         10
