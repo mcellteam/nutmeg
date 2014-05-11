@@ -22,7 +22,7 @@ WARNINGS
 
 countdir = ""
 
-iterations = 1000
+iterations = 2500
 timestep = 1.0e-6
 boxdims = 0.25
 voldiffconst = 2.0e-6
