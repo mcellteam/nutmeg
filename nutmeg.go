@@ -123,31 +123,35 @@ func extractTestCases(testDir, selection string, testNames []string) []string {
 					log.Printf(fmt.Sprint(err))
 					continue
 				}
-			} else {
-				i, err := strconv.Atoi(item)
-				if err != nil {
-					log.Printf("invalid test selection %s ... skipping", item)
-					continue
-				}
-				items = []int{i}
-			}
-
-			for _, i := range items {
-				if i < 0 || i >= len(testNames) {
-					log.Printf("test selection %d out of valid range (%d-%d) ... skipping",
-						i, 0, len(testNames)-1)
-					continue
-				}
-				selectedNames = append(selectedNames, testNames[i])
+				selectedNames = appendTestCases(items, selectedNames, testNames)
+			} else if i, err := strconv.Atoi(item); err == nil {
+				selectedNames = appendTestCases([]int{i}, selectedNames, testNames)
+			} else { // assume item provided corresponds to a test name
+				selectedNames = append(selectedNames, item)
 			}
 		}
 	}
-
 	testPaths := make([]string, len(selectedNames))
 	for i, name := range selectedNames {
 		testPaths[i] = filepath.Join(testDir, name)
 	}
 	return testPaths
+}
+
+// appendTestCases appends the test case names corresponding to the provided
+// ids to the list of testcases
+func appendTestCases(testIDs []int, selection, testNames []string) []string {
+
+	for _, i := range testIDs {
+		if i < 0 || i >= len(testNames) {
+			log.Printf("test selection %d out of valid range (%d-%d) ... skipping",
+				i, 0, len(testNames)-1)
+			continue
+		}
+		selection = append(selection, testNames[i])
+	}
+
+	return selection
 }
 
 // convertRangeToList converts a single string containing a range statement
