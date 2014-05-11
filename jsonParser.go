@@ -9,6 +9,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -28,4 +29,27 @@ func ParseJSON(testPath string) (*TestDescription, error) {
 	}
 
 	return &test, nil
+}
+
+// readConfig reads the configuration file
+// NOTE: For now the name of the config file is assumed to be nutmeg.conf
+// and is expected to be located in the same directory where the nutmeg
+// executable is located
+func readConfig() (*config, error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	configPath := filepath.Join(currentDir, "nutmeg.conf")
+	content, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var myConf config
+	err = json.Unmarshal(content, &myConf)
+	if err != nil {
+		return nil, err
+	}
+	return &myConf, nil
 }
