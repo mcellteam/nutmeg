@@ -47,23 +47,63 @@ type RunSpec struct {
 
 // TestCase describes an individual test case of an overall test
 type TestCase struct {
-	TestType         string            // test type - used to dispatch appropriate testing function
-	Description      string            // textual description of test case
-	HaveHeader       bool              // indicates if DataFile contains a header
-	AverageData      bool              // test averaged data (only useful for multiple seeds)
-	DataFile         string            // name of (output) file to test
-	ReferenceFile    string            // name of file with reference counts to compare against
-	MinTime          float64           // ignore all data items before MinTime for testing
-	MaxTime          float64           // ignore all data items after MaxTime for testing
-	BaseTime         float64           // base time used for computing reaction rates from counts
-	Means            []float64         // target column means for count equilibrium tests
-	Tolerances       []float64         // tolerances by which actual colummn means may deviate from target
+	TestType    string  // test type - used to dispatch appropriate testing function
+	Description string  // textual description of test case
+	HaveHeader  bool    // indicates if DataFile contains a header
+	AverageData bool    // test averaged data (only useful for multiple seeds)
+	DataFile    string  // name of (output) file to test
+	MinTime     float64 // ignore all data items before MinTime for testing
+	MaxTime     float64 // ignore all data items after MaxTime for testing
+	BaseTime    float64 // base time used for computing reaction rates from counts
+	ExitCode    int     // expected exit code of MCell run
+	testMinMax
+	testCompareCounts
+	testMeans
+	testTrigger
+	testConstraints
+	testPatternMatch
+}
+
+// testMinMax pertains to checks testing that data is within certain ranges
+type testMinMax struct {
+	CountMaximum []int // test if counts are larger than provided minmum
+	CountMinimum []int // test if counts are smaller than provided maximum
+}
+
+// testConstraints pertains to checks testing that the data count columns
+// satisfy simple arithmetic constraints
+type testConstraints struct {
 	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
-	CountMaximum     []int             // test if counts are larger than provided minmum
-	CountMinimum     []int             // test if counts are smaller than provided maximum
-	MatchPattern     string            // test pattern to match file against
-	NumMatches       int               // number of expected pattern matches
-	ExitCode         int               // expected exit code of MCell run
+}
+
+// testPatternMatch partains to checks that test if certains string patterns
+// are present in output files
+type testPatternMatch struct {
+	MatchPattern string // test pattern to match file against
+	NumMatches   int    // number of expected pattern matches
+}
+
+// testCompareCounts pertains to checks comparing data against exact reference
+// counts
+type testCompareCounts struct {
+	ReferenceFile string // name of file with reference counts to compare against
+}
+
+// testMeans pertaints to checks testing that data values have a certain mean
+// and fluctuation within the given tolerances
+type testMeans struct {
+	Means      []float64 // target column means for count equilibrium tests
+	Tolerances []float64 // tolerances by which actual colummn means may deviate from target
+}
+
+// testTriggers pertains to checks testing the integrity of trigger data
+type testTrigger struct {
+	TriggerType   string    // what trigger is this "reactions", "hits", "molCounts"
+	HaveExactTime bool      // is the exact event time part of the trigger data
+	OutputTime    float64   // output time step
+	Xrange        []float64 // tuple of valid x ranges for triggered events
+	Yrange        []float64 // tuple of valid y ranges for triggered events
+	Zrange        []float64 // typle of valid z ranges for triggered events
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
