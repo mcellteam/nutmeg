@@ -6,7 +6,9 @@
     "regression"
   ],
   "run": {
-      "mdlfiles": ["test.mdl"]
+    "mdlfiles": [
+      "test.mdl"
+    ]
   },
   "checks": [
     {

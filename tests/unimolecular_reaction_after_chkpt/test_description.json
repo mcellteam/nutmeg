@@ -6,10 +6,13 @@
     "regression"
   ],
   "run": {
-      "mdlfiles": ["test.mdl", "test.mdl"],
-      "commandlineOpts": [
-        "-quiet"
-      ]
+    "mdlfiles": [
+      "test.mdl",
+      "test.mdl"
+    ],
+    "commandlineOpts": [
+      "-quiet"
+    ]
   },
   "checks": [
     {

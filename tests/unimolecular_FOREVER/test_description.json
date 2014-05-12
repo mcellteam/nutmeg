@@ -6,10 +6,12 @@
     "regression"
   ],
   "run": {
-      "mdlfiles": ["test.mdl"],
-      "commandlineOpts": [
-        "-quiet"
-      ]
+    "mdlfiles": [
+      "test.mdl"
+    ],
+    "commandlineOpts": [
+      "-quiet"
+    ]
   },
   "checks": [
     {
@@ -22,10 +24,10 @@
       "minTime": 0.001,
       "maxTime": 0.0015,
       "means": [
-        10.0
+        10
       ],
       "tolerances": [
-        3.0
+        3
       ]
     }
   ]

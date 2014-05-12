@@ -6,10 +6,12 @@
     "regression"
   ],
   "run": {
-      "mdlfiles": ["test.mdl"],
-      "commandlineOpts": [
-        "-quiet"
-      ]
+    "mdlfiles": [
+      "test.mdl"
+    ],
+    "commandlineOpts": [
+      "-quiet"
+    ]
   },
   "checks": [
     {
@@ -50,14 +52,14 @@
       "dataFile": "A.dat",
       "haveHeader": true,
       "means": [
-        50.0,
-        25.0,
-        25.0
+        50,
+        25,
+        25
       ],
       "tolerances": [
-        0.0,
-        5.0,
-        5.0
+        0,
+        5,
+        5
       ]
     }
   ]

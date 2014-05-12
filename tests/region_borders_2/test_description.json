@@ -70,64 +70,118 @@
       "haveHeader": true
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_fr_hits.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_back_hits.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_all_hits.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_fr_cross.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_back_cross.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
-      "testType" : "CHECK_TRIGGERS",
-      "triggerType" : "hits",
+      "testType": "CHECK_TRIGGERS",
+      "triggerType": "hits",
       "dataFile": "C_trigger_all_cross.dat",
       "haveHeader": true,
-      "outputTime" : 1e-6,
-      "xRange": [-1,1],
-      "yRange": [-1,1],
-      "zRange": [-1,1]
+      "outputTime": 0.000001,
+      "xRange": [
+        -1,
+        1
+      ],
+      "yRange": [
+        -1,
+        1
+      ],
+      "zRange": [
+        -1,
+        1
+      ]
     },
     {
       "testType": "COUNT_CONSTRAINTS",
