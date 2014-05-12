@@ -47,6 +47,19 @@ type RunSpec struct {
 
 // TestCase describes an individual test case of an overall test
 type TestCase struct {
+	testCommon
+	testCompareCounts
+	testConstraints
+	testExitCode
+	testMeans
+	testMinMax
+	testPatternMatch
+	testRates
+	testTrigger
+}
+
+// testCommon includes common options that are used by two or more tests
+type testCommon struct {
 	TestType    string  // test type - used to dispatch appropriate testing function
 	Description string  // textual description of test case
 	HaveHeader  bool    // indicates if DataFile contains a header
@@ -54,14 +67,16 @@ type TestCase struct {
 	DataFile    string  // name of (output) file to test
 	MinTime     float64 // ignore all data items before MinTime for testing
 	MaxTime     float64 // ignore all data items after MaxTime for testing
-	BaseTime    float64 // base time used for computing reaction rates from counts
-	ExitCode    int     // expected exit code of MCell run
-	testMinMax
-	testCompareCounts
-	testMeans
-	testTrigger
-	testConstraints
-	testPatternMatch
+}
+
+// testRates pertains to testing average reaction rates
+type testRates struct {
+	BaseTime float64 // base time used for computing reaction rates from counts
+}
+
+// testExitCode pertains to testing the exit code of simulations
+type testExitCode struct {
+	ExitCode int // expected exit code of MCell run
 }
 
 // testMinMax pertains to checks testing that data is within certain ranges

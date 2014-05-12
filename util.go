@@ -6,7 +6,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -18,7 +17,6 @@ import (
 // clean_output removes all files leftover from a previous test run
 func cleanOutput(tests []string) error {
 	for _, path := range tests {
-		fmt.Println("cleaning ", path)
 		outputPath := filepath.Join(path, "output")
 		if err := os.RemoveAll(outputPath); err != nil {
 			return err
