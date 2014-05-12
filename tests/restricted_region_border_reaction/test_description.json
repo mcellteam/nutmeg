@@ -18,40 +18,34 @@
       "testType": "CHECK_SUCCESS"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_1.dat",
-      "referenceFile": "box_1_ref.dat"
+      "dataFile": "box_1.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_2.dat",
-      "referenceFile": "box_2_ref.dat"
+      "dataFile": "box_2.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_3.dat",
-      "referenceFile": "box_3_ref.dat"
+      "dataFile": "box_3.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_4.dat",
-      "referenceFile": "box_4_ref.dat"
+      "dataFile": "box_4.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_6.dat",
-      "referenceFile": "box_6_ref.dat"
+      "dataFile": "box_6.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_7.dat",
-      "referenceFile": "box_7_ref.dat"
+      "dataFile": "box_7.dat"
     },
     {
       "testType": "POSITIVE_OR_ZERO_COUNTS",

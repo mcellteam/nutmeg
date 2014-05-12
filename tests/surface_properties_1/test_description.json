@@ -18,16 +18,14 @@
       "testType": "CHECK_SUCCESS"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "refl.dat",
-      "referenceFile": "refl_ref.dat"
+      "dataFile": "refl.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "absorb.dat",
-      "referenceFile": "absorb_ref.dat"
+      "dataFile": "absorb.dat"
     },
     {
       "testType": "POSITIVE_OR_ZERO_COUNTS",

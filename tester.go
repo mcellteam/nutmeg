@@ -567,9 +567,9 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 	maxTime float64, includeZero bool) error {
 
-	lowerBound := 0
+	lowerBound := 1
 	if includeZero {
-		lowerBound = -1
+		lowerBound = 0
 	}
 
 	numCols := len(data.counts)
@@ -579,7 +579,7 @@ func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.counts[c][r] <= lowerBound {
+			if data.counts[c][r] < lowerBound {
 				return errors.New(
 					fmt.Sprintf("in %s value %d in column %d in row %d is not positive (<= 0)",
 						dataPath, data.counts[c][r], c, r))

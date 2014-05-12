@@ -23,10 +23,9 @@
       "dataFile": "box_2_A.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_2_r4.dat",
-      "referenceFile": "box_2_r4_ref.dat"
+      "dataFile": "box_2_r4.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
@@ -35,10 +34,9 @@
       "referenceFile": "box_3_r5_ref.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_3_r6.dat",
-      "referenceFile": "box_3_r6_ref.dat"
+      "dataFile": "box_3_r6.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
@@ -47,10 +45,9 @@
       "referenceFile": "box_1_A_ref.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "box_1_B.dat",
-      "referenceFile": "box_1_B_ref.dat"
+      "dataFile": "box_1_B.dat"
     },
     {
       "testType": "COUNT_CONSTRAINTS",

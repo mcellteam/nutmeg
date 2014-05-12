@@ -16,9 +16,8 @@
       "testType": "CHECK_SUCCESS"
     },
     {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "A_World.dat",
-      "referenceFile": "reference_counts.dat"
+      "testType": "ZERO_COUNTS",
+      "dataFile": "A_World.dat"
     }
   ]
 }

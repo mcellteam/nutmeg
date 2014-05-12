@@ -30,16 +30,14 @@
       "referenceFile": "refl_all_surface_mols_ref.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "absorb_all_mols.dat",
-      "referenceFile": "absorb_all_mols_ref.dat"
+      "dataFile": "absorb_all_mols.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
+      "testType": "ZERO_COUNTS",
       "haveHeader": true,
-      "dataFile": "absorb_all_surface_mols.dat",
-      "referenceFile": "absorb_all_surface_mols_ref.dat"
+      "dataFile": "absorb_all_surface_mols.dat"
     },
     {
       "testType": "COUNT_CONSTRAINTS",
