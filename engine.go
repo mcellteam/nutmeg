@@ -398,9 +398,9 @@ func printResult(result *testResult) {
 
 	testName := filepath.Base(result.path)
 	if result.success {
-		fmt.Printf("%-43s ::   %-20s            [SUCCESS]\n", testName, result.testName)
+		fmt.Printf("%-43s ::   %-25s       [SUCCESS]\n", testName, result.testName)
 	} else {
-		fmt.Printf("%-43s ::   %-20s         ***[FAILURE]***\n", testName, result.testName)
+		fmt.Printf("%-43s ::   %-25s    ***[FAILURE]***\n", testName, result.testName)
 		if result.errorMessage != "" {
 			fmt.Println("\t ERROR: ", result.errorMessage)
 			// we also try to retrieve the content of stderr

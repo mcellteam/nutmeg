@@ -124,8 +124,16 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 		case "POSITIVE_COUNTS":
 			for i, d := range data {
-				if testErr = checkPositiveCounts(d, dataPaths[i], c.MinTime,
-					c.MaxTime); testErr != nil {
+				if testErr = checkPositiveOrZeroCounts(d, dataPaths[i], c.MinTime,
+					c.MaxTime, false); testErr != nil {
+					break
+				}
+			}
+
+		case "POSITIVE_OR_ZERO_COUNTS":
+			for i, d := range data {
+				if testErr = checkPositiveOrZeroCounts(d, dataPaths[i], c.MinTime,
+					c.MaxTime, true); testErr != nil {
 					break
 				}
 			}
@@ -134,13 +142,6 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			for i, d := range data {
 				if testErr = countRates(d, dataPaths[i], c.MinTime, c.MaxTime,
 					c.BaseTime, c.Means, c.Tolerances); testErr != nil {
-					break
-				}
-			}
-
-		case "CHECK_COL_SUMS":
-			for i, d := range data {
-				if testErr = checkColSums(d, dataPaths[i], c.MinTime, c.MaxTime); testErr != nil {
 					break
 				}
 			}
@@ -345,51 +346,16 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
 	return nil
 }
 
-// checkColSums executes a consistency check of count data expected to have
-// 3 data columns where all columns have to be >=0 and col1 + col2 == col3
-// An example where this is useful are molecule hit or crossing
-// events.
-// A typical MDL snippet that would be tested by this function is
-//
-//    REACTION_DATA_OUTPUT
-//    {
-//      STEP = 1e-6
-//      {
-//          COUNT[A, world.box[r1], FRONT_HITS]: "A_fr_hits",
-//          COUNT[A, world.box[r1], BACK_HITS]: "A_back_hits",
-//          COUNT[A, world.box[r1], ALL_HITS]: "A_all_hits",
-//      } => "A_hits_C_cross.dat"
-//    }
-//
-func checkColSums(data *Columns, dataPath string, minTime, maxTime float64) error {
-
-	numCols := len(data.counts)
-	if numCols != 3 {
-		return errors.New(fmt.Sprintf(
-			"in %s: expected 3 columns for testings hits/crossings but found %d",
-			dataPath, len(data.counts)))
-	}
-
-	for r, time := range data.times {
-		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
-			continue
-		}
-
-		if data.counts[0][r] < 0 || data.counts[1][r] < 0 || data.counts[2][r] < 0 {
-			return errors.New(fmt.Sprintf(
-				"in %s: the hits/crossing count in row %d is negative",
-				dataPath, r))
-		}
-
-		if data.counts[0][r]+data.counts[1][r] != data.counts[2][r] {
-			return errors.New(fmt.Sprintf(
-				"in %s: the hits/crossing don't sum properly in row %d",
-				dataPath, r))
-		}
-	}
-	return nil
-}
-
+// checkTriggers checks trigger data output. Since a trigger data file typically
+// contains a mix of integer, float, and string values the data is passed in
+// as a StringColumns struct. This routine tests the following trigger data
+// properties
+//    - the exact time of a trigger event reported is within the
+//      proper iteration interval
+//    - ensure that the data column have the expected data values
+//      (-1, 0, 1) for orientation data, (-1, 1) for hit data
+//    - the location of the trigger events is within the specified range for
+//      x, y, and z
 func checkTriggers(data *StringColumns, dataPath string, minTime, maxTime float64,
 	triggerType string, haveExactTime bool, outputTime float64,
 	xrange, yrange, zrange []float64) error {
@@ -588,9 +554,15 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 	return nil
 }
 
-// checkPosititveCounts tests that all counts of the data file are positive > 0
-func checkPositiveCounts(data *Columns, dataPath string, minTime,
-	maxTime float64) error {
+// checkPositiveOrZeroCounts tests that all counts of the data file are either > 0
+// (includeZero = false) or >= 0 (includeZero = true)
+func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
+	maxTime float64, includeZero bool) error {
+
+	lowerBound := 0
+	if includeZero {
+		lowerBound = -1
+	}
 
 	numCols := len(data.counts)
 	for r, time := range data.times {
@@ -599,7 +571,7 @@ func checkPositiveCounts(data *Columns, dataPath string, minTime,
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.counts[c][r] <= 0 {
+			if data.counts[c][r] <= lowerBound {
 				return errors.New(
 					fmt.Sprintf("in %s value %d in column %d in row %d is not positive (<= 0)",
 						dataPath, data.counts[c][r], c, r))

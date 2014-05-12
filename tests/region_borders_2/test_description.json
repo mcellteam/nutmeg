@@ -30,14 +30,44 @@
       "referenceFile": "B_ref.dat"
     },
     {
-      "testType": "CHECK_COL_SUMS",
+      "testType": "COUNT_CONSTRAINTS",
+      "dataFile": "A_hits.dat",
       "haveHeader": true,
-      "dataFile": "A_hits.dat"
+      "countConstraints": [
+        {
+          "target": 0,
+          "query": [
+            1,
+            1,
+            -1
+          ]
+        }
+      ]
     },
     {
-      "testType": "CHECK_COL_SUMS",
+      "testType": "POSITIVE_OR_ZERO_COUNTS",
+      "dataFile": "A_hits.dat",
+      "haveHeader": true
+    },
+    {
+      "testType": "COUNT_CONSTRAINTS",
+      "dataFile": "C_cross.dat",
       "haveHeader": true,
-      "dataFile": "C_cross.dat"
+      "countConstraints": [
+        {
+          "target": 0,
+          "query": [
+            1,
+            1,
+            -1
+          ]
+        }
+      ]
+    },
+    {
+      "testType": "POSITIVE_OR_ZERO_COUNTS",
+      "dataFile": "C_cross.dat",
+      "haveHeader": true
     },
     {
       "testType" : "CHECK_TRIGGERS",
