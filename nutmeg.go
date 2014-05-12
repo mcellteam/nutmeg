@@ -75,8 +75,11 @@ func main() {
 		}
 
 	case cleanTestOutput:
-		tests := extractTestCases(nutmegConf.TestDir, testSelection, testNames)
-		if err := cleanOutput(tests); err != nil {
+		testPaths := make([]string, len(testNames))
+		for i, t := range testNames {
+			testPaths[i] = filepath.Join(nutmegConf.TestDir, t)
+		}
+		if err := cleanOutput(testPaths); err != nil {
 			log.Fatal(err)
 		}
 
