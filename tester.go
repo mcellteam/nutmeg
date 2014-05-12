@@ -138,6 +138,14 @@ func testRunner(test *TestDescription, result chan *testResult) {
 				}
 			}
 
+		case "ZERO_COUNTS":
+			for i, d := range data {
+				if testErr = checkZeroCounts(d, dataPaths[i], c.MinTime,
+					c.MaxTime); testErr != nil {
+					break
+				}
+			}
+
 		case "COUNT_RATES":
 			for i, d := range data {
 				if testErr = countRates(d, dataPaths[i], c.MinTime, c.MaxTime,
@@ -574,6 +582,28 @@ func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 			if data.counts[c][r] <= lowerBound {
 				return errors.New(
 					fmt.Sprintf("in %s value %d in column %d in row %d is not positive (<= 0)",
+						dataPath, data.counts[c][r], c, r))
+			}
+		}
+	}
+
+	return nil
+}
+
+// checkZeroCounts tests that all data counts are zero
+func checkZeroCounts(data *Columns, dataPath string, minTime,
+	maxTime float64) error {
+
+	numCols := len(data.counts)
+	for r, time := range data.times {
+		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
+			continue
+		}
+
+		for c := 0; c < numCols; c++ {
+			if data.counts[c][r] != 0 {
+				return errors.New(
+					fmt.Sprintf("in %s value %d in column %d in row %d is non-zero",
 						dataPath, data.counts[c][r], c, r))
 			}
 		}
