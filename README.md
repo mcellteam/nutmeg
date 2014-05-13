@@ -14,6 +14,12 @@ nutmeg is written in go and can be compiled via
 in the top level directory. Production versions of nutmeg will be shipped with
 precompiled binaries for Linux, Mac OSX, and Windows.
 
+nutmeg expects a config file in JSON format called *nutmeg.conf* in the
+directory where the binary is located. Currently, this file only contains
+information on the path of the MCell executable and the location of
+the tests/ directory.
+
+
 Usage
 -----
 
@@ -25,7 +31,7 @@ Here *option* can be one of
   -c
     clean temporary test data
 
-  -d <test selection>
+  -d test_selection
     show description for selected tests
 
   -l
@@ -37,16 +43,20 @@ Here *option* can be one of
   -n
     number of concurrent simulation jobs (default: 2)
 
-  -r <test selection>
+  -r test_selection
     run specified tests
 </code></pre>
 
 Here, <code>test selection</code> is a comma separated lists of test cases
-specified either by their numeric test ID or name (as returned by
+specified either by their numeric test ID or actual name (as returned by
 <code>nutmeg -l</code>). It is also possible to specify numeric ranges via
-<code>i:j</code> with lower and upper limits i and j, respectively.
+<code>i:j</code> with lower and upper limits i and j, respectively. The
+keyword <code>all</code> triggers testing of all available tests.
 Please note that the comma separated list may not contain spaces unless the
-whole expression is enclosed in double quotes.
+whole expression is enclosed in double quotes. Concurrent simulation jobs
+will each run as separate MCell processes. Thus, to optimize throughput n should
+be chosen as large as possible but not exceed the physical number of cores
+on the test machine.
 
 Adding New Test Cases
 ---------------------
