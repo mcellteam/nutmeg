@@ -17,7 +17,8 @@ precompiled binaries for Linux, Mac OSX, and Windows.
 nutmeg expects a config file in JSON format called **nutmeg.conf** in the
 directory where the binary is located. Currently, this file only contains
 information on the path of the MCell executable and the location of
-the *tests/* directory.
+the *tests/* directory. A sample *nutmeg.conf* is available in the *share/*
+subdirectory.
 
 
 Usage
@@ -26,7 +27,7 @@ Usage
 <pre><code>
 nutmeg [option]
 
-Here *option* can be one of
+Here [option] can be one of
 
   -c
     clean temporary test data
@@ -52,7 +53,7 @@ specified either by their numeric test ID or their name (as returned by
 <code>nutmeg -l</code>). It is also possible to specify numeric ranges via
 <code>i:j</code> with lower and upper limits i and j, respectively. The
 keyword <code>all</code> triggers testing of all available cases.
-Please note that the comma separated list of test selection may not contain
+Please note that the comma separated list of test_selections may not contain
 spaces unless the whole expression is enclosed in double quotes.
 Concurrent simulation jobs will each run as separate MCell processes. Thus, to
 optimize throughput n should be chosen as large as possible but not exceed the
@@ -64,10 +65,10 @@ Adding New Test Cases
 To add a new test case, simply create a new and descriptively named subdirectory
 in **tests/**. All files pertaining to this test (including any test output) are
 contained in this directory. At a minumum, a test case consists of an MCell
-test input file in MDL format and a file called *test_description.json*,
+test input file in MDL format and a file called **test_description.json**,
 containing the description of this particular test case in JSON format.
-A sample test description file is available in **share/** and can be modofied
-to fit the tests specific needs of a new test (more details on how to add new
+A sample test description file is available in **share/** and can be modified
+to fit the specific needs of a new test (more details on how to add new
 tests will follow soon).
 
 
