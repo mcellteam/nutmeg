@@ -76,4 +76,4 @@ Author
 ------
 
 (C) Markus Dittrich, 2014   [National Center for Multiscale Modeling of
-                            Biological Systems](www.mmbios.org).
+                            Biological Systems](http://www.mmbios.org).
