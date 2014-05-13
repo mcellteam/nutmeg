@@ -1,7 +1,7 @@
 nutmeg
 ======
 
-nutmeg is a regression test framework for the MCell simulator ([www.mcell.com](http://www.mcell.com)).
+nutmeg is a regression test framework for the MCell simulator ([www.mcell.org](http://www.mcell.org)).
 
 
 Installation
@@ -75,5 +75,5 @@ tests will follow soon).
 Author
 ------
 
-(C) Markus Dittrich, 2014   National Center for Multiscale Modeling of
-                            Biological Systems.
+(C) Markus Dittrich, 2014   [National Center for Multiscale Modeling of
+                            Biological Systems](www.mmbios.org).
