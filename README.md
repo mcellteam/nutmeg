@@ -68,7 +68,7 @@ contained in this directory. At a minumum, a test case consists of an MCell
 test input file in MDL format and a file called **test_description.json**,
 containing the description of this particular test case in JSON format.
 A sample test description file is available in **share/** and can be modified
-to fit the specific needs of a new test (more details on how to add new
+to fit the specific needs of new test cases (more details on how to add new
 tests will follow soon).
 
 
