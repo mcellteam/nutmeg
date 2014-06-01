@@ -30,6 +30,7 @@ type testResult struct {
 type TestDescription struct {
 	Description string
 	Path        string
+	KeyWords    []string
 	Run         RunSpec // simulation runs to conduct as part of this test
 	Checks      []*TestCase
 	simStatus   []runStatus // status of all simulation runs
@@ -141,7 +142,7 @@ type ConstraintSpec struct {
 
 // Copy member function for a TestDescription
 func (t *TestDescription) Copy() *TestDescription {
-	newT := TestDescription{t.Description, t.Path, t.Run, t.Checks, nil}
+	newT := TestDescription{t.Description, t.Path, t.KeyWords, t.Run, t.Checks, nil}
 	return &newT
 }
 
@@ -185,7 +186,7 @@ func collectSimResults(testInput chan *TestDescription,
 	simOutput chan *TestDescription) {
 
 	simMap := make(map[int]int)
-	simResultsAccum := make([]runStatus, 0)
+	var simResultsAccum []runStatus
 	for sim := range simOutput {
 
 		numSeeds := sim.Run.NumSeeds
@@ -379,13 +380,13 @@ func processResults(results chan *testResult, testsDone chan struct{},
 		select {
 		case r := <-results:
 			if r.success {
-				numGoodTests += 1
+				numGoodTests++
 			} else {
-				numBadTests += 1
+				numBadTests++
 			}
 			printResult(r)
 		case <-testsDone:
-			t += 1
+			t++
 		}
 	}
 
@@ -395,9 +396,9 @@ Done:
 		select {
 		case r := <-results:
 			if r.success {
-				numGoodTests += 1
+				numGoodTests++
 			} else {
-				numBadTests += 1
+				numBadTests++
 			}
 			printResult(r)
 		default:

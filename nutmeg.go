@@ -6,7 +6,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -25,6 +24,7 @@ var rng *rand.Rand
 
 // command line flags
 var listTestsFlag bool
+var listCategoriesFlag bool
 var cleanTestOutput bool
 var testSelection string
 var descriptionSelectionShort string
@@ -40,6 +40,7 @@ type config struct {
 // initialize list of available unit tests
 func init() {
 	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
+	flag.BoolVar(&listCategoriesFlag, "L", false, "show available test categories")
 	flag.BoolVar(&cleanTestOutput, "c", false, "clean temporary test data")
 	flag.StringVar(&testSelection, "r", "", "run specified tests (i, i:j, or 'all')")
 	flag.StringVar(&descriptionSelectionShort, "d", "", "show description for selected tests (i, i:j, or 'all')")
@@ -72,6 +73,14 @@ func main() {
 		fmt.Println("----------------")
 		for i, t := range testNames {
 			fmt.Printf("[%d] %-20s\n", i, t)
+		}
+
+	case listCategoriesFlag:
+		fmt.Println("Available Categories:")
+		fmt.Println("--------------------")
+		categories := extractCategories("all", nutmegConf.TestDir, testNames)
+		for _, c := range categories {
+			fmt.Println(" -", c)
 		}
 
 	case cleanTestOutput:
@@ -164,21 +173,18 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 
 	rangeEndpoints := strings.Split(rangeStatement, ":")
 	if len(rangeEndpoints) != 2 {
-		return nil, errors.New(
-			fmt.Sprintf("range selection %s not valid", rangeStatement))
+		return nil, fmt.Errorf("range selection %s not valid", rangeStatement)
 	}
 
 	var rangeBegin int
 	var err error
 	if rangeBegin, err = strconv.Atoi(rangeEndpoints[0]); err != nil {
-		return nil, errors.New(
-			fmt.Sprintf("invalid range start character %s", rangeEndpoints[0]))
+		return nil, fmt.Errorf("invalid range start character %s", rangeEndpoints[0])
 	}
 
 	var rangeEnd int
 	if rangeEnd, err = strconv.Atoi(rangeEndpoints[1]); err != nil {
-		return nil, errors.New(
-			fmt.Sprintf("invalid range end character %s", rangeEndpoints[1]))
+		return nil, fmt.Errorf("invalid range end character %s", rangeEndpoints[1])
 	}
 
 	var newRange []int
@@ -206,4 +212,27 @@ func gatherTests(testDir string) ([]string, error) {
 	sort.Strings(tests)
 
 	return tests, nil
+}
+
+// extractCategories extracts the available test categories from the provided
+// test selection (x, x:y, 'all', etc.)
+func extractCategories(selection, testDir string, testNames []string) []string {
+	tests := extractTestCases(testDir, selection, testNames)
+	categoryMap := make(map[string]int)
+	for _, t := range tests {
+		p, err := ParseJSON(t)
+		if err != nil {
+			continue
+		}
+		for _, k := range p.KeyWords {
+			categoryMap[k] = 1
+		}
+	}
+	categories := make([]string, len(categoryMap))
+	count := 0
+	for c := range categoryMap {
+		categories[count] = c
+		count++
+	}
+	return categories
 }
