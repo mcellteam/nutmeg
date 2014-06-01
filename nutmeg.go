@@ -42,8 +42,10 @@ func init() {
 	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
 	flag.BoolVar(&listCategoriesFlag, "L", false, "show available test categories")
 	flag.BoolVar(&cleanTestOutput, "c", false, "clean temporary test data")
-	flag.StringVar(&testSelection, "r", "", "run specified tests (i, i:j, or 'all')")
-	flag.StringVar(&descriptionSelectionShort, "d", "", "show description for selected tests (i, i:j, or 'all')")
+	flag.StringVar(&testSelection, "r", "",
+		"run specified tests (i, i:j, 'all', <category_name>)")
+	flag.StringVar(&descriptionSelectionShort, "d", "",
+		"show description for selected tests (i, i:j, or 'all')")
 	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
 	flag.IntVar(&numTestJobs, "m", 2, "number of concurrent test jobs (default: 2)")
 
@@ -66,7 +68,6 @@ func main() {
 	}
 
 	flag.Parse()
-
 	switch {
 	case listTestsFlag:
 		fmt.Println("Available tests:")
@@ -78,9 +79,9 @@ func main() {
 	case listCategoriesFlag:
 		fmt.Println("Available Categories:")
 		fmt.Println("--------------------")
-		categories := extractCategories("all", nutmegConf.TestDir, testNames)
-		for _, c := range categories {
-			fmt.Println(" -", c)
+		categories := extractCategories(nutmegConf.TestDir, testNames)
+		for k := range categories {
+			fmt.Println(" -", k)
 		}
 
 	case cleanTestOutput:
@@ -98,7 +99,21 @@ func main() {
 		showTestDescription(tests)
 
 	case testSelection != "":
-		tests := extractTestCases(nutmegConf.TestDir, testSelection, testNames)
+		testSelection = strings.TrimSpace(testSelection)
+
+		// check if all tests were requested
+		var tests []string
+		if testSelection == "all" {
+			tests = extractAllTestCases(nutmegConf.TestDir, testNames)
+		} else {
+			// check if a category was requested if not extract the actual testcases
+			categoryMap := extractCategories(nutmegConf.TestDir, testNames)
+			if ts, ok := categoryMap[testSelection]; ok {
+				tests = ts
+			} else {
+				tests = extractTestCases(nutmegConf.TestDir, testSelection, testNames)
+			}
+		}
 		numGoodTests, numBadTests, _ := runTests(nutmegConf.McellPath, tests)
 		fmt.Println("-------------------------------------")
 		fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
@@ -114,37 +129,47 @@ func main() {
 // extractTestCases parses the test selection string and assembles the list
 // of requested test cases as fully qualified paths.
 // NOTE: The form of the selection string is of the form
-//              1,2,5:10,55
+//              1,2,5:10,55 or testName
 //
 // Here, each number or range of numbers refers to indexed test cases as
 // provided by the -s commandline flag.
-// A special case is "all" which refers to all tests.
 func extractTestCases(testDir, selection string, testNames []string) []string {
 
 	var selectedNames []string
-	if selection == "all" {
-		selectedNames = testNames
-	} else {
-		for _, s := range strings.Split(selection, ",") {
-			item := strings.TrimSpace(s)
+	for _, s := range strings.Split(selection, ",") {
+		item := strings.TrimSpace(s)
 
-			var items []int
-			var err error
-			if strings.Contains(item, ":") {
-				if items, err = convertRangeToList(item); err != nil {
-					log.Printf(fmt.Sprint(err))
-					continue
-				}
-				selectedNames = appendTestCases(items, selectedNames, testNames)
-			} else if i, err := strconv.Atoi(item); err == nil {
-				selectedNames = appendTestCases([]int{i}, selectedNames, testNames)
-			} else { // assume item provided corresponds to a test name
-				selectedNames = append(selectedNames, item)
+		var items []int
+		var err error
+		if strings.Contains(item, ":") {
+			if items, err = convertRangeToList(item); err != nil {
+				log.Printf(fmt.Sprint(err))
+				continue
 			}
+			selectedNames = appendTestCases(items, selectedNames, testNames)
+		} else if i, err := strconv.Atoi(item); err == nil {
+			selectedNames = appendTestCases([]int{i}, selectedNames, testNames)
+		} else { // item provided corresponds to a test name, make sure it exists
+			if testNames[sort.SearchStrings(testNames, item)] != item {
+				continue // if we can't find the requested testcase we just skip it
+			}
+			selectedNames = append(selectedNames, item)
 		}
 	}
+
 	testPaths := make([]string, len(selectedNames))
 	for i, name := range selectedNames {
+		testPaths[i] = filepath.Join(testDir, name)
+	}
+	return testPaths
+}
+
+// extractAllTestCases returns a list with full paths to all available
+// testcases
+func extractAllTestCases(testDir string, testNames []string) []string {
+
+	testPaths := make([]string, len(testNames))
+	for i, name := range testNames {
 		testPaths[i] = filepath.Join(testDir, name)
 	}
 	return testPaths
@@ -216,23 +241,21 @@ func gatherTests(testDir string) ([]string, error) {
 
 // extractCategories extracts the available test categories from the provided
 // test selection (x, x:y, 'all', etc.)
-func extractCategories(selection, testDir string, testNames []string) []string {
-	tests := extractTestCases(testDir, selection, testNames)
-	categoryMap := make(map[string]int)
+func extractCategories(testDir string, testNames []string) map[string][]string {
+	tests := extractAllTestCases(testDir, testNames)
+	categoryMap := make(map[string][]string)
 	for _, t := range tests {
 		p, err := ParseJSON(t)
 		if err != nil {
 			continue
 		}
 		for _, k := range p.KeyWords {
-			categoryMap[k] = 1
+			if _, ok := categoryMap[k]; !ok {
+				categoryMap[k] = []string{t}
+			} else {
+				categoryMap[k] = append(categoryMap[k], t)
+			}
 		}
 	}
-	categories := make([]string, len(categoryMap))
-	count := 0
-	for c := range categoryMap {
-		categories[count] = c
-		count++
-	}
-	return categories
+	return categoryMap
 }
