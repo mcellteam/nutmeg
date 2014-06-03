@@ -1,0 +1,66 @@
+{
+  "description": "foo",
+  "author": "bar",
+  "date": "laal",
+  "keywords": [
+    "adf"
+  ],
+  "run": {
+      "mdlfiles": ["test.mdl"],
+      "commandlineOpts": []
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["dat/counting-1.txt", 
+                        "dat/counting-2.txt",
+                        "dat/counting-3.txt",
+                        "dat/counting-4.txt",
+                        "dat/counting-5.txt",
+                        "dat/counting-6.txt",
+                        "dat/counting-7.txt", 
+                        "dat/counting-8.txt",
+                        "dat/counting-9.txt",
+                        "dat/counting-10.txt",
+                        "dat/counting-11.txt",
+                        "dat/counting-12.txt",
+                        "dat/counting-13.txt",
+                        "dat/counting-14.txt", 
+                        "dat/counting-15.txt",
+                        "dat/counting-16.txt",
+                        "dat/counting-17.txt",
+                        "dat/counting-18.txt"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/vo.0.dat", 
+                        "vol_dat/vo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/ovo.1.dat", 
+                        "vol_dat/ovo.10.dat",
+                        "vol_dat/ovo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/nvo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["parser_basic-expressions.dat",
+                        "parser_basic.dat",
+                        "run_%d.0.log",
+                        "err_%d.0.log"]
+    },
+    {
+      "testType": "FILE_MATCH_PATTERN",
+      "dataFile": "err_%d.0.log",
+      "matchPattern": "Warning: Could not release 6 of s_g_1 \\(surface full\\).\n",
+      "numMatches": 1
+    }
+  ]
+}

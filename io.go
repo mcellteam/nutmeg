@@ -15,11 +15,20 @@ import (
 	"strings"
 )
 
+// name of output directory
+const outputDirName = "output"
+
+// Columns describes the content of a reaction data output file including a
+// column of time values and an arbitrary number of integer data columns
 type Columns struct {
 	times  []float64
 	counts [][]int
 }
 
+// StringColumns describes the content of a trigger data output file including a
+// column of time values and an arbitrary number of string valued data columns
+// NOTE: The data is kept as string values since they can contain either
+// integer or float values and we have to wait with coercing them until run time
 type StringColumns struct {
 	times  []float64
 	values [][]string
@@ -29,8 +38,7 @@ type StringColumns struct {
 // and either returns the individually as a list or averages them
 func loadData(dataPaths []string, haveHeader, averageData bool) ([]*Columns, error) {
 
-	data := make([]*Columns, 0)
-
+	var data []*Columns
 	if averageData {
 		cols, err := readAverageCounts(dataPaths, haveHeader)
 		if err != nil {
@@ -133,7 +141,7 @@ func readCounts(fileName string, haveHeader bool) (*Columns, error) {
 
 	// sanity check - we expect at least one row of data
 	if len(cols.times) == 0 {
-		return nil, errors.New(fmt.Sprintf("%s: contains no data", fileName))
+		return nil, fmt.Errorf("%s: contains no data", fileName)
 	}
 
 	return &cols, nil
@@ -144,8 +152,7 @@ func readCounts(fileName string, haveHeader bool) (*Columns, error) {
 // typically contains a mix of integer and float data
 func loadStringData(dataPaths []string, haveHeader bool) ([]*StringColumns, error) {
 
-	data := make([]*StringColumns, 0)
-
+	var data []*StringColumns
 	for _, dataPath := range dataPaths {
 		cols, err := readStringCounts(dataPath, haveHeader)
 		if err != nil {
@@ -200,7 +207,7 @@ func readStringCounts(fileName string, haveHeader bool) (*StringColumns, error) 
 
 	// sanity check - we expect at least one row of data
 	if len(cols.times) == 0 {
-		return nil, errors.New(fmt.Sprintf("%s: contains no data", fileName))
+		return nil, fmt.Errorf("%s: contains no data", fileName)
 	}
 
 	return &cols, nil
@@ -211,8 +218,8 @@ func readStringCounts(fileName string, haveHeader bool) (*StringColumns, error) 
 // seed runs)
 func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 
-	dataPaths := make([]string, 0)
-	dataDir := filepath.Join(path, "output")
+	var dataPaths []string
+	dataDir := getOutputDir(path)
 
 	// check if data file has a single format specifier
 	count := strings.Count(dataFile, "%")
@@ -238,4 +245,10 @@ func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 	}
 
 	return dataPaths, nil
+}
+
+// getOutputDir returns the path in which the output for the testcase at path
+// is located
+func getOutputDir(testPath string) string {
+	return filepath.Join(testPath, outputDirName)
 }

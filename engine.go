@@ -57,6 +57,7 @@ type TestCase struct {
 	testPatternMatch
 	testRates
 	testTrigger
+	testNonEmptyFiles
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -120,6 +121,12 @@ type testTrigger struct {
 	Xrange        []float64 // tuple of valid x ranges for triggered events
 	Yrange        []float64 // tuple of valid y ranges for triggered events
 	Zrange        []float64 // typle of valid z ranges for triggered events
+}
+
+// testNonemptyFiles pertains to checks testing that the given list of files
+// exists and each file is non-empty
+type testNonEmptyFiles struct {
+	NonEmptyFiles []string // what files are supposed to be non-empty
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
@@ -219,7 +226,7 @@ func collectSimResults(testInput chan *TestDescription,
 func simRunner(mcellPath string, test *TestDescription,
 	output chan *TestDescription) {
 
-	outputDir := filepath.Join(test.Path, "output")
+	outputDir := getOutputDir(test.Path)
 	for i, runFile := range test.Run.MdlFiles {
 		// create run command
 		mdlPath := filepath.Join(test.Path, runFile)
@@ -288,7 +295,7 @@ func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
 		}
 
 		// create output directory
-		outputDir := filepath.Join(testDir, "output")
+		outputDir := getOutputDir(testDir)
 		if err := os.Mkdir(outputDir, 0744); err != nil {
 			log.Print(err)
 			continue

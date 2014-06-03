@@ -7,9 +7,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -73,9 +73,14 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		case "CHECK_EXIT_CODE":
 			for _, testRun := range test.simStatus {
 				if c.ExitCode != testRun.exitCode {
-					testErr = errors.New(fmt.Sprintf("Expected exit code %d but got %d instead",
-						c.ExitCode, testRun.exitCode))
+					testErr = fmt.Errorf("Expected exit code %d but got %d instead",
+						c.ExitCode, testRun.exitCode)
 				}
+			}
+
+		case "CHECK_NONEMPTY_FILES":
+			if testErr = checkFilesNonEmpty(test.Path, test.Run.seed, c.NonEmptyFiles); testErr != nil {
+				break
 			}
 
 		case "COUNT_CONSTRAINTS":
@@ -165,7 +170,7 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 		default:
 			recordResult(result, "----------------", test.Path,
-				errors.New(fmt.Sprintf("Unknown test type: %s", c.TestType)))
+				fmt.Errorf("Unknown test type: %s", c.TestType))
 		}
 		recordResult(result, c.TestType, test.Path, testErr)
 	}
@@ -196,9 +201,8 @@ func checkCountConstraints(data *Columns, dataPath string, minTime, maxTime floa
 		for _, con := range constraints {
 			// sanity check - the number of columns has to match the number of constraints
 			if len(con.Query) != len(data.counts) {
-				return errors.New(
-					fmt.Sprintf("in %s: length of constraints (%d) does not match number of data columns (%d)",
-						dataPath, len(data.counts), len(con.Query)))
+				return fmt.Errorf("in %s: length of constraints (%d) does not match number of data columns (%d)",
+					dataPath, len(data.counts), len(con.Query))
 			}
 
 			result := 0
@@ -207,9 +211,8 @@ func checkCountConstraints(data *Columns, dataPath string, minTime, maxTime floa
 			}
 
 			if result != con.Target {
-				return errors.New(
-					fmt.Sprintf("in %s: constraint mismatch: result (%d) - actual (%d)",
-						dataPath, result, con.Target))
+				return fmt.Errorf("in %s: constraint mismatch: result (%d) - actual (%d)",
+					dataPath, result, con.Target)
 			}
 		}
 	}
@@ -223,15 +226,15 @@ func checkCountMinmax(data *Columns, dataPath string, minTime, maxTime float64,
 	countMaximum, countMinimum []int) error {
 
 	if countMaximum != nil && len(countMaximum) != len(data.counts) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: number of constraints in countMaximum does not match number of data columns",
-			dataPath))
+			dataPath)
 	}
 
 	if countMinimum != nil && len(countMinimum) != len(data.counts) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: number of constraints in countMinimum does not match number of data columns",
-			dataPath))
+			dataPath)
 	}
 
 	for r, time := range data.times {
@@ -242,14 +245,12 @@ func checkCountMinmax(data *Columns, dataPath string, minTime, maxTime float64,
 		for i := 0; i < len(data.counts); i++ {
 			c := data.counts[i][r]
 			if countMaximum != nil && c > countMaximum[i] {
-				return errors.New(
-					fmt.Sprintf("in %s: maximum exceeded: data (%d) > max(%d)", dataPath,
-						c, countMaximum[i]))
+				return fmt.Errorf("in %s: maximum exceeded: data (%d) > max(%d)", dataPath,
+					c, countMaximum[i])
 			}
 			if countMinimum != nil && c < countMinimum[i] {
-				return errors.New(
-					fmt.Sprintf("in %s: minimum undershot: data (%d) < min(%d)", dataPath,
-						c, countMinimum[i]))
+				return fmt.Errorf("in %s: minimum undershot: data (%d) < min(%d)", dataPath,
+					c, countMinimum[i])
 			}
 		}
 	}
@@ -263,16 +264,14 @@ func fileMatchPattern(filePath string, matchPattern string,
 	numExpectedMatches int) error {
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return errors.New(
-			fmt.Sprintf("failed to open file %s", filePath))
+		return fmt.Errorf("failed to open file %s", filePath)
 	}
 
 	matcher := regexp.MustCompile(matchPattern)
 	matches := matcher.FindAll(content, -1)
 	if len(matches) != numExpectedMatches {
-		return errors.New(
-			fmt.Sprintf("failed pattern match: %s matched %d times instead of %d",
-				matchPattern, len(matches), numExpectedMatches))
+		return fmt.Errorf("failed pattern match: %s matched %d times instead of %d",
+			matchPattern, len(matches), numExpectedMatches)
 	}
 
 	return nil
@@ -284,15 +283,15 @@ func compareCounts(data, refData *Columns, dataPath string, minTime,
 	maxTime float64) error {
 
 	if len(refData.times) != len(data.times) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: reference and actual data set have different number of rows",
-			dataPath))
+			dataPath)
 	}
 
 	if len(refData.counts) != len(data.counts) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: reference and actual data set have different number of columns",
-			dataPath))
+			dataPath)
 	}
 
 	numCols := len(data.counts)
@@ -303,9 +302,8 @@ func compareCounts(data, refData *Columns, dataPath string, minTime,
 
 		for c := 0; c < numCols; c++ {
 			if data.counts[c][r] != refData.counts[c][r] {
-				return errors.New(
-					fmt.Sprintf("in %s: reference and actual data differ in row %d and col %d",
-						dataPath, r, c))
+				return fmt.Errorf("in %s: reference and actual data differ in row %d and col %d",
+					dataPath, r, c)
 			}
 		}
 	}
@@ -322,9 +320,9 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
 	means, tolerances []float64) error {
 
 	if len(means) != len(data.counts) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: number of provided means does not match number of data columns",
-			dataPath))
+			dataPath)
 	}
 
 	numCols := len(data.counts)
@@ -335,7 +333,7 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
 			continue
 		}
 
-		numValues += 1
+		numValues++
 		for c := 0; c < numCols; c++ {
 			averageRate[c] += float64(data.counts[c][r]) / (time - baseTime)
 		}
@@ -345,9 +343,9 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
 	for c := 0; c < numCols; c++ {
 		rate := averageRate[c] / float64(numValues)
 		if (rate < means[c]-tolerances[c]) || (rate > means[c]+tolerances[c]) {
-			return errors.New(fmt.Sprintf(
+			return fmt.Errorf(
 				"in %s: average reaction rate %f is outside of tolerance %f +/- %f",
-				dataPath, rate, means[c], tolerances[c]))
+				dataPath, rate, means[c], tolerances[c])
 		}
 	}
 
@@ -372,8 +370,8 @@ func checkTriggers(data *StringColumns, dataPath string, minTime, maxTime float6
 	firstDataID := 3
 	locationID := 0
 	if haveExactTime {
-		firstDataID += 1
-		locationID += 1
+		firstDataID++
+		locationID++
 	}
 	totalCols := firstDataID
 
@@ -385,9 +383,9 @@ func checkTriggers(data *StringColumns, dataPath string, minTime, maxTime float6
 
 	numCols := len(data.values)
 	if numCols != totalCols {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: incorrect column count of %d (expected %d)", dataPath, totalCols,
-			numCols))
+			numCols)
 	}
 
 	for r, time := range data.times {
@@ -432,8 +430,8 @@ func getTriggerTypeID(triggerType, dataPath string) (int, error) {
 	case "molCounts":
 		typeID = 2
 	default:
-		return 0, errors.New(fmt.Sprintf("in %s: unknown trigger type %s", dataPath,
-			triggerType))
+		return 0, fmt.Errorf("in %s: unknown trigger type %s", dataPath,
+			triggerType)
 	}
 	return typeID, nil
 }
@@ -445,12 +443,12 @@ func validateExactTime(data *StringColumns, row int, time, outputTime float64,
 
 	exactTime, err := strconv.ParseFloat(data.values[0][row], 64)
 	if err != nil {
-		return errors.New(fmt.Sprintf(
-			"in %s: exact time value in row %d in not a float value", dataPath, row))
+		return fmt.Errorf(
+			"in %s: exact time value in row %d in not a float value", dataPath, row)
 	}
 	if (exactTime < time) || (exactTime > time+outputTime) {
-		return errors.New(fmt.Sprintf(
-			"in %s: exact time out of bounds in row %d", dataPath, row))
+		return fmt.Errorf(
+			"in %s: exact time out of bounds in row %d", dataPath, row)
 	}
 
 	return nil
@@ -464,26 +462,26 @@ func validateTriggerData(data *StringColumns, row, firstDataID, typeID int,
 
 	value, err := strconv.Atoi(data.values[firstDataID][row])
 	if err != nil {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: data value in row %d col %d is not an int", dataPath, row,
-			firstDataID))
+			firstDataID)
 	}
 
 	// data has to be orientation or hit count
 	if typeID > 0 {
 		if value != -1 && value != 0 && value != 1 {
-			return errors.New(fmt.Sprintf(
+			return fmt.Errorf(
 				"in %s: incorrect trigger data %d in row %d (expected -1, 0, or 1)",
-				dataPath, value, row))
+				dataPath, value, row)
 		}
 	}
 
 	// data has to be a hit count
 	if typeID > 1 {
 		if value != -1 && value != 1 {
-			return errors.New(fmt.Sprintf(
+			return fmt.Errorf(
 				"in %s: incorrect trigger data %d in row %d (expected -1, or 1)",
-				dataPath, value, row))
+				dataPath, value, row)
 		}
 	}
 	return nil
@@ -500,27 +498,27 @@ func validatePositionRanges(data *StringColumns, row, locationID int,
 	z, errz := strconv.ParseFloat(data.values[locationID+2][row], 64)
 
 	if errx != nil || erry != nil || errz != nil {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: location data values in row %d are not of type float", dataPath,
-			row))
+			row)
 	}
 
 	if xrange != nil && (x < xrange[0] || x > xrange[1]) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: x coordinate %f out of bounds in row %d (expected [%f,%f])",
-			dataPath, x, row, xrange[0], xrange[1]))
+			dataPath, x, row, xrange[0], xrange[1])
 	}
 
 	if yrange != nil && (y < yrange[0] || y > yrange[1]) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: y coordinate %f out of bounds in row %d (expected [%f,%f])",
-			dataPath, y, row, yrange[0], yrange[1]))
+			dataPath, y, row, yrange[0], yrange[1])
 	}
 
 	if zrange != nil && (z < zrange[0] || z > zrange[1]) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: z coordinate %f out of bounds in row %d (expected [%f,%f])",
-			dataPath, z, row, zrange[0], zrange[1]))
+			dataPath, z, row, zrange[0], zrange[1])
 	}
 	return nil
 }
@@ -531,9 +529,9 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 	means, tolerances []float64) error {
 
 	if len(means) != len(data.counts) {
-		return errors.New(fmt.Sprintf(
+		return fmt.Errorf(
 			"in %s: number of provided means does not match number of data columns",
-			dataPath))
+			dataPath)
 	}
 
 	numCols := len(data.counts)
@@ -544,7 +542,7 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 			continue
 		}
 
-		numValues += 1
+		numValues++
 		for c := 0; c < numCols; c++ {
 			averages[c] += float64(data.counts[c][r])
 		}
@@ -554,9 +552,8 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 	for c := 0; c < numCols; c++ {
 		average := averages[c] / float64(numValues)
 		if (average < means[c]-tolerances[c]) || (average > means[c]+tolerances[c]) {
-			return errors.New(
-				fmt.Sprintf("in %s: average value %f of column %d outside of tolerance %f +/- %f",
-					dataPath, average, c, means[c], tolerances[c]))
+			return fmt.Errorf("in %s: average value %f of column %d outside of tolerance %f +/- %f",
+				dataPath, average, c, means[c], tolerances[c])
 		}
 	}
 	return nil
@@ -580,9 +577,8 @@ func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 
 		for c := 0; c < numCols; c++ {
 			if data.counts[c][r] < lowerBound {
-				return errors.New(
-					fmt.Sprintf("in %s value %d in column %d in row %d is not positive (<= 0)",
-						dataPath, data.counts[c][r], c, r))
+				return fmt.Errorf("in %s value %d in column %d in row %d is not positive (<= 0)",
+					dataPath, data.counts[c][r], c, r)
 			}
 		}
 	}
@@ -602,12 +598,37 @@ func checkZeroCounts(data *Columns, dataPath string, minTime,
 
 		for c := 0; c < numCols; c++ {
 			if data.counts[c][r] != 0 {
-				return errors.New(
-					fmt.Sprintf("in %s value %d in column %d in row %d is non-zero",
-						dataPath, data.counts[c][r], c, r))
+				return fmt.Errorf("in %s value %d in column %d in row %d is non-zero",
+					dataPath, data.counts[c][r], c, r)
 			}
 		}
 	}
 
+	return nil
+}
+
+// checkFilesNonEmpty tests that all simulation output files listed were
+// created by the run and are non-empty
+func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
+	var badFileList []string
+	for _, fileName := range fileList {
+		filePaths, err := getDataPaths(testDir, fileName, seed, 1)
+		if err != nil {
+			return fmt.Errorf("failed to construct data path for file %s", fileName)
+		}
+
+		for _, filePath := range filePaths {
+			fi, err := os.Stat(filePath)
+			if err != nil || fi.Size() == 0 {
+				badFileList = append(badFileList, filepath.Base(filePath))
+			}
+		}
+	}
+
+	if len(badFileList) != 0 {
+		badFiles := strings.Join(badFileList, "\n\t\t")
+		return fmt.Errorf("the following files were either missing or empty:\n\n\t\t%s",
+			badFiles)
+	}
 	return nil
 }
