@@ -1,9 +1,9 @@
 {
-  "description": "foo",
-  "author": "bar",
-  "date": "laal",
+  "description": "A mostly non-sensical test which simply exercises the parser checking for anomalous behavior.  This test should not provoke any errors, provided that counting-5.txt does not exist in its reaction output directory. (This is to test the \"no overwrite\" output mode for counting.)",
+  "author": "Jed Wing <jed@salk.edu>",
+  "date": "2008-04-04",
   "keywords": [
-    "adf"
+    "parser"
   ],
   "run": {
       "mdlfiles": ["test.mdl"],
@@ -61,6 +61,10 @@
       "dataFile": "err_%d.0.log",
       "matchPattern": "Warning: Could not release 6 of s_g_1 \\(surface full\\).\n",
       "numMatches": 1
+    },
+    {
+      "testType": "CHECK_EXPRESSIONS",
+      "dataFile": "parser_basic-expressions.dat"
     }
   ]
 }

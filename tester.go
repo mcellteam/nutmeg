@@ -35,7 +35,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		// NOTE: only attempt to parse data for the relevant test cases
 		if c.DataFile != "" &&
 			c.TestType != "FILE_MATCH_PATTERN" &&
-			c.TestType != "CHECK_TRIGGERS" {
+			c.TestType != "CHECK_TRIGGERS" &&
+			c.TestType != "CHECK_EXPRESSIONS" {
 			data, err = loadData(dataPaths, c.HaveHeader, c.AverageData)
 			if err != nil {
 				result <- &testResult{test.Path, false, c.TestType, fmt.Sprint(err)}
@@ -102,6 +103,13 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		case "FILE_MATCH_PATTERN":
 			for _, dataPath := range dataPaths {
 				if testErr = fileMatchPattern(dataPath, c.MatchPattern, c.NumMatches); testErr != nil {
+					break
+				}
+			}
+
+		case "CHECK_EXPRESSIONS":
+			for _, dataPath := range dataPaths {
+				if testErr = checkExpressions(dataPath); testErr != nil {
 					break
 				}
 			}
@@ -630,5 +638,60 @@ func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
 		return fmt.Errorf("the following files were either missing or empty:\n\n\t\t%s",
 			badFiles)
 	}
+	return nil
+}
+
+// checkExpressions tests the expressions for exact or statistical equality
+func checkExpressions(filePath string) error {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s", filePath)
+	}
+
+	lines := strings.Split(string(content), "\n")
+	for _, line := range lines[:len(lines)-2] { // last element is empty line
+
+		// exact expressions
+		if strings.Count(line, "==") > 0 {
+			vals := strings.Split(line[4:], "==")
+			if len(vals) != 2 {
+				return fmt.Errorf("malformed expression %s", line[4:])
+			}
+			val1, err1 := strconv.ParseFloat(strings.TrimSpace(vals[0]), 64)
+			val2, err2 := strconv.ParseFloat(strings.TrimSpace(vals[1]), 64)
+			if err1 != nil || err2 != nil {
+				fmt.Println(val1, err1)
+				return fmt.Errorf("cannot convert expression %s into floats", line[4:])
+			}
+
+			if val1 != val2 {
+				return fmt.Errorf("target expression %f == %f does not evaluate correctly",
+					val1, val2)
+			}
+		} else if strings.Count(line, "~=") > 0 {
+			vals := strings.Split(line[4:], "~=")
+			if len(vals) != 2 {
+				return fmt.Errorf("malformed expression %s", line[4:])
+			}
+			vals1 := strings.Split(vals[1], "/")
+			if len(vals1) != 2 {
+				return fmt.Errorf("malformed expression %s", line[4:])
+			}
+			val, err1 := strconv.ParseFloat(strings.TrimSpace(vals[0]), 64)
+			mean, err2 := strconv.ParseFloat(strings.TrimSpace(vals1[0]), 64)
+			std, err3 := strconv.ParseFloat(strings.TrimSpace(vals1[1]), 64)
+			if err1 != nil || err2 != nil || err3 != nil {
+				return fmt.Errorf("cannot convert expression %s into floats", line[4:])
+			}
+
+			if (val < mean-2*std) || (val > mean+2*std) {
+				return fmt.Errorf("Warning: Gaussian value %f out of 95%% confidence interval (%f +/- %f)",
+					val, mean, std)
+			}
+		} else {
+			return fmt.Errorf("unknown expression type %s", line)
+		}
+	}
+
 	return nil
 }
