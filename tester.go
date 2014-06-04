@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // testRunner analyses the TestDescriptions coming from an MCell run on a
@@ -34,6 +35,7 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		var stringData []*StringColumns
 		// NOTE: only attempt to parse data for the relevant test cases
 		if c.DataFile != "" &&
+			c.TestType != "DIFF_FILE_CONTENT" &&
 			c.TestType != "FILE_MATCH_PATTERN" &&
 			c.TestType != "CHECK_TRIGGERS" &&
 			c.TestType != "CHECK_EXPRESSIONS" {
@@ -81,6 +83,12 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 		case "CHECK_NONEMPTY_FILES":
 			if testErr = checkFilesNonEmpty(test.Path, test.Run.seed, c.NonEmptyFiles); testErr != nil {
+				break
+			}
+
+		case "DIFF_FILE_CONTENT":
+			if testErr = diffFileContent(test.Path, c.DataFile, c.TemplateFile,
+				c.TemplateParameters); testErr != nil {
 				break
 			}
 
@@ -641,7 +649,11 @@ func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
 	return nil
 }
 
-// checkExpressions tests the expressions for exact or statistical equality
+// checkExpressions tests the expressions for exact (==) or statistical
+// equality (~=). We expect that the file to be tested contains only
+// expressions of the form
+// X == Y
+// var ~= mean/std
 func checkExpressions(filePath string) error {
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -693,5 +705,44 @@ func checkExpressions(filePath string) error {
 		}
 	}
 
+	return nil
+}
+
+// diffFileContent matches the content of datafile with the one provided in
+// the template file. The template file can contain format string parameters
+// which will be filled with the template parameters as requested by the
+// test file.
+func diffFileContent(path, dataFile, templateFile string,
+	templateParams []string) error {
+
+	var tp []interface{}
+	for _, t := range templateParams {
+		switch t {
+		case "TODAY_DAY":
+			tp = append(tp, time.Now().Weekday().String())
+
+		default:
+			return fmt.Errorf("unknow template parameter %s", t)
+		}
+	}
+
+	dataPath := filepath.Join(getOutputDir(path), dataFile)
+	c, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s", dataPath)
+	}
+	content := string(c)
+
+	templatePath := filepath.Join(path, templateFile)
+	tempContent, err := ioutil.ReadFile(templatePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s", templatePath)
+	}
+	match := fmt.Sprintf(string(tempContent), tp...)
+
+	if content != match {
+		return fmt.Errorf("the test output does not match template.\n\nexpected\n"+
+			"\n%s\n\nbut got\n\n%s\n", content, match)
+	}
 	return nil
 }

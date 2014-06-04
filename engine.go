@@ -58,6 +58,7 @@ type TestCase struct {
 	testRates
 	testTrigger
 	testNonEmptyFiles
+	testDiffFileContent
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -127,6 +128,15 @@ type testTrigger struct {
 // exists and each file is non-empty
 type testNonEmptyFiles struct {
 	NonEmptyFiles []string // what files are supposed to be non-empty
+}
+
+// testDiffFileContent pertains that check the content of a file against a
+// template file. The template file can be a format string whose format
+// interpolation works similar to go strings. The templateParameters member
+// describes the kind of interpolation to be performed
+type testDiffFileContent struct {
+	TemplateFile       string   // name of template file
+	TemplateParameters []string // list of parameters to interpolate into template file
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make

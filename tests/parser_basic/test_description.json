@@ -65,6 +65,11 @@
     {
       "testType": "CHECK_EXPRESSIONS",
       "dataFile": "parser_basic-expressions.dat"
+    },
+    { "testType": "DIFF_FILE_CONTENT",
+      "dataFile": "parser_basic.dat",
+      "templateFile": "parser_basic_template.dat",
+      "templateParameters": ["TODAY_DAY"]
     }
   ]
 }
