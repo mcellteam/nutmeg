@@ -483,22 +483,23 @@ func validateTriggerData(data *StringColumns, row, firstDataID, typeID int,
 			firstDataID)
 	}
 
-	// data has to be orientation or hit count
-	if typeID > 0 {
-		if value != -1 && value != 0 && value != 1 {
-			return fmt.Errorf(
-				"in %s: incorrect trigger data %d in row %d (expected -1, 0, or 1)",
-				dataPath, value, row)
-		}
-	}
-
-	// data has to be a hit count
-	if typeID > 1 {
+	if typeID == 0 { // data is a reaction count - nothing to do
+		return nil
+	} else if typeID == 1 { // data is a hit count
 		if value != -1 && value != 1 {
 			return fmt.Errorf(
 				"in %s: incorrect trigger data %d in row %d (expected -1, or 1)",
 				dataPath, value, row)
 		}
+	} else if typeID == 2 { // data has to be orientation count
+		if value != -1 && value != 0 && value != 1 {
+			return fmt.Errorf(
+				"in %s: incorrect trigger data %d in row %d (expected -1, 0, or 1)",
+				dataPath, value, row)
+		}
+	} else {
+		// unknown typeID
+		return fmt.Errorf("Unknown trigger typeID of %d", typeID)
 	}
 	return nil
 }

@@ -14,6 +14,110 @@
       "testType": "CHECK_SUCCESS"
     },
     {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 5",
+      "dataFile": "dat/counting-1.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [5],
+      "countMaximum": [5]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 6. Exact time turned off -- should have no effect on counts",
+      "dataFile": "dat/counting-2.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [6],
+      "countMaximum": [6]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 7. Header explicitly turned off -- should have no effect on counts.",
+      "dataFile": "dat/counting-3.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [7],
+      "countMaximum": [7]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 8. Exact time turned on -- should have no effect on counts.",
+      "dataFile": "dat/counting-4.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [8],
+      "countMaximum": [8]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 9. Header turned off (YES/NO syntax, rather than NONE).",
+      "dataFile": "dat/counting-5.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [9],
+      "countMaximum": [9]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 10. Header turned but on but no custom header given.",
+      "dataFile": "dat/counting-6.txt",
+      "haveHeader": true,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [10],
+      "countMaximum": [10]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant counts of 11, 12, 13. Custom header 'Duck, Duck, Goose' given.",
+      "dataFile": "dat/counting-7.txt",
+      "haveHeader": true,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [11, 12, 13],
+      "countMaximum": [11, 12, 13]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_4 in world.big_object.newbox. Could try to validate against counting-8.txt. Exact time is left at default (ON).",
+      "dataFile": "dat/counting-19.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": true,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_4 in world.big_object.newbox. Could try to validate against counting-8.txt. Exact time is explicitly turned OFF.",
+      "dataFile": "dat/counting-20.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": false,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_0 in world.big_object.newbox. Could try to validate against counting-8.txt  Exact time is explicitly turned ON.",
+      "dataFile": "dat/counting-21.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": true,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+
+    {
       "testType": "CHECK_NONEMPTY_FILES",
       "nonemptyFiles": ["dat/counting-1.txt", 
                         "dat/counting-2.txt",
@@ -32,7 +136,10 @@
                         "dat/counting-15.txt",
                         "dat/counting-16.txt",
                         "dat/counting-17.txt",
-                        "dat/counting-18.txt"]
+                        "dat/counting-18.txt",
+                        "dat/counting-19.txt",
+                        "dat/counting-20.txt",
+                        "dat/counting-21.txt"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
