@@ -27,8 +27,8 @@ func cleanOutput(tests []string) error {
 
 // writeCmdLine writes the commandline with which MCell was called
 // to the output directory
-func WriteCmdLine(mcell_path string, outputDir string, argList []string) error {
-	cmdlineArgs := append([]string{mcell_path}, argList...)
+func writeCmdLine(mcellPath string, outputDir string, argList []string) error {
+	cmdlineArgs := append([]string{mcellPath}, argList...)
 	cmdlineArgs = append(cmdlineArgs, "\n")
 	cmdline := strings.Join(cmdlineArgs, " ")
 	cmdlinePath := filepath.Join(outputDir, "commandline.txt")
@@ -46,4 +46,15 @@ func determineExitCode(err error) (int, error) {
 		}
 	}
 	return 0, err
+}
+
+// containsString checks if a given string is part of the provided string slice
+// and returns true if yes and false otherwise
+func containsString(ss []string, item string) bool {
+	for _, s := range ss {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }

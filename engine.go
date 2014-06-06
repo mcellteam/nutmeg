@@ -58,7 +58,9 @@ type TestCase struct {
 	testRates
 	testTrigger
 	testNonEmptyFiles
+	testEmptyFiles
 	testDiffFileContent
+	testLegacyVolumeOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -130,6 +132,12 @@ type testNonEmptyFiles struct {
 	NonEmptyFiles []string // what files are supposed to be non-empty
 }
 
+// testEmptyFiles pertains to checks testing that the given list of files
+// exists (!) and each file is empty
+type testEmptyFiles struct {
+	EmptyFiles []string // what files are supposed to be empty
+}
+
 // testDiffFileContent pertains that check the content of a file against a
 // template file. The template file can be a format string whose format
 // interpolation works similar to go strings. The templateParameters member
@@ -137,6 +145,14 @@ type testNonEmptyFiles struct {
 type testDiffFileContent struct {
 	TemplateFile       string   // name of template file
 	TemplateParameters []string // list of parameters to interpolate into template file
+}
+
+// testVolumeOutput check if the legacy volume output has the proper format
+// and correct number of data items
+type testLegacyVolumeOutput struct {
+	Xdim int // voxel count in x dimension
+	Ydim int // voxel count in y dimension
+	Zdim int // voxel count in z dimension
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
@@ -247,7 +263,7 @@ func simRunner(mcellPath string, test *TestDescription,
 		cmd := exec.Command(mcellPath, argList...)
 		cmd.Dir = outputDir
 
-		if err := WriteCmdLine(mcellPath, outputDir, argList); err != nil {
+		if err := writeCmdLine(mcellPath, outputDir, argList); err != nil {
 			test.simStatus = append(test.simStatus,
 				runStatus{false, fmt.Sprint(err), "", -1})
 			output <- test

@@ -21,6 +21,11 @@ import (
 // test and analyses them as requested per the TestDescription.
 func testRunner(test *TestDescription, result chan *testResult) {
 
+	// tests which don't require loading of reaction data output
+	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
+		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "TEST_LEGACY_VOLUME_OUTPUT",
+		"CHECK_EMPTY_FILE"}
+
 	for _, c := range test.Checks {
 
 		dataPaths, err := getDataPaths(test.Path, c.DataFile, test.Run.seed,
@@ -30,15 +35,11 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			continue
 		}
 
-		// load the data
+		// load the data for test types which need it
 		var data []*Columns
 		var stringData []*StringColumns
-		// NOTE: only attempt to parse data for the relevant test cases
-		if c.DataFile != "" &&
-			c.TestType != "DIFF_FILE_CONTENT" &&
-			c.TestType != "FILE_MATCH_PATTERN" &&
-			c.TestType != "CHECK_TRIGGERS" &&
-			c.TestType != "CHECK_EXPRESSIONS" {
+		// NOTE: only attempt to parse data for the test cases which need it
+		if c.DataFile != "" && !containsString(nonDataParseTests, c.TestType) {
 			data, err = loadData(dataPaths, c.HaveHeader, c.AverageData)
 			if err != nil {
 				result <- &testResult{test.Path, false, c.TestType, fmt.Sprint(err)}
@@ -82,7 +83,20 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			}
 
 		case "CHECK_NONEMPTY_FILES":
-			if testErr = checkFilesNonEmpty(test.Path, test.Run.seed, c.NonEmptyFiles); testErr != nil {
+			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.NonEmptyFiles,
+				false); testErr != nil {
+				break
+			}
+
+		case "CHECK_EMPTY_FILES":
+			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.EmptyFiles,
+				true); testErr != nil {
+				break
+			}
+
+		case "TEST_LEGACY_VOLUME_OUTPUT":
+			if testErr = checkLegacyVolumeOutput(test.Path, c.DataFile, c.Xdim, c.Ydim,
+				c.Zdim); testErr != nil {
 				break
 			}
 
@@ -185,8 +199,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			}
 
 		default:
-			recordResult(result, "----------------", test.Path,
-				fmt.Errorf("Unknown test type: %s", c.TestType))
+			testErr = fmt.Errorf("Unknown test type: %s", c.TestType)
+			break
 		}
 		recordResult(result, c.TestType, test.Path, testErr)
 	}
@@ -624,9 +638,21 @@ func checkZeroCounts(data *Columns, dataPath string, minTime,
 	return nil
 }
 
-// checkFilesNonEmpty tests that all simulation output files listed were
-// created by the run and are non-empty
-func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
+// checkFilesEmpty tests that all simulation output files listed were
+// created by the run and are either emtpy or non-empty depending on the
+// provided switch
+func checkFilesEmpty(testDir string, seed int, fileList []string, empty bool) error {
+
+	var sizeCheck func(int64) bool
+	var message string
+	if empty {
+		sizeCheck = func(s int64) bool { return s == 0 }
+		message = "non-empty"
+	} else {
+		sizeCheck = func(s int64) bool { return s != 0 }
+		message = "empty"
+	}
+
 	var badFileList []string
 	for _, fileName := range fileList {
 		filePaths, err := getDataPaths(testDir, fileName, seed, 1)
@@ -636,7 +662,7 @@ func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
 
 		for _, filePath := range filePaths {
 			fi, err := os.Stat(filePath)
-			if err != nil || fi.Size() == 0 {
+			if err != nil || !sizeCheck(fi.Size()) {
 				badFileList = append(badFileList, filepath.Base(filePath))
 			}
 		}
@@ -644,8 +670,8 @@ func checkFilesNonEmpty(testDir string, seed int, fileList []string) error {
 
 	if len(badFileList) != 0 {
 		badFiles := strings.Join(badFileList, "\n\t\t")
-		return fmt.Errorf("the following files were either missing or empty:\n\n\t\t%s",
-			badFiles)
+		return fmt.Errorf("the following files were either missing or %s:\n\n\t\t%s",
+			message, badFiles)
 	}
 	return nil
 }
@@ -745,5 +771,45 @@ func diffFileContent(path, dataFile, templateFile string,
 		return fmt.Errorf("the test output does not match template.\n\nexpected\n"+
 			"\n%s\n\nbut got\n\n%s\n", content, match)
 	}
+	return nil
+}
+
+// checkLegacyVolumOutput checks some basic properties of legacy volume output
+// files such as presence of a header and the number of data items
+// NOTE: The header should look like
+//       # nx=25 ny=25 nz=25 time=100
+func checkLegacyVolumeOutput(path, dataFile string, xdim, ydim, zdim int) error {
+
+	dataPath := filepath.Join(getOutputDir(path), dataFile)
+	c, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s", dataPath)
+	}
+	lines := strings.Split(string(c), "\n")
+
+	// parse header
+	if len(lines) == 0 {
+		return fmt.Errorf("volume output file %s is empty", dataFile)
+	}
+	headerRegexp := regexp.MustCompile("# *nx=([0-9]+) *ny=([0-9]+) *nz=([0-9]+)")
+	matches := headerRegexp.FindStringSubmatch(lines[0])
+	if len(matches) != 4 {
+		return fmt.Errorf("could not parse header of file %s", dataFile)
+	}
+
+	// check dimension
+	if matches[1] != strconv.Itoa(xdim) || matches[2] != strconv.Itoa(ydim) ||
+		matches[3] != strconv.Itoa(zdim) {
+		return fmt.Errorf("volume output in %s had incorrect x, y, or z dimensions",
+			dataFile)
+	}
+
+	expectedNumLines := (ydim+1)*zdim + 1 + 1
+	if len(lines) != expectedNumLines {
+		return fmt.Errorf("volume output in %s had incorrect number of lines "+
+			"(%d instead of %d)",
+			dataFile, len(lines), expectedNumLines)
+	}
+
 	return nil
 }
