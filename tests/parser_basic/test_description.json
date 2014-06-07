@@ -180,42 +180,42 @@
       "templateParameters": ["TODAY_DAY"]
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/vo.0.dat",
       "Xdim": 25,
       "Ydim": 25,
       "Zdim": 25
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/vo.100.dat",
       "Xdim": 25,
       "Ydim": 25,
       "Zdim": 25
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/ovo.1.dat",
       "Xdim": 1,
       "Ydim": 2,
       "Zdim": 4
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/ovo.10.dat",
       "Xdim": 1,
       "Ydim": 2,
       "Zdim": 4 
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/ovo.100.dat",
       "Xdim": 1,
       "Ydim": 2,
       "Zdim": 4 
     },
     {
-      "testType": "TEST_LEGACY_VOLUME_OUTPUT",
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/nvo.100.dat",
       "Xdim": 1,
       "Ydim": 1,

@@ -1,5 +1,5 @@
 {
-  "description": "A mostly non-sensical test which simply exercises the parser checking for anomalous behavior.  This test should not provoke any errors, provided that counting-5.txt does not exist in its reaction output directory. (This is to test the \"no overwrite\" output mode for counting.)  This variant produces no viz output, and specifies a global space step rather than a global time step.",
+  "description": "A mostly non-sensical test which simply exercises the parser checking for anomalous behavior.  This test should not provoke any errors, provided that counting-5.txt does not exist in its reaction output directory. (This is to test the \"no overwrite\" output mode for counting.) This variant produces ASCII mode viz output, specified using the ITERATION_FRAME_DATA notation.",
   "author": "Jed Wing <jed@salk.edu>",
   "date": "2008-04-04",
   "keywords": [
@@ -158,8 +158,8 @@
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["parser_space_step-expressions.dat",
-                        "parser_space_step.dat",
+      "nonemptyFiles": ["parser_viz_ascii_iterframedata-expressions.dat",
+                        "parser_viz_ascii_iterframedata.dat",
                         "run_%d.0.log",
                         "err_%d.0.log"]
     },
@@ -171,12 +171,12 @@
     },
     {
       "testType": "CHECK_EXPRESSIONS",
-      "dataFile": "parser_space_step-expressions.dat"
+      "dataFile": "parser_viz_ascii_iterframedata-expressions.dat"
     },
     { 
       "testType": "DIFF_FILE_CONTENT",
-      "dataFile": "parser_space_step.dat",
-      "templateFile": "parser_space_step_template.dat",
+      "dataFile": "parser_viz_ascii_iterframedata.dat",
+      "templateFile": "parser_viz_ascii_iterframedata_template.dat",
       "templateParameters": ["TODAY_DAY"]
     },
     {
@@ -205,21 +205,81 @@
       "dataFile": "vol_dat/ovo.10.dat",
       "Xdim": 1,
       "Ydim": 2,
-      "Zdim": 4
+      "Zdim": 4 
     },
     {
       "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/ovo.100.dat",
       "Xdim": 1,
       "Ydim": 2,
-      "Zdim": 4
+      "Zdim": 4 
     },
     {
       "testType": "CHECK_LEGACY_VOL_OUTPUT",
       "dataFile": "vol_dat/nvo.100.dat",
       "Xdim": 1,
       "Ydim": 1,
-      "Zdim": 1
+      "Zdim": 1 
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.001.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.011.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.021.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.031.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.041.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.051.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.061.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.071.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.081.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
+    },
+    {
+      "testType": "CHECK_ASCII_VIZ_OUTPUT",
+      "dataFile": "viz_dat/molecules.ascii.091.dat",
+      "surfaceStates": [4],
+      "volumeStates": [3]
     }
   ]
 }

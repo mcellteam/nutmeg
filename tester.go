@@ -9,6 +9,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -23,8 +24,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
-		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "TEST_LEGACY_VOLUME_OUTPUT",
-		"CHECK_EMPTY_FILE"}
+		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
+		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT"}
 
 	for _, c := range test.Checks {
 
@@ -94,9 +95,15 @@ func testRunner(test *TestDescription, result chan *testResult) {
 				break
 			}
 
-		case "TEST_LEGACY_VOLUME_OUTPUT":
-			if testErr = checkLegacyVolumeOutput(test.Path, c.DataFile, c.Xdim, c.Ydim,
+		case "CHECK_LEGACY_VOL_OUTPUT":
+			if testErr = checkLegacyVolOutput(test.Path, c.DataFile, c.Xdim, c.Ydim,
 				c.Zdim); testErr != nil {
+				break
+			}
+
+		case "CHECK_ASCII_VIZ_OUTPUT":
+			if testErr = checkASCIIVizOutput(test.Path, c.DataFile, c.SurfaceStates,
+				c.VolumeStates); testErr != nil {
 				break
 			}
 
@@ -774,11 +781,11 @@ func diffFileContent(path, dataFile, templateFile string,
 	return nil
 }
 
-// checkLegacyVolumOutput checks some basic properties of legacy volume output
+// checkLegacyVolOutput checks some basic properties of legacy volume output
 // files such as presence of a header and the number of data items
 // NOTE: The header should look like
 //       # nx=25 ny=25 nz=25 time=100
-func checkLegacyVolumeOutput(path, dataFile string, xdim, ydim, zdim int) error {
+func checkLegacyVolOutput(path, dataFile string, xdim, ydim, zdim int) error {
 
 	dataPath := filepath.Join(getOutputDir(path), dataFile)
 	c, err := ioutil.ReadFile(dataPath)
@@ -809,6 +816,83 @@ func checkLegacyVolumeOutput(path, dataFile string, xdim, ydim, zdim int) error 
 		return fmt.Errorf("volume output in %s had incorrect number of lines "+
 			"(%d instead of %d)",
 			dataFile, len(lines), expectedNumLines)
+	}
+
+	return nil
+}
+
+// checkASCIIVizOutput tests some basic facts about legacy VIZ_DATA_OUTPUT
+// blocks such as the presence of the proper viz states of surface and
+// volume molecules.
+// NOTE: This is a pretty lame test and basically a literal port of our
+// previous unit test which was incidentally badly broken, so this one
+// at least does something useful :)
+func checkASCIIVizOutput(path, dataFile string, surfStates, volStates []int) error {
+
+	dataPath := filepath.Join(getOutputDir(path), dataFile)
+	c, err := ioutil.ReadFile(dataPath)
+	if err != nil {
+		return fmt.Errorf("failed to open file %s", dataPath)
+	}
+	lines := strings.Split(string(c), "\n")
+
+	// loop over all lines
+	// NOTE: the last line is an artifact due to Split and the final '\n'
+	for i, l := range lines[:len(lines)-1] {
+		items := strings.Fields(l)
+		if len(items) != 8 {
+			return fmt.Errorf("incorrect number of data items in %s row %d."+
+				" Expected 8 found %d", dataPath, i, len(items))
+		}
+
+		// check if items (2,3,4) and (5,6,7) are vectors of floats
+		for _, v := range []int{2, 3, 4} {
+			if _, err := strconv.ParseFloat(items[v], 64); err != nil {
+				return fmt.Errorf("in file %s: item in row %d and col %d is not a float",
+					dataPath, i, v)
+			}
+		}
+
+		sum := 0.0
+		for _, v := range []int{5, 6, 7} {
+			x, err := strconv.ParseFloat(items[v], 64)
+			if err != nil {
+				return fmt.Errorf("in file %s: item in row %d and col %d is not a float",
+					dataPath, i, v)
+			}
+			sum += math.Abs(x)
+		}
+
+		// if sum is zero the vector (5,6,7) was identically zero and the
+		// molecule thus is a volume molecule
+		isVolMol := false
+		if math.Nextafter(sum, 0.0) == sum {
+			isVolMol = true
+		}
+
+		// check if the surface/volume states are in the list of expected ones
+		state, err := strconv.Atoi(items[0])
+		if err != nil {
+			return fmt.Errorf("in file %s: the molecule state is not a integer", dataPath)
+		}
+
+		if isVolMol {
+			for _, v := range volStates {
+				if v == state {
+					break
+				}
+				return fmt.Errorf("in file %s: encountered unknown volume molecule "+
+					"state %d", dataPath, state)
+			}
+		} else {
+			for _, v := range surfStates {
+				if v == state {
+					break
+				}
+				return fmt.Errorf("in file %s: encountered unknown surface molecule "+
+					"state %d", dataPath, state)
+			}
+		}
 	}
 
 	return nil

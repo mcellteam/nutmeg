@@ -60,7 +60,8 @@ type TestCase struct {
 	testNonEmptyFiles
 	testEmptyFiles
 	testDiffFileContent
-	testLegacyVolumeOutput
+	testLegacyVolOutput
+	testASCIIVizOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -147,12 +148,19 @@ type testDiffFileContent struct {
 	TemplateParameters []string // list of parameters to interpolate into template file
 }
 
-// testVolumeOutput check if the legacy volume output has the proper format
+// testVolOutput check if the legacy volume output has the proper format
 // and correct number of data items
-type testLegacyVolumeOutput struct {
+type testLegacyVolOutput struct {
 	Xdim int // voxel count in x dimension
 	Ydim int // voxel count in y dimension
 	Zdim int // voxel count in z dimension
+}
+
+// testASCIIVizOutput does some basic check on the consistency of the legacy
+// MCell2 VIZ_DATA_OUTPUT.
+type testASCIIVizOutput struct {
+	SurfaceStates []int
+	VolumeStates  []int
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
