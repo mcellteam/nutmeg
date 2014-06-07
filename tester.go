@@ -96,21 +96,25 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			}
 
 		case "CHECK_LEGACY_VOL_OUTPUT":
-			if testErr = checkLegacyVolOutput(test.Path, c.DataFile, c.Xdim, c.Ydim,
-				c.Zdim); testErr != nil {
-				break
+			for _, p := range dataPaths {
+				if testErr = checkLegacyVolOutput(p, c.Xdim, c.Ydim, c.Zdim); testErr != nil {
+					break
+				}
 			}
 
 		case "CHECK_ASCII_VIZ_OUTPUT":
-			if testErr = checkASCIIVizOutput(test.Path, c.DataFile, c.SurfaceStates,
-				c.VolumeStates); testErr != nil {
-				break
+			for _, p := range dataPaths {
+				if testErr = checkASCIIVizOutput(p, c.SurfaceStates, c.VolumeStates); testErr != nil {
+					break
+				}
 			}
 
 		case "DIFF_FILE_CONTENT":
-			if testErr = diffFileContent(test.Path, c.DataFile, c.TemplateFile,
-				c.TemplateParameters); testErr != nil {
-				break
+			for _, p := range dataPaths {
+				if testErr = diffFileContent(test.Path, p, c.TemplateFile,
+					c.TemplateParameters); testErr != nil {
+					break
+				}
 			}
 
 		case "COUNT_CONSTRAINTS":
@@ -746,7 +750,7 @@ func checkExpressions(filePath string) error {
 // the template file. The template file can contain format string parameters
 // which will be filled with the template parameters as requested by the
 // test file.
-func diffFileContent(path, dataFile, templateFile string,
+func diffFileContent(path, dataPath, templateFile string,
 	templateParams []string) error {
 
 	var tp []interface{}
@@ -760,7 +764,6 @@ func diffFileContent(path, dataFile, templateFile string,
 		}
 	}
 
-	dataPath := filepath.Join(getOutputDir(path), dataFile)
 	c, err := ioutil.ReadFile(dataPath)
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", dataPath)
@@ -785,9 +788,8 @@ func diffFileContent(path, dataFile, templateFile string,
 // files such as presence of a header and the number of data items
 // NOTE: The header should look like
 //       # nx=25 ny=25 nz=25 time=100
-func checkLegacyVolOutput(path, dataFile string, xdim, ydim, zdim int) error {
+func checkLegacyVolOutput(dataPath string, xdim, ydim, zdim int) error {
 
-	dataPath := filepath.Join(getOutputDir(path), dataFile)
 	c, err := ioutil.ReadFile(dataPath)
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", dataPath)
@@ -796,26 +798,26 @@ func checkLegacyVolOutput(path, dataFile string, xdim, ydim, zdim int) error {
 
 	// parse header
 	if len(lines) == 0 {
-		return fmt.Errorf("volume output file %s is empty", dataFile)
+		return fmt.Errorf("volume output file %s is empty", dataPath)
 	}
 	headerRegexp := regexp.MustCompile("# *nx=([0-9]+) *ny=([0-9]+) *nz=([0-9]+)")
 	matches := headerRegexp.FindStringSubmatch(lines[0])
 	if len(matches) != 4 {
-		return fmt.Errorf("could not parse header of file %s", dataFile)
+		return fmt.Errorf("could not parse header of file %s", dataPath)
 	}
 
 	// check dimension
 	if matches[1] != strconv.Itoa(xdim) || matches[2] != strconv.Itoa(ydim) ||
 		matches[3] != strconv.Itoa(zdim) {
 		return fmt.Errorf("volume output in %s had incorrect x, y, or z dimensions",
-			dataFile)
+			dataPath)
 	}
 
 	expectedNumLines := (ydim+1)*zdim + 1 + 1
 	if len(lines) != expectedNumLines {
 		return fmt.Errorf("volume output in %s had incorrect number of lines "+
 			"(%d instead of %d)",
-			dataFile, len(lines), expectedNumLines)
+			dataPath, len(lines), expectedNumLines)
 	}
 
 	return nil
@@ -827,9 +829,8 @@ func checkLegacyVolOutput(path, dataFile string, xdim, ydim, zdim int) error {
 // NOTE: This is a pretty lame test and basically a literal port of our
 // previous unit test which was incidentally badly broken, so this one
 // at least does something useful :)
-func checkASCIIVizOutput(path, dataFile string, surfStates, volStates []int) error {
+func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 
-	dataPath := filepath.Join(getOutputDir(path), dataFile)
 	c, err := ioutil.ReadFile(dataPath)
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", dataPath)
