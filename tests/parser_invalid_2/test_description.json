@@ -1,0 +1,26 @@
+{
+  "description": "This tests runs a collection of mdls which are all invalid and should thus return error code 1.",
+  "author": "Jed Wing <jed@salk.edu>",
+  "date": "2008-04-04",
+  "keywords": [
+    "parser"
+  ],
+  "run": {
+      "mdlfiles": ["invalid-025.mdl"],
+      "commandlineOpts": ["-quiet"]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_EXIT_CODE",
+      "exitCode": 1
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["err_%d.0.log"]
+    },
+    {
+      "testType": "CHECK_EMPTY_FILES",
+      "emptyFiles": ["run_%d.0.log", "invalid-025.tmp"]
+    }
+  ]
+}
