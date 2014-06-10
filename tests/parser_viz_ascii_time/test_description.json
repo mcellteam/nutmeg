@@ -223,61 +223,61 @@
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.001.dat",
+      "dataFile": "viz_dat/molecules.ascii.00001.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.011.dat",
+      "dataFile": "viz_dat/molecules.ascii.00011.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.021.dat",
+      "dataFile": "viz_dat/molecules.ascii.00021.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.031.dat",
+      "dataFile": "viz_dat/molecules.ascii.00031.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.041.dat",
+      "dataFile": "viz_dat/molecules.ascii.00041.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.051.dat",
+      "dataFile": "viz_dat/molecules.ascii.00051.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.061.dat",
+      "dataFile": "viz_dat/molecules.ascii.00061.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.071.dat",
+      "dataFile": "viz_dat/molecules.ascii.00071.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.081.dat",
+      "dataFile": "viz_dat/molecules.ascii.00081.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     },
     {
       "testType": "CHECK_ASCII_VIZ_OUTPUT",
-      "dataFile": "viz_dat/molecules.ascii.091.dat",
+      "dataFile": "viz_dat/molecules.ascii.00091.dat",
       "surfaceStates": [4],
       "volumeStates": [3]
     }
