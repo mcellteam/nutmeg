@@ -1,0 +1,303 @@
+{
+  "description": " A mostly non-sensical test which simply exercises the parser checking for anomalous behavior.  This test should not provoke any errors, provided that counting-5.txt does not exist in its reaction output directory. (This is to test the \"no overwrite\" output mode for counting.) This variant produces DX mode viz output, specified using the ITERATION_FRAME_DATA notation.",
+  "author": "Jed Wing <jed@salk.edu>",
+  "date": "2008-04-04",
+  "keywords": [
+    "parser"
+  ],
+  "run": {
+      "mdlfiles": ["test.mdl"],
+      "commandlineOpts": []
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 5",
+      "dataFile": "dat/counting-1.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [5],
+      "countMaximum": [5]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 6. Exact time turned off -- should have no effect on counts",
+      "dataFile": "dat/counting-2.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [6],
+      "countMaximum": [6]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 7. Header explicitly turned off -- should have no effect on counts.",
+      "dataFile": "dat/counting-3.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [7],
+      "countMaximum": [7]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 8. Exact time turned on -- should have no effect on counts.",
+      "dataFile": "dat/counting-4.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [8],
+      "countMaximum": [8]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 9. Header turned off (YES/NO syntax, rather than NONE).",
+      "dataFile": "dat/counting-5.txt",
+      "haveHeader": false,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [9],
+      "countMaximum": [9]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant count of 10. Header turned but on but no custom header given.",
+      "dataFile": "dat/counting-6.txt",
+      "haveHeader": true,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [10],
+      "countMaximum": [10]
+    },
+    {
+      "testType": "COUNT_MINMAX",
+      "description": "Constant counts of 11, 12, 13. Custom header 'Duck, Duck, Goose' given.",
+      "dataFile": "dat/counting-7.txt",
+      "haveHeader": true,
+      "minTime": 0.0,
+      "maxTime": 1e-4,
+      "countMinimum": [11, 12, 13],
+      "countMaximum": [11, 12, 13]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_4 in world.big_object.newbox. Could try to validate against counting-8.txt. Exact time is left at default (ON).",
+      "dataFile": "dat/counting-19.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": true,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_4 in world.big_object.newbox. Could try to validate against counting-8.txt. Exact time is explicitly turned OFF.",
+      "dataFile": "dat/counting-20.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": false,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+    {
+      "testType": "CHECK_TRIGGERS",
+      "description": "Trigger for count of s_v_0 in world.big_object.newbox. Could try to validate against counting-8.txt  Exact time is explicitly turned ON.",
+      "dataFile": "dat/counting-21.txt",
+      "triggerType": "molCounts",
+      "outputTime": 1e-6,
+      "haveExactTime": true,
+      "xrange": [-20,20],
+      "yrange": [-20,20],
+      "zrange": [-20,20]
+    },
+
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["dat/counting-1.txt", 
+                        "dat/counting-2.txt",
+                        "dat/counting-3.txt",
+                        "dat/counting-4.txt",
+                        "dat/counting-5.txt",
+                        "dat/counting-6.txt",
+                        "dat/counting-7.txt", 
+                        "dat/counting-8.txt",
+                        "dat/counting-9.txt",
+                        "dat/counting-10.txt",
+                        "dat/counting-11.txt",
+                        "dat/counting-12.txt",
+                        "dat/counting-13.txt",
+                        "dat/counting-14.txt", 
+                        "dat/counting-15.txt",
+                        "dat/counting-16.txt",
+                        "dat/counting-17.txt",
+                        "dat/counting-18.txt",
+                        "dat/counting-19.txt",
+                        "dat/counting-20.txt",
+                        "dat/counting-21.txt"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/vo.0.dat", 
+                        "vol_dat/vo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/ovo.1.dat", 
+                        "vol_dat/ovo.10.dat",
+                        "vol_dat/ovo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["vol_dat/nvo.100.dat"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["parser_viz_dx_iterframedata-expressions.dat",
+                        "parser_viz_dx_iterframedata.dat",
+                        "run_%d.0.log",
+                        "err_%d.0.log"]
+    },
+    {
+      "testType": "FILE_MATCH_PATTERN",
+      "dataFile": "err_%d.0.log",
+      "matchPattern": "Warning: Could not release 6 of s_g_1 \\(surface full\\).\n",
+      "numMatches": 1
+    },
+    {
+      "testType": "CHECK_EXPRESSIONS",
+      "dataFile": "parser_viz_dx_iterframedata-expressions.dat"
+    },
+    { 
+      "testType": "DIFF_FILE_CONTENT",
+      "dataFile": "parser_viz_dx_iterframedata.dat",
+      "templateFile": "parser_viz_dx_iterframedata_template.dat",
+      "templateParameters": ["TODAY_DAY"]
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/vo.0.dat",
+      "Xdim": 25,
+      "Ydim": 25,
+      "Zdim": 25
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/vo.100.dat",
+      "Xdim": 25,
+      "Ydim": 25,
+      "Zdim": 25
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/ovo.1.dat",
+      "Xdim": 1,
+      "Ydim": 2,
+      "Zdim": 4
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/ovo.10.dat",
+      "Xdim": 1,
+      "Ydim": 2,
+      "Zdim": 4 
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/ovo.100.dat",
+      "Xdim": 1,
+      "Ydim": 2,
+      "Zdim": 4 
+    },
+    {
+      "testType": "CHECK_LEGACY_VOL_OUTPUT",
+      "dataFile": "vol_dat/nvo.100.dat",
+      "Xdim": 1,
+      "Ydim": 1,
+      "Zdim": 1 
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["viz_dat/molecules.molecule_positions.1.dx",
+                        "viz_dat/molecules.molecule_positions.3.dx",
+                        "viz_dat/molecules.molecule_positions.13.dx",
+                        "viz_dat/molecules.molecule_positions.23.dx",
+                        "viz_dat/molecules.molecule_positions.33.dx",
+                        "viz_dat/molecules.molecule_positions.43.dx",
+                        "viz_dat/molecules.molecule_positions.53.dx",
+                        "viz_dat/molecules.molecule_positions.63.dx",
+                        "viz_dat/molecules.molecule_positions.73.dx",
+                        "viz_dat/molecules.molecule_positions.83.dx",
+                        "viz_dat/molecules.molecule_positions.93.dx",
+                        "viz_dat/molecules.molecule_states.11.dx",
+                        "viz_dat/molecules.molecule_states.25.dx"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["viz_dat/objects_a.effector_site_positions.1.dx",
+                        "viz_dat/objects_a.effector_site_positions.11.dx",
+                        "viz_dat/objects_a.effector_site_positions.21.dx",
+                        "viz_dat/objects_a.effector_site_positions.31.dx",
+                        "viz_dat/objects_a.effector_site_positions.41.dx",
+                        "viz_dat/objects_a.effector_site_positions.51.dx",
+                        "viz_dat/objects_a.effector_site_positions.61.dx",
+                        "viz_dat/objects_a.effector_site_positions.71.dx",
+                        "viz_dat/objects_a.effector_site_positions.81.dx",
+                        "viz_dat/objects_a.effector_site_positions.91.dx",
+                        "viz_dat/objects_a.effector_site_states.1.dx",
+                        "viz_dat/objects_a.effector_site_states.2.dx",
+                        "viz_dat/objects_a.effector_site_states.12.dx",
+                        "viz_dat/objects_a.effector_site_states.22.dx",
+                        "viz_dat/objects_a.effector_site_states.32.dx",
+                        "viz_dat/objects_a.effector_site_states.42.dx",
+                        "viz_dat/objects_a.effector_site_states.52.dx",
+                        "viz_dat/objects_a.effector_site_states.62.dx",
+                        "viz_dat/objects_a.effector_site_states.72.dx",
+                        "viz_dat/objects_a.effector_site_states.82.dx",
+                        "viz_dat/objects_a.effector_site_states.92.dx"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["viz_dat/objects_a.mesh_elements.1.dx",
+                        "viz_dat/objects_a.mesh_elements.2.dx",
+                        "viz_dat/objects_a.mesh_element_states.1.dx",
+                        "viz_dat/objects_a.mesh_element_states.3.dx"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["viz_dat/objects_b.effector_site_positions.1.dx",
+                        "viz_dat/objects_b.effector_site_positions.11.dx",
+                        "viz_dat/objects_b.effector_site_positions.21.dx",
+                        "viz_dat/objects_b.effector_site_positions.31.dx",
+                        "viz_dat/objects_b.effector_site_positions.41.dx",
+                        "viz_dat/objects_b.effector_site_positions.51.dx",
+                        "viz_dat/objects_b.effector_site_positions.61.dx",
+                        "viz_dat/objects_b.effector_site_positions.71.dx",
+                        "viz_dat/objects_b.effector_site_positions.81.dx",
+                        "viz_dat/objects_b.effector_site_positions.91.dx",
+                        "viz_dat/objects_b.effector_site_states.1.dx",
+                        "viz_dat/objects_b.effector_site_states.2.dx",
+                        "viz_dat/objects_b.effector_site_states.12.dx",
+                        "viz_dat/objects_b.effector_site_states.22.dx",
+                        "viz_dat/objects_b.effector_site_states.32.dx",
+                        "viz_dat/objects_b.effector_site_states.42.dx",
+                        "viz_dat/objects_b.effector_site_states.52.dx",
+                        "viz_dat/objects_b.effector_site_states.62.dx",
+                        "viz_dat/objects_b.effector_site_states.72.dx",
+                        "viz_dat/objects_b.effector_site_states.82.dx",
+                        "viz_dat/objects_b.effector_site_states.92.dx"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "nonemptyFiles": ["viz_dat/objects_b.mesh_elements.1.dx",
+                        "viz_dat/objects_b.mesh_elements.2.dx",
+                        "viz_dat/objects_b.mesh_element_states.1.dx",
+                        "viz_dat/objects_b.mesh_element_states.3.dx"]
+    }
+  ]
+}
