@@ -25,7 +25,7 @@ func testRunner(test *TestDescription, result chan *testResult) {
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
-		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT"}
+		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT"}
 
 	for _, c := range test.Checks {
 
@@ -92,6 +92,11 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		case "CHECK_EMPTY_FILES":
 			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.EmptyFiles,
 				true); testErr != nil {
+				break
+			}
+
+		case "CHECK_CHECKPOINT":
+			if testErr = checkCheckPoint(test.Path, c.BaseName, c.Delay, c.Margin); testErr != nil {
 				break
 			}
 
@@ -684,6 +689,41 @@ func checkFilesEmpty(testDir string, seed int, fileList []string, empty bool) er
 		return fmt.Errorf("the following files were either missing or %s:\n\n\t\t%s",
 			message, badFiles)
 	}
+	return nil
+}
+
+// checkCheckPoint tests that a checkpoint happened at the requested delay
+// in seconds (+/- margin)
+func checkCheckPoint(testDir, baseName string, delay, margin float64) error {
+
+	path := getOutputDir(testDir)
+
+	stamp := filepath.Join(path, baseName+".stamp")
+	stampi, err := os.Stat(stamp)
+	if err != nil {
+		return fmt.Errorf("Failed to stat file %s", stamp)
+	}
+	stampTime := stampi.ModTime()
+
+	checkpt := filepath.Join(path, baseName+".cp")
+	checkpti, err := os.Stat(checkpt)
+	if err != nil {
+		return fmt.Errorf("Failed to stat file %s", checkpt)
+	}
+	checkTime := checkpti.ModTime()
+
+	if checkTime.Sub(stampTime).Seconds() < delay-margin {
+		return fmt.Errorf("Realtime checkpoint scheduled for %f seconds but "+
+			"time between timestamp and checkpoint is less than %f seconds",
+			delay, delay-margin)
+	}
+
+	if checkTime.Sub(stampTime).Seconds() > delay+margin {
+		return fmt.Errorf("Realtime checkpoint scheduled for %f seconds but "+
+			"time between timestamp and checkpoint exceeds %f seconds", delay,
+			delay+margin)
+	}
+
 	return nil
 }
 

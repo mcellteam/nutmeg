@@ -62,6 +62,7 @@ type TestCase struct {
 	testDiffFileContent
 	testLegacyVolOutput
 	testASCIIVizOutput
+	testCheckPoint
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -107,7 +108,9 @@ type testPatternMatch struct {
 // testCompareCounts pertains to checks comparing data against exact reference
 // counts
 type testCompareCounts struct {
-	ReferenceFile string // name of file with reference counts to compare against
+	ReferenceFile string  // name of file with reference counts to compare against
+	Delay         float64 // delay in seconds at which checkpoint should happen
+	Margin        float64 // acceptable margin for checkpoint delay in seconds
 }
 
 // testMeans pertaints to checks testing that data values have a certain mean
@@ -161,6 +164,11 @@ type testLegacyVolOutput struct {
 type testASCIIVizOutput struct {
 	SurfaceStates []int
 	VolumeStates  []int
+}
+
+// testCheckPoint does basic timing tests involving checkpoints
+type testCheckPoint struct {
+	BaseName string
 }
 
 // runStatus encapsulating the status of running of of N mdl files which make
