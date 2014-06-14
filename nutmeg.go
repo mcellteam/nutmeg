@@ -191,35 +191,6 @@ func appendTestCases(testIDs []int, selection, testNames []string) []string {
 	return selection
 }
 
-// convertRangeToList converts a single string containing a range statement
-// of the form "4:9" into an explicit integer list describing the
-// range [4, 5, 6, 7, 8, 9]
-func convertRangeToList(rangeStatement string) ([]int, error) {
-
-	rangeEndpoints := strings.Split(rangeStatement, ":")
-	if len(rangeEndpoints) != 2 {
-		return nil, fmt.Errorf("range selection %s not valid", rangeStatement)
-	}
-
-	var rangeBegin int
-	var err error
-	if rangeBegin, err = strconv.Atoi(rangeEndpoints[0]); err != nil {
-		return nil, fmt.Errorf("invalid range start character %s", rangeEndpoints[0])
-	}
-
-	var rangeEnd int
-	if rangeEnd, err = strconv.Atoi(rangeEndpoints[1]); err != nil {
-		return nil, fmt.Errorf("invalid range end character %s", rangeEndpoints[1])
-	}
-
-	var newRange []int
-	for i := rangeBegin; i <= rangeEnd; i++ {
-		newRange = append(newRange, i)
-	}
-
-	return newRange, nil
-}
-
 // gatherTests determines the list of available test cases and orders them
 // alphabetically
 func gatherTests(testDir string) ([]string, error) {

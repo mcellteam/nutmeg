@@ -116,52 +116,28 @@
       "yrange": [-20,20],
       "zrange": [-20,20]
     },
-
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["dat/counting-1.txt", 
-                        "dat/counting-2.txt",
-                        "dat/counting-3.txt",
-                        "dat/counting-4.txt",
-                        "dat/counting-5.txt",
-                        "dat/counting-6.txt",
-                        "dat/counting-7.txt", 
-                        "dat/counting-8.txt",
-                        "dat/counting-9.txt",
-                        "dat/counting-10.txt",
-                        "dat/counting-11.txt",
-                        "dat/counting-12.txt",
-                        "dat/counting-13.txt",
-                        "dat/counting-14.txt", 
-                        "dat/counting-15.txt",
-                        "dat/counting-16.txt",
-                        "dat/counting-17.txt",
-                        "dat/counting-18.txt",
-                        "dat/counting-19.txt",
-                        "dat/counting-20.txt",
-                        "dat/counting-21.txt"]
+      "fileNames" : ["dat/counting-%d.txt"],
+      "IDRange" : ["1:21"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/vo.0.dat", 
-                        "vol_dat/vo.100.dat"]
+      "fileNames": ["vol_dat/vo.%d.dat"], 
+      "IDrange" : ["0", "100"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/ovo.1.dat", 
-                        "vol_dat/ovo.10.dat",
-                        "vol_dat/ovo.100.dat"]
+      "fileNames": ["vol_dat/ovo.%d.dat"], 
+      "IDRange" : ["1", "10", "100"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/nvo.100.dat"]
-    },
-    {
-      "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["parser_viz_dx_iterframedata-expressions.dat",
-                        "parser_viz_dx_iterframedata.dat",
-                        "run_%d.0.log",
-                        "err_%d.0.log"]
+      "fileNames": ["vol_dat/nvo.100.dat",
+                    "parser_viz_dx_iterframedata-expressions.dat",
+                    "parser_viz_dx_iterframedata.dat",
+                    "run_%d.0.log",
+                    "err_%d.0.log"]
     },
     {
       "testType": "FILE_MATCH_PATTERN",
@@ -223,81 +199,53 @@
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["viz_dat/molecules.molecule_positions.1.dx",
-                        "viz_dat/molecules.molecule_positions.3.dx",
-                        "viz_dat/molecules.molecule_positions.13.dx",
-                        "viz_dat/molecules.molecule_positions.23.dx",
-                        "viz_dat/molecules.molecule_positions.33.dx",
-                        "viz_dat/molecules.molecule_positions.43.dx",
-                        "viz_dat/molecules.molecule_positions.53.dx",
-                        "viz_dat/molecules.molecule_positions.63.dx",
-                        "viz_dat/molecules.molecule_positions.73.dx",
-                        "viz_dat/molecules.molecule_positions.83.dx",
-                        "viz_dat/molecules.molecule_positions.93.dx",
-                        "viz_dat/molecules.molecule_states.11.dx",
-                        "viz_dat/molecules.molecule_states.25.dx"]
+      "fileNames": ["viz_dat/molecules.molecule_positions.%d.dx"],
+      "IDRange" : ["1","3:100:10"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["viz_dat/objects_a.effector_site_positions.1.dx",
-                        "viz_dat/objects_a.effector_site_positions.11.dx",
-                        "viz_dat/objects_a.effector_site_positions.21.dx",
-                        "viz_dat/objects_a.effector_site_positions.31.dx",
-                        "viz_dat/objects_a.effector_site_positions.41.dx",
-                        "viz_dat/objects_a.effector_site_positions.51.dx",
-                        "viz_dat/objects_a.effector_site_positions.61.dx",
-                        "viz_dat/objects_a.effector_site_positions.71.dx",
-                        "viz_dat/objects_a.effector_site_positions.81.dx",
-                        "viz_dat/objects_a.effector_site_positions.91.dx",
-                        "viz_dat/objects_a.effector_site_states.1.dx",
-                        "viz_dat/objects_a.effector_site_states.2.dx",
-                        "viz_dat/objects_a.effector_site_states.12.dx",
-                        "viz_dat/objects_a.effector_site_states.22.dx",
-                        "viz_dat/objects_a.effector_site_states.32.dx",
-                        "viz_dat/objects_a.effector_site_states.42.dx",
-                        "viz_dat/objects_a.effector_site_states.52.dx",
-                        "viz_dat/objects_a.effector_site_states.62.dx",
-                        "viz_dat/objects_a.effector_site_states.72.dx",
-                        "viz_dat/objects_a.effector_site_states.82.dx",
-                        "viz_dat/objects_a.effector_site_states.92.dx"]
+      "fileNames": ["viz_dat/molecules.molecule_states.%d.dx"],
+      "IDRange" : ["11","25"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["viz_dat/objects_a.mesh_elements.1.dx",
-                        "viz_dat/objects_a.mesh_elements.2.dx",
-                        "viz_dat/objects_a.mesh_element_states.1.dx",
-                        "viz_dat/objects_a.mesh_element_states.3.dx"]
+      "fileNames": ["viz_dat/objects_a.effector_site_positions.%d.dx"],
+      "IDRange" : ["1:101:10"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["viz_dat/objects_b.effector_site_positions.1.dx",
-                        "viz_dat/objects_b.effector_site_positions.11.dx",
-                        "viz_dat/objects_b.effector_site_positions.21.dx",
-                        "viz_dat/objects_b.effector_site_positions.31.dx",
-                        "viz_dat/objects_b.effector_site_positions.41.dx",
-                        "viz_dat/objects_b.effector_site_positions.51.dx",
-                        "viz_dat/objects_b.effector_site_positions.61.dx",
-                        "viz_dat/objects_b.effector_site_positions.71.dx",
-                        "viz_dat/objects_b.effector_site_positions.81.dx",
-                        "viz_dat/objects_b.effector_site_positions.91.dx",
-                        "viz_dat/objects_b.effector_site_states.1.dx",
-                        "viz_dat/objects_b.effector_site_states.2.dx",
-                        "viz_dat/objects_b.effector_site_states.12.dx",
-                        "viz_dat/objects_b.effector_site_states.22.dx",
-                        "viz_dat/objects_b.effector_site_states.32.dx",
-                        "viz_dat/objects_b.effector_site_states.42.dx",
-                        "viz_dat/objects_b.effector_site_states.52.dx",
-                        "viz_dat/objects_b.effector_site_states.62.dx",
-                        "viz_dat/objects_b.effector_site_states.72.dx",
-                        "viz_dat/objects_b.effector_site_states.82.dx",
-                        "viz_dat/objects_b.effector_site_states.92.dx"]
+      "fileNames": ["viz_dat/objects_a.effector_site_states.%d.dx"],
+      "IDRange" : ["1","2:101:10"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["viz_dat/objects_b.mesh_elements.1.dx",
-                        "viz_dat/objects_b.mesh_elements.2.dx",
-                        "viz_dat/objects_b.mesh_element_states.1.dx",
-                        "viz_dat/objects_b.mesh_element_states.3.dx"]
+      "fileNames": ["viz_dat/objects_b.effector_site_positions.%d.dx"],
+      "IDRange" : ["1:101:10"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "fileNames": ["viz_dat/objects_b.effector_site_states.%d.dx"],
+      "IDRange" : ["1","2:101:10"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "fileNames": ["viz_dat/objects_a.mesh_elements.%d.dx"],
+      "IDRange" : ["1","2"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "fileNames": ["viz_dat/objects_a.mesh_element_states.%d.dx"],
+      "IDRange" : ["1","3"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "fileNames": ["viz_dat/objects_b.mesh_elements.%d.dx"],
+      "IDRange" : ["1","2"]
+    },
+    {
+      "testType": "CHECK_NONEMPTY_FILES",
+      "fileNames": ["viz_dat/objects_b.mesh_element_states.%d.dx"],
+      "IDRange" : ["1","3"]
     }
   ]
 }

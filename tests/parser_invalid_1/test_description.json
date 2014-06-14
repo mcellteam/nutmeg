@@ -37,11 +37,11 @@
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["err_%d.0.log"]
+      "fileNames": ["err_%d.0.log"]
     },
     {
       "testType": "CHECK_EMPTY_FILES",
-      "emptyFiles": ["run_%d.0.log"]
+      "fileNames": ["run_%d.0.log"]
     }
   ]
 }

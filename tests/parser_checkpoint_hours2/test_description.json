@@ -15,7 +15,7 @@
     },
     {
       "testType": "CHECK_EMPTY_FILES",
-      "emptyFiles": ["stderr_%d.0.log", "stdout_%d.0.log"]
+      "fileNames": ["stderr_%d.0.log", "stdout_%d.0.log"]
     },
     {
       "testType": "CHECK_CHECKPOINT",

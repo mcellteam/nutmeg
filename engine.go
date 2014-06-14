@@ -57,8 +57,7 @@ type TestCase struct {
 	testPatternMatch
 	testRates
 	testTrigger
-	testNonEmptyFiles
-	testEmptyFiles
+	testFileSize
 	testDiffFileContent
 	testLegacyVolOutput
 	testASCIIVizOutput
@@ -130,16 +129,17 @@ type testTrigger struct {
 	Zrange        []float64 // typle of valid z ranges for triggered events
 }
 
-// testNonemptyFiles pertains to checks testing that the given list of files
-// exists and each file is non-empty
-type testNonEmptyFiles struct {
-	NonEmptyFiles []string // what files are supposed to be non-empty
-}
-
-// testEmptyFiles pertains to checks testing that the given list of files
-// exists (!) and each file is empty
-type testEmptyFiles struct {
-	EmptyFiles []string // what files are supposed to be empty
+// testFileSize pertains to checks testing that the given list of files
+// exists and each file is either emtpy or non-empty with a given size.
+// FileNames can contain format strings containing integer (%d) specifiers. In
+// this case IDRange needs to be a list of strings describing a range. Each item
+// can either correspond to an integer or a range of the form start:end:step.
+// FileSize is the optional size of the file (for each of the files in the
+// interpolated list of files).
+type testFileSize struct {
+	FileNames []string // the filenames (can each be format string)
+	IDRange   []string // a list of string describing a file range, e.g. [1, 2, 3:100:5]
+	FileSize  int64    // file size in bytes
 }
 
 // testDiffFileContent pertains that check the content of a file against a

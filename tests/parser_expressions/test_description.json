@@ -15,8 +15,7 @@
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["my_file.dat",
-                        "exp.dat"]
+      "fileNames": ["my_file.dat", "exp.dat"]
     },
     {
       "testType": "COMPARE_COUNTS",

@@ -84,14 +84,14 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			}
 
 		case "CHECK_NONEMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.NonEmptyFiles,
-				false); testErr != nil {
+			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.FileNames,
+				c.IDRange, c.FileSize, false); testErr != nil {
 				break
 			}
 
 		case "CHECK_EMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.EmptyFiles,
-				true); testErr != nil {
+			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.FileNames,
+				c.IDRange, c.FileSize, true); testErr != nil {
 				break
 			}
 
@@ -657,7 +657,21 @@ func checkZeroCounts(data *Columns, dataPath string, minTime,
 // checkFilesEmpty tests that all simulation output files listed were
 // created by the run and are either emtpy or non-empty depending on the
 // provided switch
-func checkFilesEmpty(testDir string, seed int, fileList []string, empty bool) error {
+func checkFilesEmpty(testDir string, seed int, fileNames []string,
+	IDRange []string, fileSize int64, empty bool) error {
+
+	var fileList []string
+	for _, fileName := range fileNames {
+		files, err := generateFileList(fileName, IDRange)
+		if err != nil {
+			return err
+		}
+		fileList = append(fileList, files...)
+	}
+
+	if len(fileList) == 0 {
+		return fmt.Errorf("no files to test specified")
+	}
 
 	var sizeCheck func(int64) bool
 	var message string
@@ -665,7 +679,12 @@ func checkFilesEmpty(testDir string, seed int, fileList []string, empty bool) er
 		sizeCheck = func(s int64) bool { return s == 0 }
 		message = "non-empty"
 	} else {
-		sizeCheck = func(s int64) bool { return s != 0 }
+		sizeCheck = func(s int64) bool {
+			if fileSize == 0 {
+				return s != 0
+			}
+			return s == fileSize
+		}
 		message = "empty"
 	}
 
@@ -679,15 +698,15 @@ func checkFilesEmpty(testDir string, seed int, fileList []string, empty bool) er
 		for _, filePath := range filePaths {
 			fi, err := os.Stat(filePath)
 			if err != nil || !sizeCheck(fi.Size()) {
-				badFileList = append(badFileList, filepath.Base(filePath))
+				badFileList = append(badFileList, filePath)
 			}
 		}
 	}
 
 	if len(badFileList) != 0 {
 		badFiles := strings.Join(badFileList, "\n\t\t")
-		return fmt.Errorf("the following files were either missing or %s:\n\n\t\t%s",
-			message, badFiles)
+		return fmt.Errorf("the following files were either missing, %s, or had "+
+			"the wrong size:\n\n\t\t%s", message, badFiles)
 	}
 	return nil
 }

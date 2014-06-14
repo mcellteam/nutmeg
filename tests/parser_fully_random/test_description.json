@@ -116,52 +116,28 @@
       "yrange": [-20,20],
       "zrange": [-20,20]
     },
-
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["dat/counting-1.txt", 
-                        "dat/counting-2.txt",
-                        "dat/counting-3.txt",
-                        "dat/counting-4.txt",
-                        "dat/counting-5.txt",
-                        "dat/counting-6.txt",
-                        "dat/counting-7.txt", 
-                        "dat/counting-8.txt",
-                        "dat/counting-9.txt",
-                        "dat/counting-10.txt",
-                        "dat/counting-11.txt",
-                        "dat/counting-12.txt",
-                        "dat/counting-13.txt",
-                        "dat/counting-14.txt", 
-                        "dat/counting-15.txt",
-                        "dat/counting-16.txt",
-                        "dat/counting-17.txt",
-                        "dat/counting-18.txt",
-                        "dat/counting-19.txt",
-                        "dat/counting-20.txt",
-                        "dat/counting-21.txt"]
+      "fileNames" : ["dat/counting-%d.txt"],
+      "IDRange" : ["1:21"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/vo.0.dat", 
-                        "vol_dat/vo.100.dat"]
+      "fileNames": ["vol_dat/vo.%d.dat"], 
+      "IDrange" : ["0", "100"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/ovo.1.dat", 
-                        "vol_dat/ovo.10.dat",
-                        "vol_dat/ovo.100.dat"]
+      "fileNames": ["vol_dat/ovo.%d.dat"], 
+      "IDRange" : ["1", "10", "100"]
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["vol_dat/nvo.100.dat"]
-    },
-    {
-      "testType": "CHECK_NONEMPTY_FILES",
-      "nonemptyFiles": ["parser_fully_random-expressions.dat",
-                        "parser_fully_random.dat",
-                        "run_%d.0.log",
-                        "err_%d.0.log"]
+      "fileNames": ["vol_dat/nvo.100.dat",
+                    "parser_fully_random-expressions.dat",
+                    "parser_fully_random.dat",
+                    "run_%d.0.log",
+                    "err_%d.0.log"]
     },
     {
       "testType": "FILE_MATCH_PATTERN",
