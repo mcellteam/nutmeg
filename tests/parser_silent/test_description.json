@@ -136,12 +136,11 @@
       "fileNames": ["vol_dat/nvo.100.dat",
                     "parser_silent-expressions.dat",
                     "parser_silent.dat",
-                    "run_%d.0.log",
-                    "err_%d.0.log"]
+                    "run_%d.0.log"]
     },
     {
       "testType": "CHECK_EMPTY_FILES",
-      "emptyFiles": ["err_%d.0.log"]
+      "fileNames": ["err_%d.0.log"]
     },
     {
       "testType": "CHECK_EXPRESSIONS",

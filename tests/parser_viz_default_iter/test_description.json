@@ -200,12 +200,12 @@
     {
       "testType": "CHECK_NONEMPTY_FILES",
       "fileNames" : ["viz_dat/world_viz_data/world.iteration_numbers.bin"], 
-      "fileSize" : 1200012
+      "fileSize" : 150012
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
       "fileNames" : ["viz_dat/world_viz_data/world.time_values.bin"], 
-      "fileSize" : 800008
+      "fileSize" : 100008
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
