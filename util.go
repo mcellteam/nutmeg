@@ -127,7 +127,7 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 	}
 
 	var newRange []int
-	for i := rangeBegin; i <= rangeEnd; i += rangeStep {
+	for i := rangeBegin; i < rangeEnd; i += rangeStep {
 		newRange = append(newRange, i)
 	}
 

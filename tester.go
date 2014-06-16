@@ -25,7 +25,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
-		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT"}
+		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT",
+		"CHECK_DREAMM_V3_MOLS_BIN"}
 
 	for _, c := range test.Checks {
 
@@ -112,6 +113,14 @@ func testRunner(test *TestDescription, result chan *testResult) {
 				if testErr = checkASCIIVizOutput(p, c.SurfaceStates, c.VolumeStates); testErr != nil {
 					break
 				}
+			}
+
+		case "CHECK_DREAMM_V3_MOLS_BIN":
+			if testErr = checkDREAMMV3MolsBin(test.Path, c.DataPath, c.AllFrames,
+				c.SurfPosFrames, c.SurfOrientFrames, c.SurfStateFrames,
+				c.SurfNonEmptyFrames, c.VolPosFrames, c.VolOrientFrames,
+				c.VolStateFrames, c.VolNonEmptyFrames); testErr != nil {
+				break
 			}
 
 		case "DIFF_FILE_CONTENT":
@@ -955,5 +964,15 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 		}
 	}
 
+	return nil
+}
+
+// checkDREAMMV3MolsBin checks the layout for molecule related data within the
+// DREAMM v3 viz format
+func checkDREAMMV3MolsBin(output, dataPath string, allFrames, surfPosFrames,
+	surfOrientFrames, surfStateFrames, surfNonEmptyFrames, volPosFrames,
+	volOrientFrames, volStateFrames, volNonEmptyFrames intList) error {
+
+	fmt.Println("")
 	return nil
 }

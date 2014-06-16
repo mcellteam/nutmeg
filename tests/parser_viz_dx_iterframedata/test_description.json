@@ -7,7 +7,7 @@
   ],
   "run": {
       "mdlfiles": ["test.mdl"],
-      "commandlineOpts": []
+      "commandlineOpts": ["-iteration","100"]
   },
   "checks": [
     {

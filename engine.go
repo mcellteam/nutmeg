@@ -62,6 +62,7 @@ type TestCase struct {
 	testLegacyVolOutput
 	testASCIIVizOutput
 	testCheckPoint
+	testDREAMMV3MolBinOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -138,7 +139,7 @@ type testTrigger struct {
 // interpolated list of files).
 type testFileSize struct {
 	FileNames []string // the filenames (can each be format string)
-	IDRange   []string // a list of string describing a file range, e.g. [1, 2, 3:100:5]
+	IDRange   intList  // list of strings describing a numeric range, e.g. [1, 2, 3:100:5]
 	FileSize  int64    // file size in bytes
 }
 
@@ -171,7 +172,27 @@ type testCheckPoint struct {
 	BaseName string
 }
 
-// runStatus encapsulating the status of running of of N mdl files which make
+// testDREAMMV3MolBinOutput test the DREAMM_V3 molecule viz data output.
+// NOTE: It is a bit tricky to split this test into more elementary tests since
+// the framework also checks the existence of the proper soft links which
+// depend on the overall iteration structure (e.g., an iteration directory
+// without a requested molecule output receives links to the most recently
+// added data in a previous iteration). Thus, it seemed better to hardcode
+// everything into a more complex single test.
+type testDREAMMV3MolBinOutput struct {
+	DataPath           string  // path to viz data output directory
+	AllFrames          intList // list of all frames *required*
+	SurfPosFrames      intList // surface mol. position frames
+	SurfOrientFrames   intList // surface mol. orientation frames
+	SurfStateFrames    intList // surface mol. state frames
+	SurfNonEmptyFrames intList // surface mol. non-empty frames
+	VolPosFrames       intList // volume mol. position frames
+	VolOrientFrames    intList // surface mol. orientation frames
+	VolStateFrames     intList // surface mol. state frames
+	VolNonEmptyFrames  intList // surface mol. empty frames
+}
+
+// runStatus encapsulates the status of running of of N mdl files which make
 // up a single test case
 // NOTE: a run might fail for a number of reasons, e.g., during preparation of
 // a run and patching in stderr, or during running of MCell itself. If running
@@ -188,6 +209,12 @@ type ConstraintSpec struct {
 	Target int
 	Query  []int
 }
+
+// intList is a parse time list of strings which will be converted into an
+// integer range. Each item is either a string representation of an integer or
+// an integer range of the form start:end:step.
+// Exampe: [1, 2, 3:100:5]
+type intList []string
 
 // Copy member function for a TestDescription
 func (t *TestDescription) Copy() *TestDescription {

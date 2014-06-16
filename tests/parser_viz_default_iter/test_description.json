@@ -7,7 +7,7 @@
   ],
   "run": {
       "mdlfiles": ["test.mdl"],
-      "commandlineOpts": []
+      "commandlineOpts": ["-iterations", "100"]
   },
   "checks": [
     {
@@ -200,16 +200,16 @@
     {
       "testType": "CHECK_NONEMPTY_FILES",
       "fileNames" : ["viz_dat/world_viz_data/world.iteration_numbers.bin"], 
-      "fileSize" : 150012
+      "fileSize" : 1212
     },
     {
       "testType": "CHECK_NONEMPTY_FILES",
       "fileNames" : ["viz_dat/world_viz_data/world.time_values.bin"], 
-      "fileSize" : 100008
+      "fileSize" : 808
     },
     {
-      "testType": "CHECK_NONEMPTY_FILES",
-      "fileNames" : ["viz_dat/world_viz_data/frame_data/iteration_%d/surface_molecules_positions.bin"],
+      "testType": "CHECK_DREAMM_V3_MOLS_BIN",
+      "dataPath" : "viz_dat/world_viz_data/",
       "IDRange" : ["0:101"]
     }
   ]
