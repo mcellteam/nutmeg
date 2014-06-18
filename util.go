@@ -231,3 +231,91 @@ func createMolList(allIters, surfPosIters, surfOrientIters, surfStateIters,
 
 	return &m, nil
 }
+
+// checkDREAMMV3IterItems checks the expected file consistency in a given
+// viz iterations directory for a specific items (surface positions,
+// orientations, etc.)
+func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
+	isEmpty bool, fileTemplate string) error {
+
+	fileName := fmt.Sprintf(fileTemplate, iter)
+	if molSet.Contains(iter) {
+		if isEmpty {
+			ok, err := testFileEmpty(fileName)
+			if err != nil {
+				return err
+			} else if !ok {
+				return fmt.Errorf("file %s is not empty as expected", fileName)
+			}
+		} else {
+			ok, err := testFileNonEmpty(fileName)
+			if err != nil {
+				return err
+			} else if !ok {
+				return fmt.Errorf("file %s is not non-empty as expected", fileName)
+			}
+		}
+	} else if lastPos >= 0 && !molIters.Contains(iter) {
+		linkName := fmt.Sprintf(fileTemplate, lastPos)
+		ok, err := testFileSymLink(linkName, fileName)
+		if err != nil {
+			return err
+		} else if !ok {
+			return fmt.Errorf("file %s is not properly symlinked to %s", fileName, linkName)
+		}
+	} else {
+		ok, err := testNoFile(fileName)
+		if err != nil {
+			return err
+		} else if !ok {
+			return fmt.Errorf("file %s exists but shouldn't", fileName)
+		}
+	}
+	return nil
+}
+
+// checkDREAMMV3DXitems checks the presence of the correct dx files/symlinks
+// in a given viz iterations directory
+func checkDREAMMV3DXItems(iter, lastPos, lastOrient, lastState int, hadFrame bool,
+	fileTemplate string) error {
+
+	pos := -1
+	if lastPos >= 0 {
+		pos = lastPos
+	} else if lastOrient >= 0 {
+		pos = lastOrient
+	} else if lastState >= 0 {
+		pos = lastState
+	}
+
+	fileName := fmt.Sprintf(fileTemplate, iter)
+	if hadFrame {
+		ok, err := testFileNonEmpty(fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is non non-empty as expected", fileName)
+		}
+	} else if pos >= 0 {
+		linkName := fmt.Sprintf(fileTemplate, pos)
+		ok, err := testFileSymLink(linkName, fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is not properly symlinked to %s as expected",
+				fileName, linkName)
+		}
+	} else {
+		ok, err := testNoFile(fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s exists but was expected to not be present",
+				fileName)
+		}
+	}
+	return nil
+}
