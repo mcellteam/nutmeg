@@ -252,3 +252,65 @@ func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 func getOutputDir(testPath string) string {
 	return filepath.Join(testPath, outputDirName)
 }
+
+// testFileEmpty checks that the given file exists and is empty
+func testFileEmpty(filePath string) (bool, error) {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Size() != 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+// testFileNonEmpty check that the given file exists and is non-empty.
+func testFileNonEmpty(testPath string) (bool, error) {
+	fi, err := os.Stat(testPath)
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Size() == 0 {
+		return false, nil
+	}
+	return true, nil
+}
+
+// testFileSize checks that the given file exists and has the requested
+// file size
+func testFileSize(testPath string, size int64) (bool, error) {
+	fi, err := os.Stat(testPath)
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Size() != size {
+		return false, nil
+	}
+	return true, nil
+}
+
+// testNoFile checks that there is no file at the given path
+func testNoFile(testPath string) (bool, error) {
+	if _, err := os.Stat(testPath); os.IsNotExist(err) {
+		return true, nil
+	}
+	return false, nil
+}
+
+// isSymLink checkes that the given path exists, is a symlink and points to
+// the provided file.
+func testFileSymLink(destFilePath, filePath string) (bool, error) {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false, err
+	}
+
+	if fi.Name() != destFilePath {
+		return false, nil
+	}
+	return true, nil
+}

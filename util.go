@@ -7,10 +7,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/haskelladdict/datastruct/set/intset"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -63,38 +65,56 @@ func containsString(ss []string, item string) bool {
 
 // generateFileList takes a filename which could be a format string and a
 // range and creates the corresponding list of filenames.
-func generateFileList(name string, IDStringRange []string) ([]string, error) {
+func generateFileList(name string, IDStringRange intList) ([]string, error) {
 
 	// if no range is given we pass the name through as is
 	if len(IDStringRange) == 0 {
 		return []string{name}, nil
 	}
 
-	IDRange := make(map[int]bool)
-	for _, r := range IDStringRange {
+	list, err := convertIntList(IDStringRange)
+	if err != nil {
+		return nil, err
+	}
+
+	var names []string
+	for _, k := range list {
+		names = append(names, fmt.Sprintf(name, k))
+	}
+
+	return names, nil
+}
+
+// convertIntList converts an intList expression into a sorted list of unique
+// integers
+func convertIntList(list intList) ([]int, error) {
+
+	intMap := make(map[int]bool)
+	for _, r := range list {
 		if strings.Contains(r, ":") {
 			list, err := convertRangeToList(r)
 			if err != nil {
 				return nil, err
 			}
 			for _, i := range list {
-				IDRange[i] = true
+				intMap[i] = true
 			}
 		} else {
 			i, err := strconv.Atoi(r)
 			if err != nil {
 				return nil, fmt.Errorf("cannot convert range value %s into integer", r)
 			}
-			IDRange[i] = true
+			intMap[i] = true
 		}
 	}
 
-	var names []string
-	for k := range IDRange {
-		names = append(names, fmt.Sprintf(name, k))
+	var outList sort.IntSlice //[]int
+	for k := range intMap {
+		outList = append(outList, k)
 	}
+	outList.Sort()
 
-	return names, nil
+	return outList, nil
 }
 
 // convertRangeToList converts a single string containing a range statement
@@ -132,4 +152,82 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 	}
 
 	return newRange, nil
+}
+
+// molIters is a small helper struct to bundle all frame data related to
+// DREAMM V3 binary molecule data
+type molIters struct {
+	all                            []int
+	surfPos, surfOrient, surfState *set.IntSet
+	volPos, volOrient, volState    *set.IntSet
+	molIters, surfIters, volIters  *set.IntSet
+}
+
+// createMolIters is a helper function for converting the list of
+// input specified iterations at which molecule positions, orientations and
+// states were output into corresponding lists of integer values. Unspecified
+// items default to all iterations
+func createMolList(allIters, surfPosIters, surfOrientIters, surfStateIters,
+	volPosIters, volOrientIters, volStateIters intList) (*molIters, error) {
+
+	var m molIters
+	var err error
+	if m.all, err = convertIntList(allIters); err != nil {
+		return nil, err
+	}
+
+	surfPos, err := convertIntList(surfPosIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(surfPos) == 0 {
+		surfPos = m.all
+	}
+	m.surfPos = set.NewIntSet(surfPos...)
+
+	surfOrient, err := convertIntList(surfOrientIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(surfOrient) == 0 {
+		surfOrient = m.all
+	}
+	m.surfOrient = set.NewIntSet(surfOrient...)
+
+	surfState, err := convertIntList(surfStateIters)
+	if err != nil {
+		return nil, err
+	}
+	m.surfState = set.NewIntSet(surfState...)
+
+	volPos, err := convertIntList(volPosIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(volPos) == 0 {
+		volPos = m.all
+	}
+	m.volPos = set.NewIntSet(volPos...)
+
+	volOrient, err := convertIntList(volOrientIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(volOrient) == 0 {
+		volOrient = m.all
+	}
+	m.volOrient = set.NewIntSet(volOrient...)
+
+	volState, err := convertIntList(volStateIters)
+	if err != nil {
+		return nil, err
+	}
+	m.volState = set.NewIntSet(volState...)
+
+	// unions of all surface, volume, and molecules
+	m.surfIters = m.surfPos.Clone().Union(m.surfOrient).Union(m.surfState)
+	m.volIters = m.volPos.Clone().Union(m.volOrient).Union(m.volState)
+	m.molIters = m.surfIters.Clone().Union(m.volIters)
+
+	return &m, nil
 }

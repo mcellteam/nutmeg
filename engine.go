@@ -57,7 +57,7 @@ type TestCase struct {
 	testPatternMatch
 	testRates
 	testTrigger
-	testFileSize
+	testFileSizes
 	testDiffFileContent
 	testLegacyVolOutput
 	testASCIIVizOutput
@@ -130,14 +130,14 @@ type testTrigger struct {
 	Zrange        []float64 // typle of valid z ranges for triggered events
 }
 
-// testFileSize pertains to checks testing that the given list of files
+// testFileSizes pertains to checks testing that the given list of files
 // exists and each file is either emtpy or non-empty with a given size.
 // FileNames can contain format strings containing integer (%d) specifiers. In
 // this case IDRange needs to be a list of strings describing a range. Each item
 // can either correspond to an integer or a range of the form start:end:step.
 // FileSize is the optional size of the file (for each of the files in the
 // interpolated list of files).
-type testFileSize struct {
+type testFileSizes struct {
 	FileNames []string // the filenames (can each be format string)
 	IDRange   intList  // list of strings describing a numeric range, e.g. [1, 2, 3:100:5]
 	FileSize  int64    // file size in bytes
@@ -180,16 +180,16 @@ type testCheckPoint struct {
 // added data in a previous iteration). Thus, it seemed better to hardcode
 // everything into a more complex single test.
 type testDREAMMV3MolBinOutput struct {
-	DataPath           string  // path to viz data output directory
-	AllFrames          intList // list of all frames *required*
-	SurfPosFrames      intList // surface mol. position frames
-	SurfOrientFrames   intList // surface mol. orientation frames
-	SurfStateFrames    intList // surface mol. state frames
-	SurfNonEmptyFrames intList // surface mol. non-empty frames
-	VolPosFrames       intList // volume mol. position frames
-	VolOrientFrames    intList // surface mol. orientation frames
-	VolStateFrames     intList // surface mol. state frames
-	VolNonEmptyFrames  intList // surface mol. empty frames
+	DataPath        string  // path to viz data output directory
+	AllIters        intList // list of all frames *required*
+	SurfPosIters    intList // surface mol. position iterations
+	SurfOrientIters intList // surface mol. orientation iterations
+	SurfStateIters  intList // surface mol. state iterations
+	SurfEmpty       bool    // true if no surface molecules are present
+	VolPosIters     intList // volume mol. position iterations
+	VolOrientIters  intList // surface mol. orientation iterations
+	VolStateIters   intList // surface mol. state iterations
+	VolEmpty        bool    // true if no volume molecules are present
 }
 
 // runStatus encapsulates the status of running of of N mdl files which make

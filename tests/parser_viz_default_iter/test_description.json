@@ -210,7 +210,7 @@
     {
       "testType": "CHECK_DREAMM_V3_MOLS_BIN",
       "dataPath" : "viz_dat/world_viz_data/",
-      "IDRange" : ["0:101"]
+      "AllIters" : ["0:101"]
     }
   ]
 }

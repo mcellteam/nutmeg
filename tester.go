@@ -8,6 +8,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/haskelladdict/datastruct/set/intset"
 	"io/ioutil"
 	"math"
 	"os"
@@ -116,10 +117,9 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			}
 
 		case "CHECK_DREAMM_V3_MOLS_BIN":
-			if testErr = checkDREAMMV3MolsBin(test.Path, c.DataPath, c.AllFrames,
-				c.SurfPosFrames, c.SurfOrientFrames, c.SurfStateFrames,
-				c.SurfNonEmptyFrames, c.VolPosFrames, c.VolOrientFrames,
-				c.VolStateFrames, c.VolNonEmptyFrames); testErr != nil {
+			if testErr = checkDREAMMV3MolsBin(test.Path, c.DataPath, c.AllIters,
+				c.SurfPosIters, c.SurfOrientIters, c.SurfStateIters, c.VolPosIters,
+				c.VolOrientIters, c.VolStateIters, c.SurfEmpty, c.VolEmpty); testErr != nil {
 				break
 			}
 
@@ -969,10 +969,195 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 
 // checkDREAMMV3MolsBin checks the layout for molecule related data within the
 // DREAMM v3 viz format
-func checkDREAMMV3MolsBin(output, dataPath string, allFrames, surfPosFrames,
-	surfOrientFrames, surfStateFrames, surfNonEmptyFrames, volPosFrames,
-	volOrientFrames, volStateFrames, volNonEmptyFrames intList) error {
+func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
+	surfOrientIters, surfStateIters, volPosIters, volOrientIters,
+	volStateIters intList, surfEmpty, volEmpty bool) error {
 
-	fmt.Println("")
+	m, err := createMolList(allIters, surfPosIters, surfOrientIters,
+		surfStateIters, volPosIters, volOrientIters, volStateIters)
+	if err != nil {
+		return err
+	}
+
+	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	lastSurfPos := -1
+	lastSurfOrient := -1
+	lastSurfState := -1
+	lastVolPos := -1
+	lastVolOrient := -1
+	lastVolState := -1
+
+	for _, i := range m.all {
+		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
+		hadFrame := false
+
+		// surface positions
+		surfPosFile := filepath.Join(iterPath, "surface_molecules_positions.bin")
+		if err := checkDREAMMV3IterItems(m.surfPos, m.molIters, i, lastSurfPos,
+			surfEmpty, surfPosFile); err != nil {
+			return err
+		}
+		if m.surfPos.Contains(i) {
+			lastSurfPos = i
+			hadFrame = true
+		}
+
+		// surface orientations
+		surfOrientFile := filepath.Join(iterPath, "surface_molecules_orientations.bin")
+		if err := checkDREAMMV3IterItems(m.surfOrient, m.molIters, i, lastSurfOrient,
+			surfEmpty, surfOrientFile); err != nil {
+			return err
+		}
+		if m.surfOrient.Contains(i) {
+			lastSurfOrient = i
+			hadFrame = true
+		}
+
+		// surface states
+		surfStateFile := filepath.Join(iterPath, "surface_molecules_states.bin")
+		if err := checkDREAMMV3IterItems(m.surfState, m.molIters, i, lastSurfState,
+			surfEmpty, surfStateFile); err != nil {
+			return err
+		}
+		if m.surfState.Contains(i) {
+			lastSurfState = i
+			hadFrame = true
+		}
+
+		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
+		if err := checkDREAMMV3DXItems(i, lastSurfPos, lastSurfOrient, lastSurfState,
+			hadFrame, surfTemplate); err != nil {
+			return err
+		}
+
+		// volume positions
+		hadFrame = false
+		volPosFile := filepath.Join(iterPath, "volume_molecules_positions.bin")
+		if err := checkDREAMMV3IterItems(m.volPos, m.molIters, i, lastVolPos,
+			volEmpty, volPosFile); err != nil {
+			return err
+		}
+		if m.volPos.Contains(i) {
+			lastVolPos = i
+			hadFrame = true
+		}
+
+		// volume orientations
+		volOrientFile := filepath.Join(iterPath, "volume_molecules_orientations.bin")
+		if err := checkDREAMMV3IterItems(m.volOrient, m.molIters, i, lastVolOrient,
+			volEmpty, volOrientFile); err != nil {
+			return err
+		}
+		if m.volOrient.Contains(i) {
+			lastVolOrient = i
+			hadFrame = true
+		}
+
+		// volume states
+		volStateFile := filepath.Join(iterPath, "volume_molecules_states.bin")
+		if err := checkDREAMMV3IterItems(m.volState, m.molIters, i, lastVolState,
+			surfEmpty, volStateFile); err != nil {
+			return err
+		}
+		if m.volState.Contains(i) {
+			lastVolState = i
+			hadFrame = true
+		}
+
+		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
+		if err := checkDREAMMV3DXItems(i, lastVolPos, lastVolOrient, lastVolState,
+			hadFrame, volTemplate); err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
+// checkDREAMMV3IterItems checks the expected file consistency in a given
+// viz iterations directory for a specific items (surface positions,
+// orientations, etc.)
+func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
+	isEmpty bool, fileTemplate string) error {
+
+	fileName := fmt.Sprintf(fileTemplate, iter)
+	if molSet.Contains(iter) {
+		if isEmpty {
+			ok, err := testFileEmpty(fileName)
+			if err != nil {
+				return err
+			} else if !ok {
+				return fmt.Errorf("file %s is not empty as expected", fileName)
+			}
+		} else {
+			ok, err := testFileNonEmpty(fileName)
+			if err != nil {
+				return err
+			} else if !ok {
+				return fmt.Errorf("file %s is not non-empty as expected", fileName)
+			}
+		}
+	} else if lastPos >= 0 && !molIters.Contains(iter) {
+		linkName := fmt.Sprintf(fileTemplate, lastPos)
+		ok, err := testFileSymLink(linkName, fileName)
+		if err != nil {
+			return err
+		} else if !ok {
+			return fmt.Errorf("file %s is not properly symlinked to %s", fileName, linkName)
+		}
+	} else {
+		ok, err := testNoFile(fileName)
+		if err != nil {
+			return err
+		} else if !ok {
+			return fmt.Errorf("file %s exists but shouldn't", fileName)
+		}
+	}
+	return nil
+}
+
+// checkDREAMMV3DXitems checks the presence of the correct dx files/symlinks
+// in a given viz iterations directory
+func checkDREAMMV3DXItems(iter, lastPos, lastOrient, lastState int, hadFrame bool,
+	fileTemplate string) error {
+
+	pos := -1
+	if lastPos >= 0 {
+		pos = lastPos
+	} else if lastOrient >= 0 {
+		pos = lastOrient
+	} else if lastState >= 0 {
+		pos = lastState
+	}
+
+	fileName := fmt.Sprintf(fileTemplate, iter)
+	if hadFrame {
+		ok, err := testFileNonEmpty(fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is non non-empty as expected", fileName)
+		}
+	} else if pos >= 0 {
+		linkName := fmt.Sprintf(fileTemplate, pos)
+		ok, err := testFileSymLink(linkName, fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is not properly symlinked to %s as expected",
+				fileName, linkName)
+		}
+	} else {
+		ok, err := testNoFile(fileName)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s exists but was expected to not be present",
+				fileName)
+		}
+	}
 	return nil
 }
