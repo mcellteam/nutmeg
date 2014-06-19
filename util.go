@@ -165,9 +165,8 @@ type molIters struct {
 
 // createMolIters is a helper function for converting the list of
 // input specified iterations at which molecule positions, orientations and
-// states were output into corresponding lists of integer values. Unspecified
-// items default to all iterations
-func createMolList(allIters, surfPosIters, surfOrientIters, surfStateIters,
+// states were output into corresponding lists of integer values.
+func createMolIters(allIters, surfPosIters, surfOrientIters, surfStateIters,
 	volPosIters, volOrientIters, volStateIters intList) (*molIters, error) {
 
 	var m molIters
@@ -256,6 +255,7 @@ func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 			}
 		}
 	} else if lastPos >= 0 && !molIters.Contains(iter) {
+		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
 		linkName := fmt.Sprintf(fileTemplate, lastPos)
 		ok, err := testFileSymLink(linkName, fileName)
 		if err != nil {
@@ -275,15 +275,16 @@ func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 }
 
 // checkDREAMMV3DXitems checks the presence of the correct dx files/symlinks
-// in a given viz iterations directory
-func checkDREAMMV3DXItems(iter, lastPos, lastOrient, lastState int, hadFrame bool,
-	fileTemplate string) error {
+// in a given viz iteration directory.
+// NOTE: lastProperty could refer to molecule orientations or regions for meshes
+func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
+	hadFrame bool, fileTemplate string) error {
 
 	pos := -1
 	if lastPos >= 0 {
 		pos = lastPos
-	} else if lastOrient >= 0 {
-		pos = lastOrient
+	} else if lastProperty >= 0 {
+		pos = lastProperty
 	} else if lastState >= 0 {
 		pos = lastState
 	}
@@ -298,6 +299,7 @@ func checkDREAMMV3DXItems(iter, lastPos, lastOrient, lastState int, hadFrame boo
 			return fmt.Errorf("file %s is non non-empty as expected", fileName)
 		}
 	} else if pos >= 0 {
+		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
 		linkName := fmt.Sprintf(fileTemplate, pos)
 		ok, err := testFileSymLink(linkName, fileName)
 		if err != nil {
@@ -318,4 +320,61 @@ func checkDREAMMV3DXItems(iter, lastPos, lastOrient, lastState int, hadFrame boo
 		}
 	}
 	return nil
+}
+
+// meshIters is a small helper struct to bundle all frame data related to
+// DREAMM V3 binary mesh data
+type meshIters struct {
+	all                            []int
+	pos, regions, states, combined *set.IntSet
+}
+
+// createMeshIters is a helper function for converting the list of
+// input specified iterations at which mesh positions, regions and
+// states were output into corresponding lists of integer values.
+func createMeshIters(allIters, posIters, regionIters, stateIters intList) (*meshIters, error) {
+
+	var m meshIters
+	var err error
+	if m.all, err = convertIntList(allIters); err != nil {
+		return nil, err
+	}
+
+	pos, err := convertIntList(posIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(pos) == 0 {
+		pos = m.all
+	}
+	m.pos = set.NewIntSet(pos...)
+
+	regions, err := convertIntList(regionIters)
+	if err != nil {
+		return nil, err
+	}
+	if len(regions) == 0 {
+		regions = m.all
+	}
+	m.regions = set.NewIntSet(regions...)
+
+	states, err := convertIntList(stateIters)
+	if err != nil {
+		return nil, err
+	}
+	m.states = set.NewIntSet(states...)
+
+	m.combined = m.regions.Clone().Union(m.states)
+
+	return &m, nil
+}
+
+// unsetTrackers resets the trackers used to keep track of symlinks used in
+// the binary viz data test routines
+func unsetTrackers(s int, xs ...*int) {
+	for _, x := range xs {
+		if *x != s {
+			*x = -1
+		}
+	}
 }

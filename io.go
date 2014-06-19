@@ -304,12 +304,16 @@ func testNoFile(testPath string) (bool, error) {
 // isSymLink checkes that the given path exists, is a symlink and points to
 // the provided file.
 func testFileSymLink(destFilePath, filePath string) (bool, error) {
-	fi, err := os.Stat(filePath)
+	//fi, err := os.Lstat(filePath)
+	//if err != nil {
+	//	return false, err
+	//}
+
+	targetPath, err := os.Readlink(filePath)
 	if err != nil {
 		return false, err
 	}
-
-	if fi.Name() != destFilePath {
+	if targetPath != destFilePath {
 		return false, nil
 	}
 	return true, nil

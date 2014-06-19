@@ -62,7 +62,9 @@ type TestCase struct {
 	testLegacyVolOutput
 	testASCIIVizOutput
 	testCheckPoint
+	testVIZCommon
 	testDREAMMV3MolBinOutput
+	testDREAMMV3MeshBinOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -172,6 +174,12 @@ type testCheckPoint struct {
 	BaseName string
 }
 
+// testVIZCommon contains common items used in a number of viz data tests
+type testVIZCommon struct {
+	AllIters intList // list of all frames *required*
+	VizPath  string  // path to viz data output directory
+}
+
 // testDREAMMV3MolBinOutput test the DREAMM_V3 molecule viz data output.
 // NOTE: It is a bit tricky to split this test into more elementary tests since
 // the framework also checks the existence of the proper soft links which
@@ -180,16 +188,28 @@ type testCheckPoint struct {
 // added data in a previous iteration). Thus, it seemed better to hardcode
 // everything into a more complex single test.
 type testDREAMMV3MolBinOutput struct {
-	DataPath        string  // path to viz data output directory
-	AllIters        intList // list of all frames *required*
-	SurfPosIters    intList // surface mol. position iterations
-	SurfOrientIters intList // surface mol. orientation iterations
-	SurfStateIters  intList // surface mol. state iterations
+	SurfPosIters    intList // iterations with surface mol. positions
+	SurfOrientIters intList // iterations with surface mol. orientations
+	SurfStateIters  intList // iterations with surface mol. states
 	SurfEmpty       bool    // true if no surface molecules are present
-	VolPosIters     intList // volume mol. position iterations
-	VolOrientIters  intList // surface mol. orientation iterations
-	VolStateIters   intList // surface mol. state iterations
+	VolPosIters     intList // iterations with volume mol. positions
+	VolOrientIters  intList // iterations with surface mol. orientation iterations
+	VolStateIters   intList // iterations with surface mol. states
 	VolEmpty        bool    // true if no volume molecules are present
+}
+
+// testDREAMMV3MeshBinOutput test the DREAMM_V3 mesh viz data output.
+// NOTE: It is a bit tricky to split this test into more elementary tests since
+// the framework also checks the existence of the proper soft links which
+// depend on the overall iteration structure (e.g., an iteration directory
+// without a requested molecule output receives links to the most recently
+// added data in a previous iteration). Thus, it seemed better to hardcode
+// everything into a more complex single test.
+type testDREAMMV3MeshBinOutput struct {
+	PosIters    intList // iterations with mesh positions
+	RegionIters intList // iterations with region information
+	StateIters  intList // iterations with mesh state information
+	MeshEmpty   bool    // true if no mesh info is present
 }
 
 // runStatus encapsulates the status of running of of N mdl files which make

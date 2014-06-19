@@ -209,8 +209,15 @@
     },
     {
       "testType": "CHECK_DREAMM_V3_MOLS_BIN",
-      "dataPath" : "viz_dat/world_viz_data/",
+      "vizPath" : "viz_dat/world_viz_data/",
       "AllIters" : ["0:101"]
+    },
+    {
+      "testType": "CHECK_DREAMM_V3_MESH_BIN",
+      "vizPath" : "viz_dat/world_viz_data/",
+      "allIters" : ["0:101"],
+      "posIters" : ["1","2","3"],
+      "regionIters" : ["1","3","4"]
     }
   ]
 }
