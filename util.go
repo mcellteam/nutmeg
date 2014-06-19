@@ -7,7 +7,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/haskelladdict/datastruct/set/intset"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+
+	"github.com/haskelladdict/foobar/set/intset"
 )
 
 // clean_output removes all files leftover from a previous test run

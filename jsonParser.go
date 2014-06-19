@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 )
 
-// Parse takes the past to a test case and parses the test_description.json
+// ParseJSON takes the past to a test case and parses the test_description.json
 // file contained therein into a TestDescription struct
 func ParseJSON(testPath string) (*TestDescription, error) {
 	testDescriptionFile := filepath.Join(testPath, "test_description.json")
