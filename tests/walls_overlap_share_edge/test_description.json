@@ -1,19 +1,19 @@
 {
-  "description": "Two small walls partially share an edge with a bigger wall and overlap bigger wall.",
-  "author": "Boris Kaminsky <borisk@psc.edu>",
-  "date": "2011-05-25",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
+    "description": "Two small walls partially share an edge with a bigger wall and overlap bigger wall.",
+    "author": "Boris Kaminsky <borisk@psc.edu>",
+    "date": "2011-05-25",
+    "keywords": [
+        "regression"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_EXIT_CODE",
+            "exitCode": 1
+        }
     ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_EXIT_CODE",
-      "exitCode": 1
-    }
-  ]
 }

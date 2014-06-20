@@ -1,66 +1,66 @@
 {
-  "description": "surface molecule diffusion gives incorrect counts for enclosed counts.",
-  "author": "Jed Wing <jed@salk.edu>",
-  "date": "2009-07-31",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
+    "description": "surface molecule diffusion gives incorrect counts for enclosed counts.",
+    "author": "Jed Wing <jed@salk.edu>",
+    "date": "2009-07-31",
+    "keywords": [
+        "regression"
     ],
-    "commandlineOpts": [
-      "-quiet"
-    ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_SUCCESS"
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
     },
-    {
-      "testType": "COUNT_CONSTRAINTS",
-      "dataFile": "A.dat",
-      "haveHeader": true,
-      "countConstraints": [
+    "checks": [
         {
-          "target": 0,
-          "query": [
-            1,
-            -1,
-            -1
-          ]
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "A.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 0,
+                    "query": [
+                        1,
+                        -1,
+                        -1
+                    ]
+                }
+            ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "A.dat",
+            "haveHeader": true,
+            "countMinimum": [
+                50,
+                0,
+                0
+            ],
+            "countMaximum": [
+                50,
+                50,
+                50
+            ]
+        },
+        {
+            "testType": "COUNT_EQUILIBRIUM",
+            "dataFile": "A.dat",
+            "haveHeader": true,
+            "means": [
+                50,
+                25,
+                25
+            ],
+            "tolerances": [
+                0,
+                5,
+                5
+            ]
         }
-      ]
-    },
-    {
-      "testType": "COUNT_MINMAX",
-      "dataFile": "A.dat",
-      "haveHeader": true,
-      "countMinimum": [
-        50,
-        0,
-        0
-      ],
-      "countMaximum": [
-        50,
-        50,
-        50
-      ]
-    },
-    {
-      "testType": "COUNT_EQUILIBRIUM",
-      "dataFile": "A.dat",
-      "haveHeader": true,
-      "means": [
-        50,
-        25,
-        25
-      ],
-      "tolerances": [
-        0,
-        5,
-        5
-      ]
-    }
-  ]
+    ]
 }

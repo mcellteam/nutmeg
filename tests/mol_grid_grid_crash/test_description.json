@@ -1,21 +1,21 @@
 {
-  "description": "Under certain circumstances, mol-grid-grid reactions could lead to a crash.  The wrong variable was being used to index into the array of matching reactions in the mol-grid-grid case, causing mcell to access outside the bounds of the array.  This may not reliably fail, and may depend on the compiler and architecture.",
-  "author": "Jed Wing <jed@salk.edu>",
-  "date": "2008-04-12",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
+    "description": "Under certain circumstances, mol-grid-grid reactions could lead to a crash.  The wrong variable was being used to index into the array of matching reactions in the mol-grid-grid case, causing mcell to access outside the bounds of the array.  This may not reliably fail, and may depend on the compiler and architecture.",
+    "author": "Jed Wing <jed@salk.edu>",
+    "date": "2008-04-12",
+    "keywords": [
+        "regression"
     ],
-    "commandlineOpts": [
-      "-quiet"
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        }
     ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_SUCCESS"
-    }
-  ]
 }

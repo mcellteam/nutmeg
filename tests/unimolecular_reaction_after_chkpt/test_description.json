@@ -1,30 +1,30 @@
 {
-  "description": "The results of unimolecular reaction with variable reaction rate were incorrect due to the bug. This is a bug encountered by Jun Ma.  It represents itself as molecule's negative lifetime. It happened under two simultaneous conditions: checkpointing and unimolecular reactions with variable rates. It appeared that variable rates files were not properly read and molecule's scheduling times were not properly set up. For this test file the bug showed up as number of molecules B equal to 10 right after checkpoint.",
-  "author": "Boris Kaminsky <borisk@psc.edu>",
-  "date": "2009-01-16",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl",
-      "test.mdl"
+    "description": "The results of unimolecular reaction with variable reaction rate were incorrect due to the bug. This is a bug encountered by Jun Ma.  It represents itself as molecule's negative lifetime. It happened under two simultaneous conditions: checkpointing and unimolecular reactions with variable rates. It appeared that variable rates files were not properly read and molecule's scheduling times were not properly set up. For this test file the bug showed up as number of molecules B equal to 10 right after checkpoint.",
+    "author": "Boris Kaminsky <borisk@psc.edu>",
+    "date": "2009-01-16",
+    "keywords": [
+        "regression"
     ],
-    "commandlineOpts": [
-      "-quiet"
-    ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_SUCCESS"
+    "run": {
+        "mdlfiles": [
+            "test.mdl",
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
     },
-    {
-      "testType": "COUNT_MINMAX",
-      "dataFile": "B_World.dat",
-      "haveHeader": true,
-      "CountMaximum": [
-        10
-      ]
-    }
-  ]
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "B_World.dat",
+            "haveHeader": true,
+            "CountMaximum": [
+                10
+            ]
+        }
+    ]
 }

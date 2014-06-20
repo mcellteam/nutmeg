@@ -1,68 +1,68 @@
 {
-  "description": "When two surface molecules undergo a reaction in which both reagents are preserved, and in which both reagents change orientation, counting does not occur properly. \nFailure: as flippy increases, a000- and b000- remain 0. \nSuccess: a000- and b000- increase to non-zero values\n flippy increases\n at all times a000- + a000+ == 300\n at all times b000- + b000+ == 300",
-  "author": "Jed Wing <jed@salk.edu>",
-  "date": "2008-09-10",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
+    "description": "When two surface molecules undergo a reaction in which both reagents are preserved, and in which both reagents change orientation, counting does not occur properly. \nFailure: as flippy increases, a000- and b000- remain 0. \nSuccess: a000- and b000- increase to non-zero values\n flippy increases\n at all times a000- + a000+ == 300\n at all times b000- + b000+ == 300",
+    "author": "Jed Wing <jed@salk.edu>",
+    "date": "2008-09-10",
+    "keywords": [
+        "regression"
     ],
-    "commandlineOpts": [
-      "-quiet"
-    ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_SUCCESS"
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
     },
-    {
-      "testType": "COUNT_CONSTRAINTS",
-      "dataFile": "counts.txt",
-      "haveHeader": true,
-      "countConstraints": [
+    "checks": [
         {
-          "target": 300,
-          "query": [
-            1,
-            1,
-            0,
-            0,
-            0
-          ]
+            "testType": "CHECK_SUCCESS"
         },
         {
-          "target": 300,
-          "query": [
-            0,
-            0,
-            1,
-            1,
-            0
-          ]
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "counts.txt",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 300,
+                    "query": [
+                        1,
+                        1,
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "target": 300,
+                    "query": [
+                        0,
+                        0,
+                        1,
+                        1,
+                        0
+                    ]
+                }
+            ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "counts.txt",
+            "haveHeader": true,
+            "minTime": 0.00005,
+            "countMinimum": [
+                40,
+                40,
+                40,
+                40,
+                10000
+            ],
+            "countMaximum": [
+                260,
+                260,
+                260,
+                260,
+                100000000
+            ]
         }
-      ]
-    },
-    {
-      "testType": "COUNT_MINMAX",
-      "dataFile": "counts.txt",
-      "haveHeader": true,
-      "minTime": 0.00005,
-      "countMinimum": [
-        40,
-        40,
-        40,
-        40,
-        10000
-      ],
-      "countMaximum": [
-        260,
-        260,
-        260,
-        260,
-        100000000
-      ]
-    }
-  ]
+    ]
 }

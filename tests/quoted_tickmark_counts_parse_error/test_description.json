@@ -1,21 +1,21 @@
 {
-  "description": "MCell cannot parse quoted-tickmark orientations if the molecule name is a single character long.  This is a stripped down version of the test case Boris sent when he reported the bug.",
-  "author": "Jed Wing <jed@salk.edu>",
-  "date": "2009-03-27",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
+    "description": "MCell cannot parse quoted-tickmark orientations if the molecule name is a single character long.  This is a stripped down version of the test case Boris sent when he reported the bug.",
+    "author": "Jed Wing <jed@salk.edu>",
+    "date": "2009-03-27",
+    "keywords": [
+        "regression"
     ],
-    "commandlineOpts": [
-      "-quiet"
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        }
     ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_SUCCESS"
-    }
-  ]
 }

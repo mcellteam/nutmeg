@@ -1,25 +1,25 @@
 {
-  "description": "VIZ_OUTPUT can reference an uninstantiated object, leading to a crash.",
-  "author": "Jed Wing <jed@salk.edu>",
-  "date": "2009-07-17",
-  "keywords": [
-    "regression"
-  ],
-  "run": {
-    "mdlfiles": [
-      "test.mdl"
-    ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_EXIT_CODE",
-      "exitCode": 1
+    "description": "VIZ_OUTPUT can reference an uninstantiated object, leading to a crash.",
+    "author": "Jed Wing <jed@salk.edu>",
+    "date": "2009-07-17",
+    "keywords": [
+        "regression"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ]
     },
-    {
-      "testType": "FILE_MATCH_PATTERN",
-      "dataFile": "err_%d.0.log",
-      "matchPattern": "Cannot produce visualization for the uninstantiated object 'uninstantiated'",
-      "numMatches": 1
-    }
-  ]
+    "checks": [
+        {
+            "testType": "CHECK_EXIT_CODE",
+            "exitCode": 1
+        },
+        {
+            "testType": "FILE_MATCH_PATTERN",
+            "dataFile": "err_%d.0.log",
+            "matchPattern": "Cannot produce visualization for the uninstantiated object 'uninstantiated'",
+            "numMatches": 1
+        }
+    ]
 }

@@ -1,20 +1,23 @@
 {
-  "description": "This tests checks that MCell rejectss negative molecule releases on shapes (SHAPE = [CUBIC|SPHERICAL|..]) since these are only allowed on or within regions. Thanks to Jacob for providing this test case.",
-  "author": "Markus Dittrich <dittrich@psc.edu>",
-  "date": "2014-05-15",
-  "keywords": [
-    "regression", "parser"
-  ],
-  "run": {
-      "mdlfiles": ["test.mdl"],
-      "commandlineOpts": [
-        "-quiet"
-      ]
-  },
-  "checks": [
-    {
-      "testType": "CHECK_EXIT_CODE",
-      "exitCode": 1
-    }
-  ]
+    "description": "This tests checks that MCell rejectss negative molecule releases on shapes (SHAPE = [CUBIC|SPHERICAL|..]) since these are only allowed on or within regions. Thanks to Jacob for providing this test case.",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2014-05-15",
+    "keywords": [
+        "regression",
+        "parser"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_EXIT_CODE",
+            "exitCode": 1
+        }
+    ]
 }
