@@ -62,8 +62,9 @@ type TestCase struct {
 	testLegacyVolOutput
 	testASCIIVizOutput
 	testCheckPoint
-	testDREAMMV3MeshCommon
+	testDREAMMV3Common
 	testDREAMMV3MolBinOutput
+	testDREAMMV3MolASCIIOutput
 	testDREAMMV3MeshASCIIOutput
 }
 
@@ -174,12 +175,14 @@ type testCheckPoint struct {
 	BaseName string
 }
 
-// testDREAMMV3MeshCommon contains common items used in DREAMM V3 mesh tests
-type testDREAMMV3MeshCommon struct {
+// testDREAMMV3MeshCommon contains common items used in DREAMM V3 molecule
+// and mesh tests
+type testDREAMMV3Common struct {
 	AllIters    intList // list of all frames *required*
-	PosIters    intList // iterations with mesh positions
+	PosIters    intList // iterations with molecule/mesh positions
+	OrientIters intList // iteractions with molecule orientations
 	RegionIters intList // iterations with region information
-	StateIters  intList // iterations with mesh state information
+	StateIters  intList // iterations with molecule/mesh state information
 	VizPath     string  // path to viz data output directory
 	MeshEmpty   bool    // true if no mesh info is present
 }
@@ -207,6 +210,12 @@ type testDREAMMV3MolBinOutput struct {
 	VolOrientIters  intList // iterations with surface mol. orientation iterations
 	VolStateIters   intList // iterations with surface mol. states
 	VolEmpty        bool    // true if no volume molecules are present
+}
+
+// testDREAMMV3MolASCIIOutput encapsulates items specific to the ASCII format
+// of the DREAMM V3 molecule data
+type testDREAMMV3MolASCIIOutput struct {
+	MolNames []string // names of molecules to look for
 }
 
 // runStatus encapsulates the status of running of of N mdl files which make

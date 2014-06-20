@@ -28,7 +28,7 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
 		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT",
 		"CHECK_DREAMM_V3_MOLS_BIN", "CHECK_DREAMM_V3_MESH_BIN",
-		"CHECK_DREAMM_V3_MESH_ASCII"}
+		"CHECK_DREAMM_V3_MESH_ASCII", "CHECK_DREAMM_V3_MOLS_ASCII"}
 
 	for _, c := range test.Checks {
 
@@ -121,6 +121,12 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			if testErr = checkDREAMMV3MolsBin(test.Path, c.VizPath, c.AllIters,
 				c.SurfPosIters, c.SurfOrientIters, c.SurfStateIters, c.VolPosIters,
 				c.VolOrientIters, c.VolStateIters, c.SurfEmpty, c.VolEmpty); testErr != nil {
+				break
+			}
+
+		case "CHECK_DREAMM_V3_MOLS_ASCII":
+			if testErr = checkDREAMMV3MolsASCII(test.Path, c.VizPath, c.AllIters,
+				c.PosIters, c.OrientIters, c.StateIters, c.MolNames); testErr != nil {
 				break
 			}
 
@@ -981,17 +987,24 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 	return nil
 }
 
-// checkDREAMMV3MolsBin checks the layout for molecule related data within the
-// DREAMM v3 viz format
+// checkDREAMMV3MolsBin checks the layout for molecule viz data as part of the
+// binary DREAMM v3 format
 func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	surfOrientIters, surfStateIters, volPosIters, volOrientIters,
 	volStateIters intList, surfEmpty, volEmpty bool) error {
 
-	m, err := createMolIters(allIters, surfPosIters, surfOrientIters,
-		surfStateIters, volPosIters, volOrientIters, volStateIters)
+	s, err := createMolMeshIters(allIters, surfPosIters, surfOrientIters,
+		surfStateIters)
 	if err != nil {
 		return err
 	}
+
+	v, err := createMolMeshIters(allIters, volPosIters, volOrientIters,
+		volStateIters)
+	if err != nil {
+		return err
+	}
+	molIters := s.allCombined.Clone().Union(v.allCombined)
 
 	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
 	lastSurfPos := -1
@@ -1001,39 +1014,39 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	lastVolOrient := -1
 	lastVolState := -1
 
-	for _, i := range m.all {
+	for _, i := range s.all {
 		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
 		hadFrame := false
 
 		// surface positions
 		surfPosFile := filepath.Join(iterPath, "surface_molecules_positions.bin")
-		if err := checkDREAMMV3IterItems(m.surfPos, m.molIters, i, lastSurfPos,
+		if err := checkDREAMMV3IterItems(s.pos, molIters, i, lastSurfPos,
 			surfEmpty, surfPosFile); err != nil {
 			return err
 		}
-		if m.surfPos.Contains(i) {
+		if s.pos.Contains(i) {
 			lastSurfPos = i
 			hadFrame = true
 		}
 
 		// surface orientations
 		surfOrientFile := filepath.Join(iterPath, "surface_molecules_orientations.bin")
-		if err := checkDREAMMV3IterItems(m.surfOrient, m.molIters, i, lastSurfOrient,
+		if err := checkDREAMMV3IterItems(s.others, molIters, i, lastSurfOrient,
 			surfEmpty, surfOrientFile); err != nil {
 			return err
 		}
-		if m.surfOrient.Contains(i) {
+		if s.others.Contains(i) {
 			lastSurfOrient = i
 			hadFrame = true
 		}
 
 		// surface states
 		surfStateFile := filepath.Join(iterPath, "surface_molecules_states.bin")
-		if err := checkDREAMMV3IterItems(m.surfState, m.molIters, i, lastSurfState,
+		if err := checkDREAMMV3IterItems(s.states, molIters, i, lastSurfState,
 			surfEmpty, surfStateFile); err != nil {
 			return err
 		}
-		if m.surfState.Contains(i) {
+		if s.states.Contains(i) {
 			lastSurfState = i
 			hadFrame = true
 		}
@@ -1047,33 +1060,33 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 		// volume positions
 		hadFrame = false
 		volPosFile := filepath.Join(iterPath, "volume_molecules_positions.bin")
-		if err := checkDREAMMV3IterItems(m.volPos, m.molIters, i, lastVolPos,
+		if err := checkDREAMMV3IterItems(v.pos, molIters, i, lastVolPos,
 			volEmpty, volPosFile); err != nil {
 			return err
 		}
-		if m.volPos.Contains(i) {
+		if v.pos.Contains(i) {
 			lastVolPos = i
 			hadFrame = true
 		}
 
 		// volume orientations
 		volOrientFile := filepath.Join(iterPath, "volume_molecules_orientations.bin")
-		if err := checkDREAMMV3IterItems(m.volOrient, m.molIters, i, lastVolOrient,
+		if err := checkDREAMMV3IterItems(v.others, molIters, i, lastVolOrient,
 			volEmpty, volOrientFile); err != nil {
 			return err
 		}
-		if m.volOrient.Contains(i) {
+		if v.others.Contains(i) {
 			lastVolOrient = i
 			hadFrame = true
 		}
 
 		// volume states
 		volStateFile := filepath.Join(iterPath, "volume_molecules_states.bin")
-		if err := checkDREAMMV3IterItems(m.volState, m.molIters, i, lastVolState,
+		if err := checkDREAMMV3IterItems(v.states, molIters, i, lastVolState,
 			surfEmpty, volStateFile); err != nil {
 			return err
 		}
-		if m.volState.Contains(i) {
+		if v.states.Contains(i) {
 			lastVolState = i
 			hadFrame = true
 		}
@@ -1088,12 +1101,89 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	return nil
 }
 
+// checkDREAMMV3MolsASCII checks the layout for molecule viz data as part of the
+// ASCII DREAMM v3 format
+func checkDREAMMV3MolsASCII(testDir, dataDir string, allIters, posIters,
+	orientIters, stateIters intList, molNames []string) error {
+
+	m, err := createMolMeshIters(allIters, posIters, orientIters, stateIters)
+	if err != nil {
+		return err
+	}
+
+	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	lastPos := -1
+	lastOrient := -1
+	lastState := -1
+
+	for _, i := range m.all {
+		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
+		hadFrame := false
+
+		// positions
+		for _, obj := range molNames {
+			posFile := filepath.Join(iterPath, obj+".positions.dat")
+			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+				true, posFile); err != nil {
+				return err
+			}
+		}
+		if m.pos.Contains(i) {
+			lastPos = i
+			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			hadFrame = true
+		}
+
+		// orientations
+		for _, obj := range molNames {
+			orientFile := filepath.Join(iterPath, obj+".orientations.dat")
+			if err := checkDREAMMV3IterItems(m.others, m.combined, i, lastOrient,
+				true, orientFile); err != nil {
+				return err
+			}
+		}
+		if m.others.Contains(i) {
+			lastOrient = i
+			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			hadFrame = true
+		}
+
+		// states
+		for _, obj := range molNames {
+			stateFile := filepath.Join(iterPath, obj+".states.dat")
+			if err := checkDREAMMV3IterItems(m.states, m.combined, i, lastState,
+				true, stateFile); err != nil {
+				return err
+			}
+		}
+		if m.states.Contains(i) {
+			lastState = i
+			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			hadFrame = true
+		}
+
+		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
+		if err := checkDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
+			hadFrame, volTemplate); err != nil {
+			return err
+		}
+
+		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
+		if err := checkDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
+			hadFrame, surfTemplate); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // checkDREAMMV3MeshBin checks the layout for mesh related data within the
 // DREAMM v3 viz format
 func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
 	regionIters, stateIters intList, meshEmpty bool) error {
 
-	m, err := createMeshIters(allIters, posIters, regionIters, stateIters)
+	m, err := createMolMeshIters(allIters, posIters, regionIters, stateIters)
 	if err != nil {
 		return err
 	}
@@ -1121,11 +1211,11 @@ func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
 
 		// regions
 		regionFile := filepath.Join(iterPath, "region_indices.bin")
-		if err := checkDREAMMV3IterItems(m.regions, m.states, i, lastRegion,
+		if err := checkDREAMMV3IterItems(m.others, m.states, i, lastRegion,
 			meshEmpty, regionFile); err != nil {
 			return err
 		}
-		if m.regions.Contains(i) {
+		if m.others.Contains(i) {
 			lastRegion = i
 			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
@@ -1159,7 +1249,7 @@ func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
 	regionIters, stateIters intList, meshEmpty bool, objects,
 	objectRegions []string) error {
 
-	m, err := createMeshIters(allIters, posIters, regionIters, stateIters)
+	m, err := createMolMeshIters(allIters, posIters, regionIters, stateIters)
 	if err != nil {
 		return err
 	}
@@ -1199,12 +1289,12 @@ func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
 		// regions
 		for _, obj := range objectRegions {
 			regionFile := filepath.Join(iterPath, obj+".region_indices.dat")
-			if err := checkDREAMMV3IterItems(m.regions, m.states, i, lastRegion,
+			if err := checkDREAMMV3IterItems(m.others, m.states, i, lastRegion,
 				meshEmpty, regionFile); err != nil {
 				return err
 			}
 		}
-		if m.regions.Contains(i) {
+		if m.others.Contains(i) {
 			lastRegion = i
 			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true

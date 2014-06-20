@@ -279,6 +279,15 @@ func testFileNonEmpty(testPath string) (bool, error) {
 	return true, nil
 }
 
+// testFileExists checks that the given file exists
+func testFileExists(testPath string) (bool, error) {
+	_, err := os.Stat(testPath)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
 // testFileSize checks that the given file exists and has the requested
 // file size
 func testFileSize(testPath string, size int64) (bool, error) {

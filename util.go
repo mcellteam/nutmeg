@@ -155,84 +155,6 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 	return newRange, nil
 }
 
-// molIters is a small helper struct to bundle all frame data related to
-// DREAMM V3 binary molecule data
-type molIters struct {
-	all                            []int
-	surfPos, surfOrient, surfState *set.IntSet
-	volPos, volOrient, volState    *set.IntSet
-	molIters, surfIters, volIters  *set.IntSet
-}
-
-// createMolIters is a helper function for converting the list of
-// input specified iterations at which molecule positions, orientations and
-// states were output into corresponding lists of integer values.
-func createMolIters(allIters, surfPosIters, surfOrientIters, surfStateIters,
-	volPosIters, volOrientIters, volStateIters intList) (*molIters, error) {
-
-	var m molIters
-	var err error
-	if m.all, err = convertIntList(allIters); err != nil {
-		return nil, err
-	}
-
-	surfPos, err := convertIntList(surfPosIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(surfPos) == 0 {
-		surfPos = m.all
-	}
-	m.surfPos = set.NewIntSet(surfPos...)
-
-	surfOrient, err := convertIntList(surfOrientIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(surfOrient) == 0 {
-		surfOrient = m.all
-	}
-	m.surfOrient = set.NewIntSet(surfOrient...)
-
-	surfState, err := convertIntList(surfStateIters)
-	if err != nil {
-		return nil, err
-	}
-	m.surfState = set.NewIntSet(surfState...)
-
-	volPos, err := convertIntList(volPosIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(volPos) == 0 {
-		volPos = m.all
-	}
-	m.volPos = set.NewIntSet(volPos...)
-
-	volOrient, err := convertIntList(volOrientIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(volOrient) == 0 {
-		volOrient = m.all
-	}
-	m.volOrient = set.NewIntSet(volOrient...)
-
-	volState, err := convertIntList(volStateIters)
-	if err != nil {
-		return nil, err
-	}
-	m.volState = set.NewIntSet(volState...)
-
-	// unions of all surface, volume, and molecules
-	m.surfIters = m.surfPos.Clone().Union(m.surfOrient).Union(m.surfState)
-	m.volIters = m.volPos.Clone().Union(m.volOrient).Union(m.volState)
-	m.molIters = m.surfIters.Clone().Union(m.volIters)
-
-	return &m, nil
-}
-
-// checkDREAMMV3IterItems checks the expected file consistency in a given
 // viz iterations directory for a specific items (surface positions,
 // orientations, etc.)
 func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
@@ -241,11 +163,11 @@ func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	fileName := fmt.Sprintf(fileTemplate, iter)
 	if molSet.Contains(iter) {
 		if isEmpty {
-			ok, err := testFileEmpty(fileName)
+			ok, err := testFileExists(fileName)
 			if err != nil {
 				return err
 			} else if !ok {
-				return fmt.Errorf("file %s is not empty as expected", fileName)
+				return fmt.Errorf("file %s does not exists", fileName)
 			}
 		} else {
 			ok, err := testFileNonEmpty(fileName)
@@ -325,17 +247,19 @@ func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 
 // meshIters is a small helper struct to bundle all frame data related to
 // DREAMM V3 binary mesh data
-type meshIters struct {
-	all                            []int
-	pos, regions, states, combined *set.IntSet
+type molMeshIters struct {
+	all                   []int
+	pos, others, states   *set.IntSet
+	combined, allCombined *set.IntSet
 }
 
 // createMeshIters is a helper function for converting the list of
 // input specified iterations at which mesh positions, regions and
 // states were output into corresponding lists of integer values.
-func createMeshIters(allIters, posIters, regionIters, stateIters intList) (*meshIters, error) {
+func createMolMeshIters(allIters, posIters, otherIters,
+	stateIters intList) (*molMeshIters, error) {
 
-	var m meshIters
+	var m molMeshIters
 	var err error
 	if m.all, err = convertIntList(allIters); err != nil {
 		return nil, err
@@ -350,14 +274,14 @@ func createMeshIters(allIters, posIters, regionIters, stateIters intList) (*mesh
 	}
 	m.pos = set.NewIntSet(pos...)
 
-	regions, err := convertIntList(regionIters)
+	others, err := convertIntList(otherIters)
 	if err != nil {
 		return nil, err
 	}
-	if len(regions) == 0 {
-		regions = m.all
+	if len(others) == 0 {
+		others = m.all
 	}
-	m.regions = set.NewIntSet(regions...)
+	m.others = set.NewIntSet(others...)
 
 	states, err := convertIntList(stateIters)
 	if err != nil {
@@ -365,7 +289,8 @@ func createMeshIters(allIters, posIters, regionIters, stateIters intList) (*mesh
 	}
 	m.states = set.NewIntSet(states...)
 
-	m.combined = m.regions.Clone().Union(m.states)
+	m.combined = m.others.Clone().Union(m.states)
+	m.allCombined = m.combined.Clone().Union(m.pos)
 
 	return &m, nil
 }
