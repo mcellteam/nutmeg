@@ -216,9 +216,29 @@
     {
       "testType": "CHECK_DREAMM_V3_MESH_ASCII",
       "vizPath" : "viz_dat/world_viz_data/",
+      "objects" : ["world.big_object.box1", 
+                   "world.big_object.box2",
+                   "world.big_object.box3",
+                   "world.big_object.newbox",
+                   "world.big_object.poly1",
+                   "world.big_object.poly2",
+                   "world2.big_object.box1", 
+                   "world2.big_object.box2",
+                   "world2.big_object.box3",
+                   "world2.big_object.newbox",
+                   "world2.big_object.poly1",
+                   "world2.big_object.poly2"],
+      "objectRegions":  ["world.big_object.box1", 
+                         "world.big_object.box2",
+                         "world.big_object.box3",
+                         "world.big_object.poly2",
+                         "world2.big_object.box1", 
+                         "world2.big_object.box2",
+                         "world2.big_object.box3",
+                         "world2.big_object.poly2"],
       "allIters" : ["0:101"],
-      "posIters" : ["1","2","3"],
-      "regionIters" : ["1","3","4"]
+      "posIters" : ["1","3","4"],
+      "regionIters" : ["1","2","4"]
     }
   ]
 }

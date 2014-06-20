@@ -27,7 +27,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
 		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT",
-		"CHECK_DREAMM_V3_MOLS_BIN", "CHECK_DREAMM_V3_MESH_BIN"}
+		"CHECK_DREAMM_V3_MOLS_BIN", "CHECK_DREAMM_V3_MESH_BIN",
+		"CHECK_DREAMM_V3_MESH_ASCII"}
 
 	for _, c := range test.Checks {
 
@@ -126,6 +127,13 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		case "CHECK_DREAMM_V3_MESH_BIN":
 			if testErr = checkDREAMMV3MeshBin(test.Path, c.VizPath, c.AllIters,
 				c.PosIters, c.RegionIters, c.StateIters, c.MeshEmpty); testErr != nil {
+				break
+			}
+
+		case "CHECK_DREAMM_V3_MESH_ASCII":
+			if testErr = checkDREAMMV3MeshASCII(test.Path, c.VizPath, c.AllIters,
+				c.PosIters, c.RegionIters, c.StateIters, c.MeshEmpty, c.Objects,
+				c.ObjectRegions); testErr != nil {
 				break
 			}
 
@@ -1080,7 +1088,7 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	return nil
 }
 
-// checkDREAMMV3MolsBin checks the layout for mesh related data within the
+// checkDREAMMV3MeshBin checks the layout for mesh related data within the
 // DREAMM v3 viz format
 func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
 	regionIters, stateIters intList, meshEmpty bool) error {
@@ -1129,6 +1137,87 @@ func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
 		if err := checkDREAMMV3IterItems(m.states, emptySet, i, lastState,
 			meshEmpty, statesFile); err != nil {
 			return err
+		}
+		if m.states.Contains(i) {
+			lastState = i
+			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			hadFrame = true
+		}
+
+		template := filepath.Join(iterPath, "meshes.dx")
+		if err := checkDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
+			hadFrame, template); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkDREAMMV3MeshASCII checks the layout for mesh related data within the
+// DREAMM v3 viz format
+func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
+	regionIters, stateIters intList, meshEmpty bool, objects,
+	objectRegions []string) error {
+
+	m, err := createMeshIters(allIters, posIters, regionIters, stateIters)
+	if err != nil {
+		return err
+	}
+
+	if len(objectRegions) == 0 {
+		objectRegions = objects
+	}
+
+	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	lastPos := -1
+	lastRegion := -1
+	lastState := -1
+
+	for _, i := range m.all {
+		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
+		hadFrame := false
+
+		// positions
+		for _, obj := range objects {
+			posFile := filepath.Join(iterPath, obj+".positions.dat")
+			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+				meshEmpty, posFile); err != nil {
+				return err
+			}
+			conFile := filepath.Join(iterPath, obj+".connections.dat")
+			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+				meshEmpty, conFile); err != nil {
+				return err
+			}
+		}
+		if m.pos.Contains(i) {
+			lastPos = i
+			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			hadFrame = true
+		}
+
+		// regions
+		for _, obj := range objectRegions {
+			regionFile := filepath.Join(iterPath, obj+".region_indices.dat")
+			if err := checkDREAMMV3IterItems(m.regions, m.states, i, lastRegion,
+				meshEmpty, regionFile); err != nil {
+				return err
+			}
+		}
+		if m.regions.Contains(i) {
+			lastRegion = i
+			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			hadFrame = true
+		}
+
+		// states
+		for _, obj := range objects {
+			statesFile := filepath.Join(iterPath, obj+".states.bin")
+			emptySet := set.NewIntSet()
+			if err := checkDREAMMV3IterItems(m.states, emptySet, i, lastState,
+				meshEmpty, statesFile); err != nil {
+				return err
+			}
 		}
 		if m.states.Contains(i) {
 			lastState = i

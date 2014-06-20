@@ -3,10 +3,10 @@
 *.a
 *.so
 
-*sublime*
 tags
 nutmeg
 nutmeg.conf
+*.swp
 
 # Folders
 _obj

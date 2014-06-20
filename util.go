@@ -16,7 +16,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/haskelladdict/foobar/set/intset"
+	"github.com/haskelladdict/datastruct/set/intset"
 )
 
 // clean_output removes all files leftover from a previous test run

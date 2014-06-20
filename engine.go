@@ -62,9 +62,9 @@ type TestCase struct {
 	testLegacyVolOutput
 	testASCIIVizOutput
 	testCheckPoint
-	testVIZCommon
+	testDREAMMV3MeshCommon
 	testDREAMMV3MolBinOutput
-	testDREAMMV3MeshBinOutput
+	testDREAMMV3MeshASCIIOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -174,10 +174,21 @@ type testCheckPoint struct {
 	BaseName string
 }
 
-// testVIZCommon contains common items used in a number of viz data tests
-type testVIZCommon struct {
-	AllIters intList // list of all frames *required*
-	VizPath  string  // path to viz data output directory
+// testDREAMMV3MeshCommon contains common items used in DREAMM V3 mesh tests
+type testDREAMMV3MeshCommon struct {
+	AllIters    intList // list of all frames *required*
+	PosIters    intList // iterations with mesh positions
+	RegionIters intList // iterations with region information
+	StateIters  intList // iterations with mesh state information
+	VizPath     string  // path to viz data output directory
+	MeshEmpty   bool    // true if no mesh info is present
+}
+
+// testDREAMMV3MeshASCIIOutput encapsulates items specific to the ASCII format
+// of the DREAMM_V3 mesh viz data output
+type testDREAMMV3MeshASCIIOutput struct {
+	Objects       []string // names of mesh objects which should be present
+	ObjectRegions []string // names of objects with regions
 }
 
 // testDREAMMV3MolBinOutput test the DREAMM_V3 molecule viz data output.
@@ -196,20 +207,6 @@ type testDREAMMV3MolBinOutput struct {
 	VolOrientIters  intList // iterations with surface mol. orientation iterations
 	VolStateIters   intList // iterations with surface mol. states
 	VolEmpty        bool    // true if no volume molecules are present
-}
-
-// testDREAMMV3MeshBinOutput test the DREAMM_V3 mesh viz data output.
-// NOTE: It is a bit tricky to split this test into more elementary tests since
-// the framework also checks the existence of the proper soft links which
-// depend on the overall iteration structure (e.g., an iteration directory
-// without a requested molecule output receives links to the most recently
-// added data in a previous iteration). Thus, it seemed better to hardcode
-// everything into a more complex single test.
-type testDREAMMV3MeshBinOutput struct {
-	PosIters    intList // iterations with mesh positions
-	RegionIters intList // iterations with region information
-	StateIters  intList // iterations with mesh state information
-	MeshEmpty   bool    // true if no mesh info is present
 }
 
 // runStatus encapsulates the status of running of of N mdl files which make
