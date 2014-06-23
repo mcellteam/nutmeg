@@ -28,7 +28,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
 		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT",
 		"CHECK_DREAMM_V3_MOLS_BIN", "CHECK_DREAMM_V3_MESH_BIN",
-		"CHECK_DREAMM_V3_MESH_ASCII", "CHECK_DREAMM_V3_MOLS_ASCII"}
+		"CHECK_DREAMM_V3_MESH_ASCII", "CHECK_DREAMM_V3_MOLS_ASCII",
+		"CHECK_DREAMM_V3_GROUPED"}
 
 	for _, c := range test.Checks {
 
@@ -140,6 +141,13 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			if testErr = checkDREAMMV3MeshASCII(test.Path, c.VizPath, c.AllIters,
 				c.PosIters, c.RegionIters, c.StateIters, c.MeshEmpty, c.Objects,
 				c.ObjectRegions); testErr != nil {
+				break
+			}
+
+		case "CHECK_DREAMM_V3_GROUPED":
+			if testErr = checkDREAMMV3Grouped(test.Path, c.VizPath, c.NumIters,
+				c.NumTimes, c.HaveMeshPos, c.HaveRgnIdx, c.HaveMeshState, c.NoMeshes,
+				c.HaveMolPos, c.HaveMolOrient, c.HaveMolState, c.NoMols); testErr != nil {
 				break
 			}
 
@@ -1321,5 +1329,88 @@ func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
 			return err
 		}
 	}
+	return nil
+}
+
+// checkDREAMMV3Grouped checks the layout for DREAMM V3 grouped format
+func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
+	haveMeshPos, haveRgnIdx, haveMeshState, noMeshes, haveMolPos, haveMolOrient,
+	haveMolState, noMols bool) error {
+
+	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+
+	// meshes
+	meshPath := dataPath + ".mesh_positions.1.bin"
+	if err := checkDREAMMV3GroupedItem(meshPath, haveMeshPos, noMeshes); err != nil {
+		return err
+	}
+
+	regionPath := dataPath + ".region_indices.1.bin"
+	if err := checkDREAMMV3GroupedItem(regionPath, haveRgnIdx, noMeshes); err != nil {
+		return err
+	}
+
+	meshStatesPath := dataPath + ".mesh_states.1.bin"
+	if err := checkDREAMMV3GroupedItem(meshStatesPath, haveMeshState,
+		noMeshes); err != nil {
+		return err
+	}
+
+	// molecules
+	molPath := dataPath + ".molecule_positions.1.bin"
+	if err := checkDREAMMV3GroupedItem(molPath, haveMolPos, noMols); err != nil {
+		return err
+	}
+
+	orientPath := dataPath + ".molecule_orientations.1.bin"
+	if err := checkDREAMMV3GroupedItem(orientPath, haveMolOrient, noMols); err != nil {
+		return err
+	}
+
+	molStatesPath := dataPath + ".molecule_states.1.bin"
+	if err := checkDREAMMV3GroupedItem(molStatesPath, haveMolState, noMols); err != nil {
+		return err
+	}
+
+	// iterations
+	iterPath := dataPath + ".iteration_numbers.1.bin"
+	if numIters != 0 {
+		ok, err := testFileSize(iterPath, int64(numIters*12))
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s has incorrect file size", iterPath)
+		}
+	} else {
+		ok, err := testFileNonEmpty(iterPath)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is not non-empty", iterPath)
+		}
+	}
+
+	// times
+	timePath := dataPath + ".time_values.1.bin"
+	if numIters != 0 {
+		ok, err := testFileSize(timePath, int64(numIters*8))
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s has incorrect file size", timePath)
+		}
+	} else {
+		ok, err := testFileNonEmpty(timePath)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("file %s is not non-empty", timePath)
+		}
+	}
+
 	return nil
 }

@@ -66,6 +66,7 @@ type TestCase struct {
 	testDREAMMV3MolBinOutput
 	testDREAMMV3MolASCIIOutput
 	testDREAMMV3MeshASCIIOutput
+	testDREAMMV3GroupedOutput
 }
 
 // testCommon includes common options that are used by two or more tests
@@ -212,10 +213,25 @@ type testDREAMMV3MolBinOutput struct {
 	VolEmpty        bool    // true if no volume molecules are present
 }
 
-// testDREAMMV3MolASCIIOutput encapsulates items specific to the ASCII format
-// of the DREAMM V3 molecule data
+// testDREAMMV3MolASCIIOutput encapsulates specs related to tests for the
+// ASCII viz format of the DREAMM V3 molecule data
 type testDREAMMV3MolASCIIOutput struct {
 	MolNames []string // names of molecules to look for
+}
+
+// testDREAMMV3Grouped encapsulates specs related to tests for DREAMM V3
+// grouped format.
+type testDREAMMV3GroupedOutput struct {
+	NumIters      int  // number of iterations with output
+	NumTimes      int  // number of times with output
+	HaveMeshPos   bool // true if a mesh positions file is expected
+	HaveRgnIdx    bool // true if a region index file is expected
+	HaveMeshState bool // true if a mesh state file is expected
+	NoMeshes      bool // true if no mesh is present
+	HaveMolPos    bool // true if a molecule positions file is expected
+	HaveMolOrient bool // true if a molecule orientations file is expected
+	HaveMolState  bool // true if a molecule states file is expected
+	NoMols        bool // true if no molecules are present
 }
 
 // runStatus encapsulates the status of running of of N mdl files which make

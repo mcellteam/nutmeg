@@ -304,3 +304,24 @@ func unsetTrackers(s int, xs ...*int) {
 		}
 	}
 }
+
+// checkDREAMMV3GroupedItem tests the viz data directory for the
+// presence/absence of the given file as part of grouped DREAMM V3 format
+func checkDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) error {
+	if haveItemProperty && noItem {
+		ok, err := testFileExists(filePath)
+		if err != nil {
+			return err
+		} else if !ok {
+			fmt.Errorf("file %s does not exist", filePath)
+		}
+	} else if haveItemProperty && !noItem {
+		ok, err := testFileNonEmpty(filePath)
+		if err != nil {
+			return err
+		} else if !ok {
+			fmt.Errorf("file %s is not non-empty", filePath)
+		}
+	}
+	return nil
+}
