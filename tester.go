@@ -1392,7 +1392,7 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 
 	// times
 	timePath := dataPath + ".time_values.1.bin"
-	if numIters != 0 {
+	if numTimes != 0 {
 		ok, err := testFileSize(timePath, int64(numTimes*8))
 		if err != nil {
 			return err
