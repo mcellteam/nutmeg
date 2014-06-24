@@ -806,7 +806,6 @@ func checkExpressions(filePath string) error {
 			val1, err1 := strconv.ParseFloat(strings.TrimSpace(vals[0]), 64)
 			val2, err2 := strconv.ParseFloat(strings.TrimSpace(vals[1]), 64)
 			if err1 != nil || err2 != nil {
-				fmt.Println(val1, err1)
 				return fmt.Errorf("cannot convert expression %s into floats", line[4:])
 			}
 
@@ -967,27 +966,26 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 			isVolMol = true
 		}
 
-		// check if the surface/volume states are in the list of expected ones
+		// check if the surface/volume states are in the list of expected ones for
+		// old style ASCII output (VIZ_DATA_OUTPUT)
 		state, err := strconv.Atoi(items[0])
-		if err != nil {
-			return fmt.Errorf("in file %s: the molecule state is not a integer", dataPath)
-		}
-
-		if isVolMol {
-			for _, v := range volStates {
-				if v == state {
-					break
+		if err == nil {
+			if isVolMol {
+				for _, v := range volStates {
+					if v == state {
+						break
+					}
+					return fmt.Errorf("in file %s: encountered unknown volume molecule "+
+						"state %d", dataPath, state)
 				}
-				return fmt.Errorf("in file %s: encountered unknown volume molecule "+
-					"state %d", dataPath, state)
-			}
-		} else {
-			for _, v := range surfStates {
-				if v == state {
-					break
+			} else {
+				for _, v := range surfStates {
+					if v == state {
+						break
+					}
+					return fmt.Errorf("in file %s: encountered unknown surface molecule "+
+						"state %d", dataPath, state)
 				}
-				return fmt.Errorf("in file %s: encountered unknown surface molecule "+
-					"state %d", dataPath, state)
 			}
 		}
 	}
@@ -1395,7 +1393,7 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 	// times
 	timePath := dataPath + ".time_values.1.bin"
 	if numIters != 0 {
-		ok, err := testFileSize(timePath, int64(numIters*8))
+		ok, err := testFileSize(timePath, int64(numTimes*8))
 		if err != nil {
 			return err
 		}

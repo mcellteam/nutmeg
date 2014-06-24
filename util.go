@@ -309,18 +309,18 @@ func unsetTrackers(s int, xs ...*int) {
 // presence/absence of the given file as part of grouped DREAMM V3 format
 func checkDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) error {
 	if haveItemProperty && noItem {
-		ok, err := testFileExists(filePath)
+		ok, err := testFileEmpty(filePath)
 		if err != nil {
 			return err
 		} else if !ok {
-			fmt.Errorf("file %s does not exist", filePath)
+			return fmt.Errorf("file %s does not exist or is not empty", filePath)
 		}
 	} else if haveItemProperty && !noItem {
 		ok, err := testFileNonEmpty(filePath)
 		if err != nil {
 			return err
 		} else if !ok {
-			fmt.Errorf("file %s is not non-empty", filePath)
+			return fmt.Errorf("file %s is not non-empty", filePath)
 		}
 	}
 	return nil
