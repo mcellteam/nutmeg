@@ -284,21 +284,21 @@
             "testType": "CHECK_DREAMM_V3_GROUPED",
             "vizPath": "viz_dat/world",
             "numIters": 101,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true,
             "haveMolState": true,
-            "noMols" : true
-       },
-       {
+            "noMols": true
+        },
+        {
             "testType": "CHECK_DREAMM_V3_GROUPED",
             "vizPath": "viz_dat/world2",
             "numIters": 101,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
-       }
+        }
     ]
 }

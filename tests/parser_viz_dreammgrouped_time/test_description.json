@@ -284,9 +284,9 @@
             "testType": "CHECK_DREAMM_V3_GROUPED",
             "vizPath": "viz_dat/world",
             "numIters": 101,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
         }
     ]

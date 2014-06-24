@@ -285,9 +285,9 @@
             "vizPath": "viz_dat/44 - DREAMM grouped new/world",
             "numIters": 14,
             "numTimes": 15,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
         },
         {
@@ -295,9 +295,9 @@
             "vizPath": "viz_dat/45 - DREAMM grouped new/world2",
             "numIters": 14,
             "numTimes": 15,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
         },
         {
@@ -1012,7 +1012,7 @@
                 "viz_dat/22 - DX old/molecules.molecule_states.%d.dx"
             ],
             "IDRange": [
-              "1:101:10"
+                "1:101:10"
             ]
         },
         {
@@ -1067,7 +1067,7 @@
                 "viz_dat/22 - DX old/objects_a.mesh_element_states.%d.dx"
             ],
             "IDRange": [
-                 "1:101:10"
+                "1:101:10"
             ]
         },
         {
@@ -1103,7 +1103,7 @@
                 "viz_dat/23 - DX old/molecules.molecule_states.%d.dx"
             ],
             "IDRange": [
-              "1:101:10"
+                "1:101:10"
             ]
         },
         {
@@ -1158,7 +1158,7 @@
                 "viz_dat/23 - DX old/objects_a.mesh_element_states.%d.dx"
             ],
             "IDRange": [
-                 "1:101:10"
+                "1:101:10"
             ]
         },
         {
@@ -1185,7 +1185,9 @@
                 "viz_dat/24 - DX new/world.molecule_positions.%d.dx"
             ],
             "IDRange": [
-                "0", "2", "3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1195,7 +1197,7 @@
                 "viz_dat/24 - DX new/world.molecule_states.%d.dx"
             ],
             "IDRange": [
-              "0:101:10"
+                "0:101:10"
             ]
         },
         {
@@ -1204,7 +1206,9 @@
                 "viz_dat/24 - DX new/objects_a.effector_site_positions.%d.dx"
             ],
             "IDRange": [
-              "0","2","3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1223,7 +1227,9 @@
                 "viz_dat/24 - DX new/objects_b.effector_site_positions.%d.dx"
             ],
             "IDRange": [
-                "0","2","3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1242,7 +1248,9 @@
                 "viz_dat/24 - DX new/objects_a.mesh_elements.%d.dx"
             ],
             "IDRange": [
-                "1","2","3"
+                "1",
+                "2",
+                "3"
             ]
         },
         {
@@ -1251,7 +1259,7 @@
                 "viz_dat/24 - DX new/objects_a.mesh_element_states.%d.dx"
             ],
             "IDRange": [
-                 "1"
+                "1"
             ]
         },
         {
@@ -1260,7 +1268,9 @@
                 "viz_dat/24 - DX new/objects_b.mesh_elements.%d.dx"
             ],
             "IDRange": [
-                "1","2","3"
+                "1",
+                "2",
+                "3"
             ]
         },
         {
@@ -1278,7 +1288,9 @@
                 "viz_dat/25 - DX new/world.molecule_positions.%d.dx"
             ],
             "IDRange": [
-                "0", "2", "3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1288,7 +1300,7 @@
                 "viz_dat/25 - DX new/world.molecule_states.%d.dx"
             ],
             "IDRange": [
-              "0:101:10"
+                "0:101:10"
             ]
         },
         {
@@ -1297,7 +1309,9 @@
                 "viz_dat/25 - DX new/objects_a.effector_site_positions.%d.dx"
             ],
             "IDRange": [
-              "0","2","3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1316,7 +1330,9 @@
                 "viz_dat/25 - DX new/objects_b.effector_site_positions.%d.dx"
             ],
             "IDRange": [
-                "0","2","3",
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ]
         },
@@ -1335,7 +1351,9 @@
                 "viz_dat/25 - DX new/objects_a.mesh_elements.%d.dx"
             ],
             "IDRange": [
-                "1","2","3"
+                "1",
+                "2",
+                "3"
             ]
         },
         {
@@ -1344,7 +1362,7 @@
                 "viz_dat/25 - DX new/objects_a.mesh_element_states.%d.dx"
             ],
             "IDRange": [
-                 "1"
+                "1"
             ]
         },
         {
@@ -1353,7 +1371,9 @@
                 "viz_dat/25 - DX new/objects_b.mesh_elements.%d.dx"
             ],
             "IDRange": [
-                "1","2","3"
+                "1",
+                "2",
+                "3"
             ]
         },
         {
@@ -1383,23 +1403,34 @@
             "testType": "CHECK_DREAMM_V3_MOLS_BIN",
             "vizPath": "viz_dat/34 - DREAMM new/world_viz_data/",
             "AllIters": [
-                "0","2","3","4",
+                "0",
+                "2",
+                "3",
+                "4",
                 "10:101:10"
             ],
-            "SurfPosIters" : [
-                "0","2","3",
+            "SurfPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "VolPosIters" : [
-                "0","2","3",
+            "VolPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "SurfOrientIters" : [
-               "2","3","4"
-               ],
-            "VolOrientIters" : [
-              "2","3","4"
-              ]
+            "SurfOrientIters": [
+                "2",
+                "3",
+                "4"
+            ],
+            "VolOrientIters": [
+                "2",
+                "3",
+                "4"
+            ]
         },
         {
             "testType": "CHECK_DREAMM_V3_MESH_BIN",
@@ -1418,7 +1449,6 @@
                 "4"
             ]
         },
-
         {
             "testType": "CHECK_NONEMPTY_FILES",
             "fileNames": [
@@ -1490,16 +1520,23 @@
                 "s_v_11"
             ],
             "allIters": [
-              "0", "2", "3", "4",
+                "0",
+                "2",
+                "3",
+                "4",
                 "10:101:10"
             ],
             "posIters": [
-              "0", "2", "3",
-            "10:101:10"
-              ],
+                "0",
+                "2",
+                "3",
+                "10:101:10"
+            ],
             "orientIters": [
-              "2","3","4"
-        ]
+                "2",
+                "3",
+                "4"
+            ]
         },
         {
             "testType": "CHECK_DREAMM_V3_MESH_BIN",
@@ -1536,23 +1573,34 @@
             "testType": "CHECK_DREAMM_V3_MOLS_BIN",
             "vizPath": "viz_dat/36 - DREAMM new/world_viz_data/",
             "AllIters": [
-                "0","2","3","4",
+                "0",
+                "2",
+                "3",
+                "4",
                 "10:101:10"
             ],
-            "SurfPosIters" : [
-                "0","2","3",
+            "SurfPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "VolPosIters" : [
-                "0","2","3",
+            "VolPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "SurfOrientIters" : [
-               "2","3","4"
-               ],
-            "VolOrientIters" : [
-              "2","3","4"
-              ]
+            "SurfOrientIters": [
+                "2",
+                "3",
+                "4"
+            ],
+            "VolOrientIters": [
+                "2",
+                "3",
+                "4"
+            ]
         },
         {
             "testType": "CHECK_DREAMM_V3_MESH_ASCII",
@@ -1613,23 +1661,34 @@
             "testType": "CHECK_DREAMM_V3_MOLS_BIN",
             "vizPath": "viz_dat/37 - DREAMM new/world_viz_data/",
             "AllIters": [
-                "0","2","3","4",
+                "0",
+                "2",
+                "3",
+                "4",
                 "10:101:10"
             ],
-            "SurfPosIters" : [
-                "0","2","3",
+            "SurfPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "VolPosIters" : [
-                "0","2","3",
+            "VolPosIters": [
+                "0",
+                "2",
+                "3",
                 "10:101:10"
             ],
-            "SurfOrientIters" : [
-               "2","3","4"
-               ],
-            "VolOrientIters" : [
-              "2","3","4"
-              ]
+            "SurfOrientIters": [
+                "2",
+                "3",
+                "4"
+            ],
+            "VolOrientIters": [
+                "2",
+                "3",
+                "4"
+            ]
         },
         {
             "testType": "CHECK_DREAMM_V3_MESH_BIN",
@@ -1653,9 +1712,9 @@
             "vizPath": "viz_dat/44 - DREAMM grouped new/world",
             "numIters": 14,
             "numTimes": 15,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
         },
         {
@@ -1663,9 +1722,9 @@
             "vizPath": "viz_dat/45 - DREAMM grouped new/world2",
             "numIters": 14,
             "numTimes": 15,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true
         },
         {
@@ -1673,9 +1732,9 @@
             "vizPath": "viz_dat/46 - DREAMM grouped new/world",
             "numIters": 14,
             "numTimes": 15,
-            "haveMeshPos" : true,
-            "haveRgnIdx" : true,
-            "haveMolPos" : true,
+            "haveMeshPos": true,
+            "haveRgnIdx": true,
+            "haveMolPos": true,
             "haveMolOrient": true,
             "haveMolState": true,
             "noMols": true
