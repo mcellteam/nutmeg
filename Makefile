@@ -1,7 +1,7 @@
 
 
 host:
-	go build -o nutmeg *.go
+	go build -o nutmeg 
 
 
 .PHONY: windows_386 windows_amd64 linux_386 linux_amd64 osx_386 osx_amd64 \
@@ -16,22 +16,22 @@ osx: osx_386 osx_amd64
 all: windows linux osx
 
 windows_386:
-	GOOS=windows GOARCH=386 go build -o nutmeg_windows_386 *.go
+	GOOS=windows GOARCH=386 go build -o nutmeg_windows_386
 
 windows_amd64:
-	GOOS=windows GOARCH=amd64 go build -o nutmeg_windows_amd64 *.go
+	GOOS=windows GOARCH=amd64 go build -o nutmeg_windows_amd64 
 
 linux_386:
-	GOOS=linux GOARCH=386 go build -o nutmeg_linux_386 *.go
+	GOOS=linux GOARCH=386 go build -o nutmeg_linux_386 
 
 linux_amd64:
-	GOOS=linux GOARCH=amd64 go build -o nutmeg_linux_amd64 *.go
+	GOOS=linux GOARCH=amd64 go build -o nutmeg_linux_amd64
 
 osx_386:
-	GOOS=darwin GOARCH=386 go build -o nutmeg_osx_386 *.go
+	GOOS=darwin GOARCH=386 go build -o nutmeg_osx_386
 
 osx_amd64:
-	GOOS=darwin GOARCH=amd64 go build -o nutmeg_osx_amd64 *.go
+	GOOS=darwin GOARCH=amd64 go build -o nutmeg_osx_amd64 
 
 ctags: tags
 	ctags *.go

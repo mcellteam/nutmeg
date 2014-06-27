@@ -870,7 +870,10 @@ func diffFileContent(path, dataPath, templateFile string,
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", templatePath)
 	}
-	match := fmt.Sprintf(string(tempContent), tp...)
+	stringContent := string(tempContent)
+	// need to normalize since Windows has different EOL character
+	normalizedContent := strings.Replace(stringContent, "\r\n", "\n", -1)
+	match := fmt.Sprintf(normalizedContent, tp...)
 
 	if content != match {
 		return fmt.Errorf("the test output does not match template.\n\nexpected\n"+
