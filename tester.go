@@ -8,7 +8,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/haskelladdict/datastruct/set/intset"
 	"io/ioutil"
 	"math"
 	"os"
@@ -17,6 +16,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/haskelladdict/datastruct/set/intset"
 )
 
 // testRunner analyses the TestDescriptions coming from an MCell run on a
@@ -349,9 +350,11 @@ func fileMatchPattern(filePath string, matchPattern string,
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", filePath)
 	}
+	// need to normalize since Windows has different EOL character
+	normalizedContent := strings.Replace(string(content), "\r\n", "\n", -1)
 
 	matcher := regexp.MustCompile(matchPattern)
-	matches := matcher.FindAll(content, -1)
+	matches := matcher.FindAllString(normalizedContent, -1)
 	if len(matches) != numExpectedMatches {
 		return fmt.Errorf("failed pattern match: %s matched %d times instead of %d",
 			matchPattern, len(matches), numExpectedMatches)
@@ -864,18 +867,17 @@ func diffFileContent(path, dataPath, templateFile string,
 		return fmt.Errorf("failed to open file %s", dataPath)
 	}
 	content := string(c)
+	// need to normalize since Windows has different EOL character
+	normalizedContent := strings.Replace(content, "\r\n", "\n", -1)
 
 	templatePath := filepath.Join(path, templateFile)
 	tempContent, err := ioutil.ReadFile(templatePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file %s", templatePath)
 	}
-	stringContent := string(tempContent)
-	// need to normalize since Windows has different EOL character
-	normalizedContent := strings.Replace(stringContent, "\r\n", "\n", -1)
-	match := fmt.Sprintf(normalizedContent, tp...)
+	match := fmt.Sprintf(string(tempContent), tp...)
 
-	if content != match {
+	if normalizedContent != match {
 		return fmt.Errorf("the test output does not match template.\n\nexpected\n"+
 			"\n%s\n\nbut got\n\n%s\n", content, match)
 	}
