@@ -28,10 +28,10 @@ linux_amd64:
 	GOOS=linux GOARCH=amd64 go build -o nutmeg_linux_amd64 *.go
 
 osx_386:
-	GOOS=osx GOARCH=386 go build -o nutmeg_osx_386 *.go
+	GOOS=darwin GOARCH=386 go build -o nutmeg_osx_386 *.go
 
 osx_amd64:
-	GOOS=osx GOARCH=amd64 go build -o nutmeg_osx_amd64 *.go
+	GOOS=darwin GOARCH=amd64 go build -o nutmeg_osx_amd64 *.go
 
 ctags: tags
 	ctags *.go
