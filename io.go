@@ -7,7 +7,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -241,10 +240,20 @@ func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 			}
 		}
 	default:
-		return nil, errors.New("datafile has too many format specifiers")
+		return nil, fmt.Errorf("datafile has too many format specifiers")
 	}
 
-	return dataPaths, nil
+	// expand all glob patterns if present
+	var globbedDataPaths []string
+	for _, p := range dataPaths {
+		paths, err := filepath.Glob(p)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to expand glob patterns in %s", p)
+		}
+		globbedDataPaths = append(globbedDataPaths, paths...)
+	}
+
+	return globbedDataPaths, nil
 }
 
 // getOutputDir returns the path in which the output for the testcase at path
