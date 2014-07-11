@@ -27,6 +27,7 @@ var listTestsFlag bool
 var listCategoriesFlag bool
 var cleanTestOutput bool
 var testSelection string
+var categorySelection string
 var descriptionSelectionShort string
 var numSimJobs int
 var numTestJobs int
@@ -42,8 +43,8 @@ func init() {
 	flag.BoolVar(&listTestsFlag, "l", false, "show available test cases")
 	flag.BoolVar(&listCategoriesFlag, "L", false, "show available test categories")
 	flag.BoolVar(&cleanTestOutput, "c", false, "clean temporary test data")
-	flag.StringVar(&testSelection, "r", "",
-		"run specified tests (i, i:j, 'all', <category_name>)")
+	flag.StringVar(&testSelection, "r", "", "run specified tests (i, i:j, 'all')")
+	flag.StringVar(&categorySelection, "R", "", "run all tests within the given category")
 	flag.StringVar(&descriptionSelectionShort, "d", "",
 		"show description for selected tests (i, i:j, or 'all')")
 	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
@@ -68,6 +69,9 @@ func main() {
 	}
 
 	flag.Parse()
+	if (testSelection != "") && (categorySelection != "") {
+		log.Fatal("The r and R flags are mutually exclusive")
+	}
 	switch {
 	case listTestsFlag:
 		fmt.Println("Available tests:")
@@ -98,6 +102,13 @@ func main() {
 			testNames)
 		showTestDescription(tests)
 
+	case categorySelection != "":
+		testSelection = strings.TrimSpace(testSelection)
+		categoryMap := extractCategories(nutmegConf.TestDir, testNames)
+		if ts, ok := categoryMap[testSelection]; ok {
+			spawnTests(ts, nutmegConf.McellPath, startTime)
+		}
+
 	case testSelection != "":
 		testSelection = strings.TrimSpace(testSelection)
 
@@ -106,24 +117,13 @@ func main() {
 		if testSelection == "all" {
 			tests = extractAllTestCases(nutmegConf.TestDir, testNames)
 		} else {
-			// check if a category was requested if not extract the actual testcases
-			categoryMap := extractCategories(nutmegConf.TestDir, testNames)
-			if ts, ok := categoryMap[testSelection]; ok {
-				tests = ts
-			} else {
-				tests = extractTestCases(nutmegConf.TestDir, testSelection, testNames)
-			}
+			tests = extractTestCases(nutmegConf.TestDir, testSelection, testNames)
 		}
-		numGoodTests, numBadTests, _ := runTests(nutmegConf.McellPath, tests)
-		fmt.Println("-------------------------------------")
-		fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
-			(numGoodTests + numBadTests), time.Now().Sub(startTime).Seconds(),
-			numGoodTests, numBadTests)
+		spawnTests(tests, nutmegConf.McellPath, startTime)
 
 	default:
 		flag.PrintDefaults()
 	}
-
 }
 
 // extractTestCases parses the test selection string and assembles the list
@@ -229,4 +229,14 @@ func extractCategories(testDir string, testNames []string) map[string][]string {
 		}
 	}
 	return categoryMap
+}
+
+// spawnTests starts the test engine with the user selected tests and
+// prints a status message once they're all finished.
+func spawnTests(tests []string, mcellPath string, startTime time.Time) {
+	numGoodTests, numBadTests, _ := runTests(mcellPath, tests)
+	fmt.Println("-------------------------------------")
+	fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
+		(numGoodTests + numBadTests), time.Since(startTime).Seconds(),
+		numGoodTests, numBadTests)
 }
