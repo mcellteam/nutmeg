@@ -216,15 +216,8 @@
                 "vol_dat/nvo.100.dat",
                 "parser_viz_ascii_iter-expressions.dat",
                 "parser_viz_ascii_iter.dat",
-                "run_%d.0.log",
-                "err_%d.0.log"
+                "run_%d.0.log"
             ]
-        },
-        {
-            "testType": "FILE_MATCH_PATTERN",
-            "dataFile": "err_%d.0.log",
-            "matchPattern": "Warning: Could not release 6 of s_g_1 \\(surface full\\).\n",
-            "numMatches": 1
         },
         {
             "testType": "CHECK_EXPRESSIONS",
