@@ -1,6 +1,6 @@
 
 
-host:
+host: ctags
 	go build -o nutmeg 
 
 

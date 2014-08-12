@@ -265,11 +265,11 @@ func (t *TestDescription) Copy() *TestDescription {
 }
 
 // runTests runs the specified list of tests
-func runTests(mcellPath string, tests []string) (int, int, error) {
+func runTests(mcellPath string, tests []string) (int, []*testResult, error) {
 
 	if err := cleanOutput(tests); err != nil {
 		fmt.Println("Failed to clean up previous test results", err)
-		return 0, 0, err
+		return 0, nil, err
 	}
 
 	simJobs := make(chan *TestDescription, numSimJobs)
@@ -294,8 +294,8 @@ func runTests(mcellPath string, tests []string) (int, int, error) {
 		go runTestJobs(testResults, testInput, testsDone)
 	}
 
-	numGoodTests, numBadTests := processResults(testResults, testsDone, numTestJobs)
-	return numGoodTests, numBadTests, nil
+	numGoodTests, badTests := processResults(testResults, testsDone, numTestJobs)
+	return numGoodTests, badTests, nil
 }
 
 // collectSimResults collects all simulation results (e.g. multiple seeds) for
@@ -489,10 +489,10 @@ func runTestJobs(results chan *testResult, simOutput <-chan *TestDescription,
 // processResults process all produced test results and displays them in the
 // fashion requested
 func processResults(results chan *testResult, testsDone chan struct{},
-	numTestJobs int) (int, int) {
+	numTestJobs int) (int, []*testResult) {
 
 	numGoodTests := 0
-	numBadTests := 0
+	var badTests []*testResult
 	t := 0
 	for t < numTestJobs {
 		select {
@@ -500,7 +500,7 @@ func processResults(results chan *testResult, testsDone chan struct{},
 			if r.success {
 				numGoodTests++
 			} else {
-				numBadTests++
+				badTests = append(badTests, r)
 			}
 			printResult(r)
 		case <-testsDone:
@@ -516,7 +516,7 @@ Done:
 			if r.success {
 				numGoodTests++
 			} else {
-				numBadTests++
+				badTests = append(badTests, r)
 			}
 			printResult(r)
 		default:
@@ -524,7 +524,7 @@ Done:
 		}
 	}
 
-	return numGoodTests, numBadTests
+	return numGoodTests, badTests
 }
 
 // printResults displays the outcome for a single test result

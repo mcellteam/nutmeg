@@ -234,9 +234,18 @@ func extractCategories(testDir string, testNames []string) map[string][]string {
 // spawnTests starts the test engine with the user selected tests and
 // prints a status message once they're all finished.
 func spawnTests(tests []string, mcellPath string, startTime time.Time) {
-	numGoodTests, numBadTests, _ := runTests(mcellPath, tests)
+	numGoodTests, badTests, _ := runTests(mcellPath, tests)
+	numBadTests := len(badTests)
 	fmt.Println("-------------------------------------")
 	fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
 		(numGoodTests + numBadTests), time.Since(startTime).Seconds(),
 		numGoodTests, numBadTests)
+
+	if numBadTests > 0 {
+		fmt.Println("")
+		for i, t := range badTests {
+			fmt.Printf("**** FAILED TEST %d: %s :: %s ****\n", i+1, filepath.Base(t.path), t.testName)
+			fmt.Printf("\n\t%s\n\n", t.errorMessage)
+		}
+	}
 }
