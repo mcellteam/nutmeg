@@ -732,7 +732,8 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 	for _, fileName := range fileList {
 		filePaths, err := getDataPaths(testDir, fileName, seed, 1)
 		if err != nil {
-			return fmt.Errorf("failed to construct data path for file %s", fileName)
+			return fmt.Errorf("failed to construct data path for file %s:\n%s",
+				fileName, err)
 		}
 
 		for _, filePath := range filePaths {

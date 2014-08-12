@@ -243,17 +243,28 @@ func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 		return nil, fmt.Errorf("datafile has too many format specifiers")
 	}
 
-	// expand all glob patterns if present
-	var globbedDataPaths []string
+	// expand all "*" glob patterns if present
+	var outDataPaths []string
 	for _, p := range dataPaths {
-		paths, err := filepath.Glob(p)
-		if err != nil {
-			return nil, fmt.Errorf("Failed to expand glob patterns in %s", p)
+		if strings.ContainsAny(p, "*") {
+			paths, err := filepath.Glob(p)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to expand glob patterns in %s", p)
+			}
+			outDataPaths = append(outDataPaths, paths...)
+		} else {
+			outDataPaths = append(outDataPaths, p)
 		}
-		globbedDataPaths = append(globbedDataPaths, paths...)
 	}
 
-	return globbedDataPaths, nil
+	// make sure we have at least one valid output file, i.e., even when
+	// globbing we expect at least on match
+	if len(outDataPaths) == 0 {
+		return nil, fmt.Errorf("Could not construct any valid output files " +
+			"perhaps due to failed globbing.")
+	}
+
+	return outDataPaths, nil
 }
 
 // getOutputDir returns the path in which the output for the testcase at path
