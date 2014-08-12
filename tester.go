@@ -924,9 +924,8 @@ func checkLegacyVolOutput(dataPath string, xdim, ydim, zdim int) error {
 	return nil
 }
 
-// checkASCIIVizOutput tests some basic facts about legacy VIZ_DATA_OUTPUT
-// blocks such as the presence of the proper viz states of surface and
-// volume molecules.
+// checkASCIIVizOutput tests some basic facts about the ASCII output
+// mode within the VIZ_OUTPUT data format.
 // NOTE: This is a pretty lame test and basically a literal port of our
 // previous unit test which was incidentally badly broken, so this one
 // at least does something useful :)
