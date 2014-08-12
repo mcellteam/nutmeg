@@ -295,263 +295,107 @@
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.000.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.000.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.002.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.002.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.003.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.003.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.010.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.010.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.020.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.020.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.030.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.030.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.040.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.040.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.050.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.050.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.060.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.060.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.070.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.070.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.080.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.080.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.090.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.090.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/04 - ASCII new/world.ascii.100.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/04 - ASCII new/world.ascii.100.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.000.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.000.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.002.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.002.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.003.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.003.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.010.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.010.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.020.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.020.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.030.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.030.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.040.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.040.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.050.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.050.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.060.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.060.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.070.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.070.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.080.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.080.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.090.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.090.dat"
         },
         {
             "testType": "CHECK_ASCII_VIZ_OUTPUT",
-            "dataFile": "viz_dat/05 - ASCII new/world.ascii.100.dat",
-            "surfaceStates": [
-                2147483647
-            ],
-            "volumeStates": [
-                2147483647
-            ]
+            "dataFile": "viz_dat/05 - ASCII new/world.ascii.100.dat"
         },
         {
             "testType": "CHECK_NONEMPTY_FILES",

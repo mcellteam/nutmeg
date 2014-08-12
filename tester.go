@@ -963,36 +963,6 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 			}
 			sum += math.Abs(x)
 		}
-
-		// if sum is zero the vector (5,6,7) was identically zero and the
-		// molecule thus is a volume molecule
-		isVolMol := false
-		if math.Nextafter(sum, 0.0) == sum {
-			isVolMol = true
-		}
-
-		// check if the surface/volume states are in the list of expected ones for
-		// old style ASCII output (VIZ_DATA_OUTPUT)
-		state, err := strconv.Atoi(items[0])
-		if err == nil {
-			if isVolMol {
-				for _, v := range volStates {
-					if v == state {
-						break
-					}
-					return fmt.Errorf("in file %s: encountered unknown volume molecule "+
-						"state %d", dataPath, state)
-				}
-			} else {
-				for _, v := range surfStates {
-					if v == state {
-						break
-					}
-					return fmt.Errorf("in file %s: encountered unknown surface molecule "+
-						"state %d", dataPath, state)
-				}
-			}
-		}
 	}
 
 	return nil
