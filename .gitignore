@@ -3,6 +3,9 @@
 *.a
 *.so
 
+# sublime3 project files
+*sublime*
+
 tags
 nutmeg
 nutmeg.conf
