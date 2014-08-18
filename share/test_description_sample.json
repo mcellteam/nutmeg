@@ -11,6 +11,9 @@
         ""
       ]
   },
+  "includes" : [
+      "success_check"
+  ],
   "checks": [
     {
       "testType": "CHECK_SUCCESS"

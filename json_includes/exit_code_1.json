@@ -1,0 +1,11 @@
+{
+    "description": "Check that the run exits with an exit code of 1",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2014-08-18",
+    "checks": [
+        {
+            "testType": "CHECK_EXIT_CODE",
+            "exitCode": 1
+        }
+    ]
+}

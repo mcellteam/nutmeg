@@ -91,11 +91,10 @@
             "-quiet"
         ]
     },
+    "includes" : [
+              "exit_code_1"
+    ],
     "checks": [
-        {
-            "testType": "CHECK_EXIT_CODE",
-            "exitCode": 1
-        },
         {
             "testType": "CHECK_NONEMPTY_FILES",
             "fileNames": [

@@ -10,11 +10,10 @@
             "test.mdl"
         ]
     },
+    "includes" : [
+        "exit_code_1"
+    ],
     "checks": [
-        {
-            "testType": "CHECK_EXIT_CODE",
-            "exitCode": 1
-        },
         {
             "testType": "FILE_MATCH_PATTERN",
             "dataFile": "err_%d.0.log",

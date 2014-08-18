@@ -14,10 +14,7 @@
             "-quiet"
         ]
     },
-    "checks": [
-        {
-            "testType": "CHECK_EXIT_CODE",
-            "exitCode": 1
-        }
+    "includes" : [
+       "exit_code_1"
     ]
 }
