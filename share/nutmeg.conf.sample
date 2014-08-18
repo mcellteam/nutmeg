@@ -1,4 +1,5 @@
 {
   "testDir": "/absolute/path/to/test/dir",
+  "includeDir": "/absolute/path/to/include/dir",
   "mcellPath": "/absolute/path/to/mcell/executable"
 }

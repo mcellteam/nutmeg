@@ -15,9 +15,8 @@ import (
 
 // ParseJSON takes the past to a test case and parses the test_description.json
 // file contained therein into a TestDescription struct
-func ParseJSON(testPath string) (*TestDescription, error) {
-	testDescriptionFile := filepath.Join(testPath, "test_description.json")
-	content, err := ioutil.ReadFile(testDescriptionFile)
+func ParseJSON(testPath, includePath string) (*TestDescription, error) {
+	content, err := ioutil.ReadFile(testPath)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +26,14 @@ func ParseJSON(testPath string) (*TestDescription, error) {
 	if err != nil {
 		return &test, err
 	}
-
+	for _, inc := range test.Includes {
+		incFile := filepath.Join(includePath, inc+".json")
+		t, err := ParseJSON(incFile, includePath)
+		if err != nil {
+			return nil, err
+		}
+		test.Checks = append(test.Checks, t.Checks...)
+	}
 	return &test, nil
 }
 

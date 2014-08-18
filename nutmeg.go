@@ -34,8 +34,9 @@ var numTestJobs int
 
 // Config keeps track of package configuration settings
 type config struct {
-	McellPath string // path to mcell executable
-	TestDir   string // path to directory with nutmeg tests
+	McellPath  string // path to mcell executable
+	TestDir    string // path to directory with nutmeg tests
+	IncludeDir string // path to directory with nutmeg test include file
 }
 
 // initialize list of available unit tests
@@ -83,7 +84,7 @@ func main() {
 	case listCategoriesFlag:
 		fmt.Println("Available Categories:")
 		fmt.Println("--------------------")
-		categories := extractCategories(nutmegConf.TestDir, testNames)
+		categories := extractCategories(nutmegConf, testNames)
 		for k := range categories {
 			fmt.Println(" -", k)
 		}
@@ -100,13 +101,13 @@ func main() {
 	case descriptionSelectionShort != "":
 		tests := extractTestCases(nutmegConf.TestDir, descriptionSelectionShort,
 			testNames)
-		showTestDescription(tests)
+		showTestDescription(nutmegConf, tests)
 
 	case categorySelection != "":
 		testSelection = strings.TrimSpace(testSelection)
-		categoryMap := extractCategories(nutmegConf.TestDir, testNames)
+		categoryMap := extractCategories(nutmegConf, testNames)
 		if ts, ok := categoryMap[testSelection]; ok {
-			spawnTests(ts, nutmegConf.McellPath, startTime)
+			spawnTests(nutmegConf, ts, startTime)
 		}
 
 	case testSelection != "":
@@ -119,7 +120,7 @@ func main() {
 		} else {
 			tests = extractTestCases(nutmegConf.TestDir, testSelection, testNames)
 		}
-		spawnTests(tests, nutmegConf.McellPath, startTime)
+		spawnTests(nutmegConf, tests, startTime)
 
 	default:
 		flag.PrintDefaults()
@@ -138,7 +139,6 @@ func extractTestCases(testDir, selection string, testNames []string) []string {
 	var selectedNames []string
 	for _, s := range strings.Split(selection, ",") {
 		item := strings.TrimSpace(s)
-
 		var items []int
 		var err error
 		if strings.Contains(item, ":") {
@@ -167,7 +167,6 @@ func extractTestCases(testDir, selection string, testNames []string) []string {
 // extractAllTestCases returns a list with full paths to all available
 // testcases
 func extractAllTestCases(testDir string, testNames []string) []string {
-
 	testPaths := make([]string, len(testNames))
 	for i, name := range testNames {
 		testPaths[i] = filepath.Join(testDir, name)
@@ -178,7 +177,6 @@ func extractAllTestCases(testDir string, testNames []string) []string {
 // appendTestCases appends the test case names corresponding to the provided
 // ids to the list of testcases
 func appendTestCases(testIDs []int, selection, testNames []string) []string {
-
 	for _, i := range testIDs {
 		if i < 0 || i >= len(testNames) {
 			log.Printf("test selection %d out of valid range (%d-%d) ... skipping",
@@ -212,11 +210,11 @@ func gatherTests(testDir string) ([]string, error) {
 
 // extractCategories extracts the available test categories from the provided
 // test selection (x, x:y, 'all', etc.)
-func extractCategories(testDir string, testNames []string) map[string][]string {
-	tests := extractAllTestCases(testDir, testNames)
+func extractCategories(conf *config, testNames []string) map[string][]string {
+	tests := extractAllTestCases(conf.TestDir, testNames)
 	categoryMap := make(map[string][]string)
 	for _, t := range tests {
-		p, err := ParseJSON(t)
+		p, err := ParseJSON(filepath.Join(t, "test_description.json"), conf.IncludeDir)
 		if err != nil {
 			continue
 		}
@@ -233,8 +231,8 @@ func extractCategories(testDir string, testNames []string) map[string][]string {
 
 // spawnTests starts the test engine with the user selected tests and
 // prints a status message once they're all finished.
-func spawnTests(tests []string, mcellPath string, startTime time.Time) {
-	numGoodTests, badTests, _ := runTests(mcellPath, tests)
+func spawnTests(conf *config, tests []string, startTime time.Time) {
+	numGoodTests, badTests, _ := runTests(conf, tests)
 	numBadTests := len(badTests)
 	fmt.Println("-------------------------------------")
 	fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",

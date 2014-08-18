@@ -19,7 +19,7 @@ import (
 
 // TestResults encapsulates the results of an individual test
 type testResult struct {
-	path         string // path to test with was run
+	path         string // path to test which was run
 	success      bool   // was test successful
 	testName     string // name of test
 	errorMessage string // error message if test failed
@@ -27,11 +27,14 @@ type testResult struct {
 
 // TestDescription encapsulates all information needed to describe a unit
 // or regression test of an MCell model
+// NOTE: the JSON test includes are assumed to be in a directory json_includes
+// in the top level nutmeg directory
 type TestDescription struct {
 	Description string
 	Path        string
 	KeyWords    []string
-	Run         RunSpec // simulation runs to conduct as part of this test
+	Includes    []string // names of JSON test description files to be included
+	Run         RunSpec  // simulation runs to conduct as part of this test
 	Checks      []*TestCase
 	simStatus   []runStatus // status of all simulation runs
 }
@@ -260,12 +263,13 @@ type intList []string
 
 // Copy member function for a TestDescription
 func (t *TestDescription) Copy() *TestDescription {
-	newT := TestDescription{t.Description, t.Path, t.KeyWords, t.Run, t.Checks, nil}
+	newT := TestDescription{t.Description, t.Path, t.KeyWords, t.Includes,
+		t.Run, t.Checks, nil}
 	return &newT
 }
 
 // runTests runs the specified list of tests
-func runTests(mcellPath string, tests []string) (int, []*testResult, error) {
+func runTests(conf *config, tests []string) (int, []*testResult, error) {
 
 	if err := cleanOutput(tests); err != nil {
 		fmt.Println("Failed to clean up previous test results", err)
@@ -273,13 +277,13 @@ func runTests(mcellPath string, tests []string) (int, []*testResult, error) {
 	}
 
 	simJobs := make(chan *TestDescription, numSimJobs)
-	go createSimJobs(tests, simJobs)
+	go createSimJobs(conf.IncludeDir, tests, simJobs)
 
 	// framework for running simulations
 	simOutput := make(chan *TestDescription, len(tests))
 	simsDone := make(chan struct{}, numSimJobs)
 	for i := 0; i < numSimJobs; i++ {
-		go runSimJobs(mcellPath, simOutput, simJobs, simsDone)
+		go runSimJobs(conf.McellPath, simOutput, simJobs, simsDone)
 	}
 	go closeSimOutput(simOutput, simsDone, numSimJobs)
 
@@ -396,10 +400,12 @@ func simRunner(mcellPath string, test *TestDescription,
 // jobs to be run via the simulation tool. It parses the test
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
-func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
+func createSimJobs(includePath string, testPaths []string,
+	simJobs chan *TestDescription) {
 	runID := 0
 	for _, testDir := range testPaths {
-		testDescription, err := ParseJSON(testDir)
+		testFile := filepath.Join(testDir, "test_description.json")
+		testDescription, err := ParseJSON(testFile, includePath)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)
 			continue
@@ -440,9 +446,10 @@ func createSimJobs(testPaths []string, simJobs chan *TestDescription) {
 
 // showTestDescription shows the description for the selected set of
 // tests.
-func showTestDescription(testPaths []string) {
+func showTestDescription(conf *config, testPaths []string) {
 	for _, testDir := range testPaths {
-		testDescription, err := ParseJSON(testDir)
+		testDescription, err := ParseJSON(filepath.Join(testDir, "test_description.json"),
+			conf.IncludeDir)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)
 			continue
