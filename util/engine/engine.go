@@ -61,7 +61,6 @@ func RunTests(conf *jsonParser.Config, tests []string,
 	for i := 0; i < numTestJobs; i++ {
 		go runTestJobs(testResults, testInput, testsDone)
 	}
-
 	numGoodTests, badTests := processResults(testResults, testsDone, numTestJobs)
 	return numGoodTests, badTests, nil
 }
@@ -111,7 +110,7 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		mdlPath := filepath.Join(test.Path, runFile)
 		runLog := fmt.Sprintf("run_%d.%d.log", test.Run.Seed, i)
 		errLog := fmt.Sprintf("err_%d.%d.log", test.Run.Seed, i)
-		argList := append(test.Run.CommandlineOpts, "-Seed", strconv.Itoa(test.Run.Seed),
+		argList := append(test.Run.CommandlineOpts, "-seed", strconv.Itoa(test.Run.Seed),
 			"-logfile", runLog, "-errfile", errLog, mdlPath)
 		cmd := exec.Command(mcellPath, argList...)
 		cmd.Dir = outputDir
