@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 //
-// io contains routines for reading of data files
-package main
+// read contains routines for reading of data files
+package file
 
 import (
 	"bufio"
@@ -20,8 +20,8 @@ const outputDirName = "output"
 // Columns describes the content of a reaction data output file including a
 // column of time values and an arbitrary number of integer data columns
 type Columns struct {
-	times  []float64
-	counts [][]int
+	Times  []float64
+	Counts [][]int
 }
 
 // StringColumns describes the content of a trigger data output file including a
@@ -29,13 +29,13 @@ type Columns struct {
 // NOTE: The data is kept as string values since they can contain either
 // integer or float values and we have to wait with coercing them until run time
 type StringColumns struct {
-	times  []float64
-	values [][]string
+	Times  []float64
+	Values [][]string
 }
 
-// loadData reads all the reaction count data in the file paths provided by dataPaths
+// LoadData reads all the reaction count data in the file paths provided by dataPaths
 // and either returns the individually as a list or averages them
-func loadData(dataPaths []string, haveHeader, averageData bool) ([]*Columns, error) {
+func LoadData(dataPaths []string, haveHeader, averageData bool) ([]*Columns, error) {
 
 	var data []*Columns
 	if averageData {
@@ -46,7 +46,7 @@ func loadData(dataPaths []string, haveHeader, averageData bool) ([]*Columns, err
 		data = append(data, cols)
 	} else {
 		for _, dataPath := range dataPaths {
-			cols, err := readCounts(dataPath, haveHeader)
+			cols, err := ReadCounts(dataPath, haveHeader)
 			if err != nil {
 				return nil, err
 			}
@@ -67,15 +67,15 @@ func readAverageCounts(fileNames []string, haveHeader bool) (*Columns, error) {
 
 	var averageCols *Columns
 	for i, fileName := range fileNames {
-		col, err := readCounts(fileName, haveHeader)
+		col, err := ReadCounts(fileName, haveHeader)
 		if err != nil {
 			return nil, err
 		}
 
 		if i != 0 {
-			for r := 0; r < len(averageCols.times); r++ {
-				for c := 0; c < len(averageCols.counts); c++ {
-					averageCols.counts[c][r] += col.counts[c][r]
+			for r := 0; r < len(averageCols.Times); r++ {
+				for c := 0; c < len(averageCols.Counts); c++ {
+					averageCols.Counts[c][r] += col.Counts[c][r]
 				}
 			}
 		} else { // set the average to the first data set
@@ -84,17 +84,17 @@ func readAverageCounts(fileNames []string, haveHeader bool) (*Columns, error) {
 	}
 
 	numDataSets := len(fileNames)
-	for r := 0; r < len(averageCols.times); r++ {
-		for c := 0; c < len(averageCols.counts); c++ {
-			averageCols.counts[c][r] = averageCols.counts[c][r] / numDataSets
+	for r := 0; r < len(averageCols.Times); r++ {
+		for c := 0; c < len(averageCols.Counts); c++ {
+			averageCols.Counts[c][r] = averageCols.Counts[c][r] / numDataSets
 		}
 	}
 	return averageCols, nil
 }
 
-// readCounts reads in the time values and counts from the provided
+// ReadCounts reads in the time values and counts from the provided
 // reaction data file and returns them as a Column struct
-func readCounts(fileName string, haveHeader bool) (*Columns, error) {
+func ReadCounts(fileName string, haveHeader bool) (*Columns, error) {
 
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -115,11 +115,11 @@ func readCounts(fileName string, haveHeader bool) (*Columns, error) {
 		lineItems := strings.Fields(scanner.Text())
 
 		if r == 0 {
-			cols.times = make([]float64, 0)
+			cols.Times = make([]float64, 0)
 			n := len(lineItems) - 1
-			cols.counts = make([][]int, n)
+			cols.Counts = make([][]int, n)
 			for i := 0; i < n; i++ {
-				cols.counts[i] = make([]int, 0)
+				cols.Counts[i] = make([]int, 0)
 			}
 		}
 
@@ -127,29 +127,29 @@ func readCounts(fileName string, haveHeader bool) (*Columns, error) {
 		if err != nil {
 			return nil, err
 		}
-		cols.times = append(cols.times, t)
+		cols.Times = append(cols.Times, t)
 
 		for i, cs := range lineItems[1:] {
 			c, err := strconv.Atoi(cs)
 			if err != nil {
 				return nil, err
 			}
-			cols.counts[i] = append(cols.counts[i], c)
+			cols.Counts[i] = append(cols.Counts[i], c)
 		}
 	}
 
 	// sanity check - we expect at least one row of data
-	if len(cols.times) == 0 {
+	if len(cols.Times) == 0 {
 		return nil, fmt.Errorf("%s: contains no data", fileName)
 	}
 
 	return &cols, nil
 }
 
-// loadStringData reads all the reaction data columns as strings. The
+// LoadStringData reads all the reaction data columns as strings. The
 // string data loader is used for analyzing trigger data since this
 // typically contains a mix of integer and float data
-func loadStringData(dataPaths []string, haveHeader bool) ([]*StringColumns, error) {
+func LoadStringData(dataPaths []string, haveHeader bool) ([]*StringColumns, error) {
 
 	var data []*StringColumns
 	for _, dataPath := range dataPaths {
@@ -185,11 +185,11 @@ func readStringCounts(fileName string, haveHeader bool) (*StringColumns, error) 
 		lineItems := strings.Fields(scanner.Text())
 
 		if r == 0 {
-			cols.times = make([]float64, 0)
+			cols.Times = make([]float64, 0)
 			n := len(lineItems) - 1
-			cols.values = make([][]string, n)
+			cols.Values = make([][]string, n)
 			for i := 0; i < n; i++ {
-				cols.values[i] = make([]string, 0)
+				cols.Values[i] = make([]string, 0)
 			}
 		}
 
@@ -197,28 +197,28 @@ func readStringCounts(fileName string, haveHeader bool) (*StringColumns, error) 
 		if err != nil {
 			return nil, err
 		}
-		cols.times = append(cols.times, t)
+		cols.Times = append(cols.Times, t)
 
 		for i, c := range lineItems[1:] {
-			cols.values[i] = append(cols.values[i], c)
+			cols.Values[i] = append(cols.Values[i], c)
 		}
 	}
 
 	// sanity check - we expect at least one row of data
-	if len(cols.times) == 0 {
+	if len(cols.Times) == 0 {
 		return nil, fmt.Errorf("%s: contains no data", fileName)
 	}
 
 	return &cols, nil
 }
 
-// getDataPaths returns a list of all reaction data files names that were
+// GetDataPaths returns a list of all reaction data files names that were
 // generated as part of this run (at least one but could be many for multi
 // seed runs)
-func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
+func GetDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 
 	var dataPaths []string
-	dataDir := getOutputDir(path)
+	dataDir := GetOutputDir(path)
 
 	// check if data file has a single format specifier
 	count := strings.Count(dataFile, "%")
@@ -267,14 +267,14 @@ func getDataPaths(path, dataFile string, seed, numSeeds int) ([]string, error) {
 	return outDataPaths, nil
 }
 
-// getOutputDir returns the path in which the output for the testcase at path
+// GetOutputDir returns the path in which the output for the testcase at path
 // is located
-func getOutputDir(testPath string) string {
+func GetOutputDir(testPath string) string {
 	return filepath.Join(testPath, outputDirName)
 }
 
 // testFileEmpty checks that the given file exists and is empty
-func testFileEmpty(filePath string) (bool, error) {
+func IsEmpty(filePath string) (bool, error) {
 	fi, err := os.Stat(filePath)
 	if err != nil {
 		return false, err
@@ -287,7 +287,7 @@ func testFileEmpty(filePath string) (bool, error) {
 }
 
 // testFileNonEmpty check that the given file exists and is non-empty.
-func testFileNonEmpty(testPath string) (bool, error) {
+func IsNonEmpty(testPath string) (bool, error) {
 	fi, err := os.Stat(testPath)
 	if err != nil {
 		return false, err
@@ -300,7 +300,7 @@ func testFileNonEmpty(testPath string) (bool, error) {
 }
 
 // testFileExists checks that the given file exists
-func testFileExists(testPath string) (bool, error) {
+func Exists(testPath string) (bool, error) {
 	_, err := os.Stat(testPath)
 	if err != nil {
 		return false, nil
@@ -310,7 +310,7 @@ func testFileExists(testPath string) (bool, error) {
 
 // testFileSize checks that the given file exists and has the requested
 // file size
-func testFileSize(testPath string, size int64) (bool, error) {
+func HasSize(testPath string, size int64) (bool, error) {
 	fi, err := os.Stat(testPath)
 	if err != nil {
 		return false, err
@@ -323,7 +323,7 @@ func testFileSize(testPath string, size int64) (bool, error) {
 }
 
 // testNoFile checks that there is no file at the given path
-func testNoFile(testPath string) (bool, error) {
+func NoFile(testPath string) (bool, error) {
 	if _, err := os.Stat(testPath); os.IsNotExist(err) {
 		return true, nil
 	}
@@ -332,7 +332,7 @@ func testNoFile(testPath string) (bool, error) {
 
 // isSymLink checkes that the given path exists, is a symlink and points to
 // the provided file.
-func testFileSymLink(destFilePath, filePath string) (bool, error) {
+func IsSymLink(destFilePath, filePath string) (bool, error) {
 	targetPath, err := os.Readlink(filePath)
 	if err != nil {
 		return false, err

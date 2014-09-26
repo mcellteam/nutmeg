@@ -10,17 +10,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-)
 
-// global settings
-// NOTE: With exception of rng these should eventually come from a settings file
-var rng *rand.Rand
+	"github.com/haskelladdict/foo/util/engine"
+	"github.com/haskelladdict/foo/util/jsonParser"
+	"github.com/haskelladdict/foo/util/misc"
+)
 
 // command line flags
 var listTestsFlag bool
@@ -31,13 +30,6 @@ var categorySelection string
 var descriptionSelectionShort string
 var numSimJobs int
 var numTestJobs int
-
-// Config keeps track of package configuration settings
-type config struct {
-	McellPath  string // path to mcell executable
-	TestDir    string // path to directory with nutmeg tests
-	IncludeDir string // path to directory with nutmeg test include file
-}
 
 // initialize list of available unit tests
 func init() {
@@ -51,13 +43,12 @@ func init() {
 	flag.IntVar(&numSimJobs, "n", 2, "number of concurrent simulation jobs (default: 2)")
 	flag.IntVar(&numTestJobs, "m", 2, "number of concurrent test jobs (default: 2)")
 
-	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 // main routine
 func main() {
 
-	nutmegConf, err := readConfig()
+	nutmegConf, err := jsonParser.ReadConfig()
 	if err != nil {
 		log.Fatal("Error reading nutmeg.conf: ", err)
 	}
@@ -94,14 +85,14 @@ func main() {
 		for i, t := range testNames {
 			testPaths[i] = filepath.Join(nutmegConf.TestDir, t)
 		}
-		if err := cleanOutput(testPaths); err != nil {
+		if err := misc.CleanOutput(testPaths); err != nil {
 			log.Fatal(err)
 		}
 
 	case descriptionSelectionShort != "":
 		tests := extractTestCases(nutmegConf.TestDir, descriptionSelectionShort,
 			testNames)
-		showTestDescription(nutmegConf, tests)
+		engine.ShowTestDescription(nutmegConf, tests)
 
 	case categorySelection != "":
 		testSelection = strings.TrimSpace(testSelection)
@@ -142,7 +133,7 @@ func extractTestCases(testDir, selection string, testNames []string) []string {
 		var items []int
 		var err error
 		if strings.Contains(item, ":") {
-			if items, err = convertRangeToList(item); err != nil {
+			if items, err = misc.ConvertRangeToList(item); err != nil {
 				log.Printf(fmt.Sprint(err))
 				continue
 			}
@@ -210,11 +201,11 @@ func gatherTests(testDir string) ([]string, error) {
 
 // extractCategories extracts the available test categories from the provided
 // test selection (x, x:y, 'all', etc.)
-func extractCategories(conf *config, testNames []string) map[string][]string {
+func extractCategories(conf *jsonParser.Config, testNames []string) map[string][]string {
 	tests := extractAllTestCases(conf.TestDir, testNames)
 	categoryMap := make(map[string][]string)
 	for _, t := range tests {
-		p, err := ParseJSON(filepath.Join(t, "test_description.json"), conf.IncludeDir)
+		p, err := jsonParser.Parse(filepath.Join(t, "test_description.json"), conf.IncludeDir)
 		if err != nil {
 			continue
 		}
@@ -231,8 +222,8 @@ func extractCategories(conf *config, testNames []string) map[string][]string {
 
 // spawnTests starts the test engine with the user selected tests and
 // prints a status message once they're all finished.
-func spawnTests(conf *config, tests []string, startTime time.Time) {
-	numGoodTests, badTests, _ := runTests(conf, tests)
+func spawnTests(conf *jsonParser.Config, tests []string, startTime time.Time) {
+	numGoodTests, badTests, _ := engine.RunTests(conf, tests, numSimJobs, numTestJobs)
 	numBadTests := len(badTests)
 	fmt.Println("-------------------------------------")
 	fmt.Printf("Ran %d tests in %f s:  SUCCESSES[%d]  FAILURES[%d]\n",
@@ -242,8 +233,8 @@ func spawnTests(conf *config, tests []string, startTime time.Time) {
 	if numBadTests > 0 {
 		fmt.Println("")
 		for i, t := range badTests {
-			fmt.Printf("**** FAILED TEST %d: %s :: %s ****\n", i+1, filepath.Base(t.path), t.testName)
-			fmt.Printf("\n\t%s\n\n", t.errorMessage)
+			fmt.Printf("**** FAILED TEST %d: %s :: %s ****\n", i+1, filepath.Base(t.Path), t.TestName)
+			fmt.Printf("\n\t%s\n\n", t.ErrorMessage)
 		}
 	}
 }

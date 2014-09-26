@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 //
-// util provides helper function for the nutmeg unit testing framework
-package main
+// misc provides helper function for the nutmeg unit testing framework
+package misc
 
 import (
 	"fmt"
@@ -17,10 +17,12 @@ import (
 	"syscall"
 
 	"github.com/haskelladdict/datastruct/set/intset"
+	"github.com/haskelladdict/foo/util/file"
+	"github.com/haskelladdict/foo/util/jsonParser"
 )
 
-// clean_output removes all files leftover from a previous test run
-func cleanOutput(tests []string) error {
+// CleanOutput removes all files leftover from a previous test run
+func CleanOutput(tests []string) error {
 	for _, path := range tests {
 		outputPath := filepath.Join(path, "output")
 		if err := os.RemoveAll(outputPath); err != nil {
@@ -30,9 +32,9 @@ func cleanOutput(tests []string) error {
 	return nil
 }
 
-// writeCmdLine writes the commandline with which MCell was called
+// WriteCmdLine writes the commandline with which MCell was called
 // to the output directory
-func writeCmdLine(mcellPath string, outputDir string, argList []string) error {
+func WriteCmdLine(mcellPath string, outputDir string, argList []string) error {
 	cmdlineArgs := append([]string{mcellPath}, argList...)
 	cmdlineArgs = append(cmdlineArgs, "\n")
 	cmdline := strings.Join(cmdlineArgs, " ")
@@ -40,11 +42,11 @@ func writeCmdLine(mcellPath string, outputDir string, argList []string) error {
 	return ioutil.WriteFile(cmdlinePath, []byte(cmdline), 0644)
 }
 
-// determineExitCode tries to figure out the exit code of a failed command
+// DetermineExitCode tries to figure out the exit code of a failed command
 // execution via exec.Command(...).Run().
 // NOTE: This will not work on windows - here we need
 //                 return int(s.ExitCode), nil
-func determineExitCode(err error) (int, error) {
+func DetermineExitCode(err error) (int, error) {
 	if e, ok := err.(*exec.ExitError); ok {
 		if s, ok := e.Sys().(syscall.WaitStatus); ok {
 			return s.ExitStatus(), nil
@@ -55,7 +57,7 @@ func determineExitCode(err error) (int, error) {
 
 // containsString checks if a given string is part of the provided string slice
 // and returns true if yes and false otherwise
-func containsString(ss []string, item string) bool {
+func ContainsString(ss []string, item string) bool {
 	for _, s := range ss {
 		if s == item {
 			return true
@@ -66,7 +68,7 @@ func containsString(ss []string, item string) bool {
 
 // generateFileList takes a filename which could be a format string and a
 // range and creates the corresponding list of filenames.
-func generateFileList(name string, IDStringRange intList) ([]string, error) {
+func GenerateFileList(name string, IDStringRange jsonParser.IntList) ([]string, error) {
 
 	// if no range is given we pass the name through as is
 	if len(IDStringRange) == 0 {
@@ -88,12 +90,12 @@ func generateFileList(name string, IDStringRange intList) ([]string, error) {
 
 // convertIntList converts an intList expression into a sorted list of unique
 // integers
-func convertIntList(list intList) ([]int, error) {
+func convertIntList(list jsonParser.IntList) ([]int, error) {
 
 	intMap := make(map[int]bool)
 	for _, r := range list {
 		if strings.Contains(r, ":") {
-			list, err := convertRangeToList(r)
+			list, err := ConvertRangeToList(r)
 			if err != nil {
 				return nil, err
 			}
@@ -118,11 +120,11 @@ func convertIntList(list intList) ([]int, error) {
 	return outList, nil
 }
 
-// convertRangeToList converts a single string containing a range statement
+// ConvertRangeToList converts a single string containing a range statement
 // of the form "start:end:step" into an explicit integer list describing the
 // range [4, 5, 6, 7, 8, 9].
 // NOTE: end is not part of the range.
-func convertRangeToList(rangeStatement string) ([]int, error) {
+func ConvertRangeToList(rangeStatement string) ([]int, error) {
 
 	rangeEndpoints := strings.Split(rangeStatement, ":")
 	if len(rangeEndpoints) < 2 || len(rangeEndpoints) > 3 {
@@ -155,22 +157,22 @@ func convertRangeToList(rangeStatement string) ([]int, error) {
 	return newRange, nil
 }
 
-// viz iterations directory for a specific items (surface positions,
-// orientations, etc.)
-func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
+// CheckDREAMMV2IterItems examines the viz iterations directory for
+// a specific items (surface positions, orientations, etc.)
+func CheckDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	isEmpty bool, fileTemplate string) error {
 
 	fileName := fmt.Sprintf(fileTemplate, iter)
 	if molSet.Contains(iter) {
 		if isEmpty {
-			ok, err := testFileExists(fileName)
+			ok, err := file.Exists(fileName)
 			if err != nil {
 				return err
 			} else if !ok {
 				return fmt.Errorf("file %s does not exists", fileName)
 			}
 		} else {
-			ok, err := testFileNonEmpty(fileName)
+			ok, err := file.IsNonEmpty(fileName)
 			if err != nil {
 				return err
 			} else if !ok {
@@ -180,14 +182,14 @@ func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	} else if lastPos >= 0 && !molIters.Contains(iter) {
 		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
 		linkName := fmt.Sprintf(fileTemplate, lastPos)
-		ok, err := testFileSymLink(linkName, fileName)
+		ok, err := file.IsSymLink(linkName, fileName)
 		if err != nil {
 			return err
 		} else if !ok {
 			return fmt.Errorf("file %s is not properly symlinked to %s", fileName, linkName)
 		}
 	} else {
-		ok, err := testNoFile(fileName)
+		ok, err := file.NoFile(fileName)
 		if err != nil {
 			return err
 		} else if !ok {
@@ -197,10 +199,10 @@ func checkDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	return nil
 }
 
-// checkDREAMMV3DXitems checks the presence of the correct dx files/symlinks
+// CheckDREAMMV3DXitems checks the presence of the correct dx files/symlinks
 // in a given viz iteration directory.
 // NOTE: lastProperty could refer to molecule orientations or regions for meshes
-func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
+func CheckDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 	hadFrame bool, fileTemplate string) error {
 
 	pos := -1
@@ -214,7 +216,7 @@ func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 
 	fileName := fmt.Sprintf(fileTemplate, iter)
 	if hadFrame {
-		ok, err := testFileNonEmpty(fileName)
+		ok, err := file.IsNonEmpty(fileName)
 		if err != nil {
 			return err
 		}
@@ -224,7 +226,7 @@ func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 	} else if pos >= 0 {
 		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
 		linkName := fmt.Sprintf(fileTemplate, pos)
-		ok, err := testFileSymLink(linkName, fileName)
+		ok, err := file.IsSymLink(linkName, fileName)
 		if err != nil {
 			return err
 		}
@@ -233,7 +235,7 @@ func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 				fileName, linkName)
 		}
 	} else {
-		ok, err := testNoFile(fileName)
+		ok, err := file.NoFile(fileName)
 		if err != nil {
 			return err
 		}
@@ -248,20 +250,20 @@ func checkDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 // meshIters is a small helper struct to bundle all frame data related to
 // DREAMM V3 binary mesh data
 type molMeshIters struct {
-	all                   []int
-	pos, others, states   *set.IntSet
-	combined, allCombined *set.IntSet
+	All                   []int
+	Pos, Others, States   *set.IntSet
+	Combined, AllCombined *set.IntSet
 }
 
-// createMeshIters is a helper function for converting the list of
+// CreateMeshIters is a helper function for converting the list of
 // input specified iterations at which mesh positions, regions and
 // states were output into corresponding lists of integer values.
-func createMolMeshIters(allIters, posIters, otherIters,
-	stateIters intList) (*molMeshIters, error) {
+func CreateMolMeshIters(allIters, posIters, otherIters,
+	stateIters jsonParser.IntList) (*molMeshIters, error) {
 
 	var m molMeshIters
 	var err error
-	if m.all, err = convertIntList(allIters); err != nil {
+	if m.All, err = convertIntList(allIters); err != nil {
 		return nil, err
 	}
 
@@ -270,34 +272,34 @@ func createMolMeshIters(allIters, posIters, otherIters,
 		return nil, err
 	}
 	if len(pos) == 0 {
-		pos = m.all
+		pos = m.All
 	}
-	m.pos = set.NewIntSet(pos...)
+	m.Pos = set.NewIntSet(pos...)
 
 	others, err := convertIntList(otherIters)
 	if err != nil {
 		return nil, err
 	}
 	if len(others) == 0 {
-		others = m.all
+		others = m.All
 	}
-	m.others = set.NewIntSet(others...)
+	m.Others = set.NewIntSet(others...)
 
 	states, err := convertIntList(stateIters)
 	if err != nil {
 		return nil, err
 	}
-	m.states = set.NewIntSet(states...)
+	m.States = set.NewIntSet(states...)
 
-	m.combined = m.others.Clone().Union(m.states)
-	m.allCombined = m.combined.Clone().Union(m.pos)
+	m.Combined = m.Others.Clone().Union(m.States)
+	m.AllCombined = m.Combined.Clone().Union(m.Pos)
 
 	return &m, nil
 }
 
 // unsetTrackers resets the trackers used to keep track of symlinks used in
 // the binary viz data test routines
-func unsetTrackers(s int, xs ...*int) {
+func UnsetTrackers(s int, xs ...*int) {
 	for _, x := range xs {
 		if *x != s {
 			*x = -1
@@ -305,18 +307,18 @@ func unsetTrackers(s int, xs ...*int) {
 	}
 }
 
-// checkDREAMMV3GroupedItem tests the viz data directory for the
+// CheckDREAMMV3GroupedItem tests the viz data directory for the
 // presence/absence of the given file as part of grouped DREAMM V3 format
-func checkDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) error {
+func CheckDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) error {
 	if haveItemProperty && noItem {
-		ok, err := testFileEmpty(filePath)
+		ok, err := file.IsEmpty(filePath)
 		if err != nil {
 			return err
 		} else if !ok {
 			return fmt.Errorf("file %s does not exist or is not empty", filePath)
 		}
 	} else if haveItemProperty && !noItem {
-		ok, err := testFileNonEmpty(filePath)
+		ok, err := file.IsNonEmpty(filePath)
 		if err != nil {
 			return err
 		} else if !ok {

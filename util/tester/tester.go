@@ -4,7 +4,7 @@
 //
 // test_engine contains the actual test functions analysing
 // the output of the run MCell simulations
-package main
+package tester
 
 import (
 	"fmt"
@@ -18,11 +18,22 @@ import (
 	"time"
 
 	"github.com/haskelladdict/datastruct/set/intset"
+	"github.com/haskelladdict/foo/util/file"
+	"github.com/haskelladdict/foo/util/jsonParser"
+	"github.com/haskelladdict/foo/util/misc"
 )
 
-// testRunner analyses the TestDescriptions coming from an MCell run on a
+// TestResults encapsulates the results of an individual test
+type TestResult struct {
+	Path         string // path to test which was run
+	Success      bool   // was test successful
+	TestName     string // name of test
+	ErrorMessage string // error message if test failed
+}
+
+// Run analyses the TestDescriptions coming from an MCell run on a
 // test and analyses them as requested per the TestDescription.
-func testRunner(test *TestDescription, result chan *testResult) {
+func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
@@ -34,27 +45,27 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 	for _, c := range test.Checks {
 
-		dataPaths, err := getDataPaths(test.Path, c.DataFile, test.Run.seed,
+		dataPaths, err := file.GetDataPaths(test.Path, c.DataFile, test.Run.Seed,
 			test.Run.NumSeeds)
 		if err != nil {
-			result <- &testResult{test.Path, false, c.TestType, fmt.Sprint(err)}
+			result <- &TestResult{test.Path, false, c.TestType, fmt.Sprint(err)}
 			continue
 		}
 
 		// load the data for test types which need it
-		var data []*Columns
-		var stringData []*StringColumns
+		var data []*file.Columns
+		var stringData []*file.StringColumns
 		// NOTE: only attempt to parse data for the test cases which need it
-		if c.DataFile != "" && !containsString(nonDataParseTests, c.TestType) {
-			data, err = loadData(dataPaths, c.HaveHeader, c.AverageData)
+		if c.DataFile != "" && !misc.ContainsString(nonDataParseTests, c.TestType) {
+			data, err = file.LoadData(dataPaths, c.HaveHeader, c.AverageData)
 			if err != nil {
-				result <- &testResult{test.Path, false, c.TestType, fmt.Sprint(err)}
+				result <- &TestResult{test.Path, false, c.TestType, fmt.Sprint(err)}
 				continue
 			}
 		} else if c.TestType == "CHECK_TRIGGERS" {
-			stringData, err = loadStringData(dataPaths, c.HaveHeader)
+			stringData, err = file.LoadStringData(dataPaths, c.HaveHeader)
 			if err != nil {
-				result <- &testResult{test.Path, false, c.TestType, fmt.Sprint(err)}
+				result <- &TestResult{test.Path, false, c.TestType, fmt.Sprint(err)}
 				continue
 			}
 		}
@@ -63,8 +74,8 @@ func testRunner(test *TestDescription, result chan *testResult) {
 		var testErr error
 		switch c.TestType {
 		case "CHECK_SUCCESS":
-			if test.simStatus == nil {
-				result <- &testResult{test.Path, false, "CHECK_SUCCESS",
+			if test.SimStatus == nil {
+				result <- &TestResult{test.Path, false, "CHECK_SUCCESS",
 					"simulations did not run or return an exit status"}
 				return // if simulation fails we won't continue testing
 			}
@@ -72,30 +83,30 @@ func testRunner(test *TestDescription, result chan *testResult) {
 			// in order to cut down on the amount of output (particularly in the case of
 			// multiple seeds) we return failure if one or more of all runs within a test
 			// fails and success otherwise
-			for _, testRun := range test.simStatus {
-				if !testRun.success {
-					message := strings.Join([]string{testRun.exitMessage, testRun.stdErrContent}, "\n")
-					result <- &testResult{test.Path, false, "CHECK_SUCCESS", message}
+			for _, testRun := range test.SimStatus {
+				if !testRun.Success {
+					message := strings.Join([]string{testRun.ExitMessage, testRun.StdErrContent}, "\n")
+					result <- &TestResult{test.Path, false, "CHECK_SUCCESS", message}
 					return // if simulation fails we won't continue testing
 				}
 			}
 
 		case "CHECK_EXIT_CODE":
-			for _, testRun := range test.simStatus {
-				if c.ExitCode != testRun.exitCode {
+			for _, testRun := range test.SimStatus {
+				if c.ExitCode != testRun.ExitCode {
 					testErr = fmt.Errorf("Expected exit code %d but got %d instead",
-						c.ExitCode, testRun.exitCode)
+						c.ExitCode, testRun.ExitCode)
 				}
 			}
 
 		case "CHECK_NONEMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.FileNames,
+			if testErr = checkFilesEmpty(test.Path, test.Run.Seed, c.FileNames,
 				c.IDRange, c.FileSize, false); testErr != nil {
 				break
 			}
 
 		case "CHECK_EMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.seed, c.FileNames,
+			if testErr = checkFilesEmpty(test.Path, test.Run.Seed, c.FileNames,
 				c.IDRange, c.FileSize, true); testErr != nil {
 				break
 			}
@@ -192,7 +203,7 @@ func testRunner(test *TestDescription, result chan *testResult) {
 
 		case "COMPARE_COUNTS":
 			referencePath := filepath.Join(test.Path, c.ReferenceFile)
-			refData, err := readCounts(referencePath, c.HaveHeader)
+			refData, err := file.ReadCounts(referencePath, c.HaveHeader)
 			if err != nil {
 				break
 			}
@@ -261,37 +272,38 @@ func testRunner(test *TestDescription, result chan *testResult) {
 }
 
 // recordResults checks if a test was successfull or not, records
-// success/failure in testResult object and sends it to the results channel
-func recordResult(result chan<- *testResult, testType string, dataPath string,
+// success/failure in TestResult object and sends it to the results channel
+func recordResult(result chan<- *TestResult, testType string,
+	dataPath string,
 	err error) {
 	if err != nil {
-		result <- &testResult{dataPath, false, testType, fmt.Sprint(err)}
+		result <- &TestResult{dataPath, false, testType, fmt.Sprint(err)}
 	} else {
-		result <- &testResult{dataPath, true, testType, ""}
+		result <- &TestResult{dataPath, true, testType, ""}
 	}
 }
 
 // checkCountConstraints tests the provided array of constraints
 // on the simulation output data contained in the file filePath
-func checkCountConstraints(data *Columns, dataPath string, minTime, maxTime float64,
-	constraints []*ConstraintSpec) error {
+func checkCountConstraints(data *file.Columns, dataPath string, minTime,
+	maxTime float64, constraints []*jsonParser.ConstraintSpec) error {
 
 	// check constraints for each row of data
-	for r, time := range data.times {
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for _, con := range constraints {
 			// sanity check - the number of columns has to match the number of constraints
-			if len(con.Query) != len(data.counts) {
+			if len(con.Query) != len(data.Counts) {
 				return fmt.Errorf("in %s: length of constraints (%d) does not match number of data columns (%d)",
-					dataPath, len(data.counts), len(con.Query))
+					dataPath, len(data.Counts), len(con.Query))
 			}
 
 			result := 0
 			for c, q := range con.Query {
-				result += (q * data.counts[c][r])
+				result += (q * data.Counts[c][r])
 			}
 
 			if result != con.Target {
@@ -306,28 +318,28 @@ func checkCountConstraints(data *Columns, dataPath string, minTime, maxTime floa
 
 // checkCountMinmax tests that each column of the parsed data is larger
 // equal than CountMinimum and smaller equal than CountMaximum.
-func checkCountMinmax(data *Columns, dataPath string, minTime, maxTime float64,
+func checkCountMinmax(data *file.Columns, dataPath string, minTime, maxTime float64,
 	countMaximum, countMinimum []int) error {
 
-	if countMaximum != nil && len(countMaximum) != len(data.counts) {
+	if countMaximum != nil && len(countMaximum) != len(data.Counts) {
 		return fmt.Errorf(
 			"in %s: number of constraints in countMaximum does not match number of data columns",
 			dataPath)
 	}
 
-	if countMinimum != nil && len(countMinimum) != len(data.counts) {
+	if countMinimum != nil && len(countMinimum) != len(data.Counts) {
 		return fmt.Errorf(
 			"in %s: number of constraints in countMinimum does not match number of data columns",
 			dataPath)
 	}
 
-	for r, time := range data.times {
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
-		for i := 0; i < len(data.counts); i++ {
-			c := data.counts[i][r]
+		for i := 0; i < len(data.Counts); i++ {
+			c := data.Counts[i][r]
 			if countMaximum != nil && c > countMaximum[i] {
 				return fmt.Errorf("in %s: maximum exceeded: data (%d) > max(%d)", dataPath,
 					c, countMaximum[i])
@@ -365,29 +377,29 @@ func fileMatchPattern(filePath string, matchPattern string,
 
 // compareCounts checks that the test data matches the provided column counts
 // exactly
-func compareCounts(data, refData *Columns, dataPath string, minTime,
+func compareCounts(data, refData *file.Columns, dataPath string, minTime,
 	maxTime float64) error {
 
-	if len(refData.times) != len(data.times) {
+	if len(refData.Times) != len(data.Times) {
 		return fmt.Errorf(
 			"in %s: reference and actual data set have different number of rows",
 			dataPath)
 	}
 
-	if len(refData.counts) != len(data.counts) {
+	if len(refData.Counts) != len(data.Counts) {
 		return fmt.Errorf(
 			"in %s: reference and actual data set have different number of columns",
 			dataPath)
 	}
 
-	numCols := len(data.counts)
-	for r, time := range data.times {
+	numCols := len(data.Counts)
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.counts[c][r] != refData.counts[c][r] {
+			if data.Counts[c][r] != refData.Counts[c][r] {
 				return fmt.Errorf("in %s: reference and actual data differ in row %d and col %d",
 					dataPath, r, c)
 			}
@@ -402,26 +414,26 @@ func compareCounts(data, refData *Columns, dataPath string, minTime,
 // rate = instantaneous_count/(time_now - baseTime)
 //
 // and then averages accross the interval maxTime - minTime
-func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float64,
+func countRates(data *file.Columns, dataPath string, minTime, maxTime, baseTime float64,
 	means, tolerances []float64) error {
 
-	if len(means) != len(data.counts) {
+	if len(means) != len(data.Counts) {
 		return fmt.Errorf(
 			"in %s: number of provided means does not match number of data columns",
 			dataPath)
 	}
 
-	numCols := len(data.counts)
+	numCols := len(data.Counts)
 	averageRate := make([]float64, numCols)
 	var numValues int
-	for r, time := range data.times {
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		numValues++
 		for c := 0; c < numCols; c++ {
-			averageRate[c] += float64(data.counts[c][r]) / (time - baseTime)
+			averageRate[c] += float64(data.Counts[c][r]) / (time - baseTime)
 		}
 	}
 
@@ -448,7 +460,7 @@ func countRates(data *Columns, dataPath string, minTime, maxTime, baseTime float
 //      (-1, 0, 1) for orientation data, (-1, 1) for hit data
 //    - the location of the trigger events is within the specified range for
 //      x, y, and z
-func checkTriggers(data *StringColumns, dataPath string, minTime, maxTime float64,
+func checkTriggers(data *file.StringColumns, dataPath string, minTime, maxTime float64,
 	triggerType string, haveExactTime bool, outputTime float64,
 	xrange, yrange, zrange []float64) error {
 
@@ -467,14 +479,14 @@ func checkTriggers(data *StringColumns, dataPath string, minTime, maxTime float6
 	}
 	totalCols += typeID
 
-	numCols := len(data.values)
+	numCols := len(data.Values)
 	if numCols != totalCols {
 		return fmt.Errorf(
 			"in %s: incorrect column count of %d (expected %d)", dataPath, totalCols,
 			numCols)
 	}
 
-	for r, time := range data.times {
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
@@ -524,10 +536,10 @@ func getTriggerTypeID(triggerType, dataPath string) (int, error) {
 
 // validateExactTime tests that the exact time present in a trigger output
 // data falls within the given iteration
-func validateExactTime(data *StringColumns, row int, time, outputTime float64,
+func validateExactTime(data *file.StringColumns, row int, time, outputTime float64,
 	dataPath string) error {
 
-	exactTime, err := strconv.ParseFloat(data.values[0][row], 64)
+	exactTime, err := strconv.ParseFloat(data.Values[0][row], 64)
 	if err != nil {
 		return fmt.Errorf(
 			"in %s: exact time value in row %d in not a float value", dataPath, row)
@@ -543,10 +555,10 @@ func validateExactTime(data *StringColumns, row int, time, outputTime float64,
 // validateTriggerData tests that the trigger data is of the correct type.
 // For orientation data we expect -1, 0, or 1.
 // For hit data we expect -1 or 1
-func validateTriggerData(data *StringColumns, row, firstDataID, typeID int,
+func validateTriggerData(data *file.StringColumns, row, firstDataID, typeID int,
 	dataPath string) error {
 
-	value, err := strconv.Atoi(data.values[firstDataID][row])
+	value, err := strconv.Atoi(data.Values[firstDataID][row])
 	if err != nil {
 		return fmt.Errorf(
 			"in %s: data value in row %d col %d is not an int", dataPath, row,
@@ -576,13 +588,13 @@ func validateTriggerData(data *StringColumns, row, firstDataID, typeID int,
 
 // validatePositionRanges tests that trigger events happen within the specified
 // ranges for x, y, and z coordinates
-func validatePositionRanges(data *StringColumns, row, locationID int,
+func validatePositionRanges(data *file.StringColumns, row, locationID int,
 	xrange, yrange, zrange []float64, dataPath string) error {
 
-	strconv.ParseFloat(data.values[0][row], 64)
-	x, errx := strconv.ParseFloat(data.values[locationID][row], 64)
-	y, erry := strconv.ParseFloat(data.values[locationID+1][row], 64)
-	z, errz := strconv.ParseFloat(data.values[locationID+2][row], 64)
+	strconv.ParseFloat(data.Values[0][row], 64)
+	x, errx := strconv.ParseFloat(data.Values[locationID][row], 64)
+	y, erry := strconv.ParseFloat(data.Values[locationID+1][row], 64)
+	z, errz := strconv.ParseFloat(data.Values[locationID+2][row], 64)
 
 	if errx != nil || erry != nil || errz != nil {
 		return fmt.Errorf(
@@ -612,26 +624,26 @@ func validatePositionRanges(data *StringColumns, row, locationID int,
 
 // checkCountEqulibrium checks that the column means of the test data match the
 // provided target mean values withih tne provided tolerances.
-func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime float64,
+func checkCountEquilibrium(data *file.Columns, dataPath string, minTime, maxTime float64,
 	means, tolerances []float64) error {
 
-	if len(means) != len(data.counts) {
+	if len(means) != len(data.Counts) {
 		return fmt.Errorf(
 			"in %s: number of provided means does not match number of data columns",
 			dataPath)
 	}
 
-	numCols := len(data.counts)
+	numCols := len(data.Counts)
 	averages := make([]float64, numCols)
 	var numValues int
-	for r, time := range data.times {
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		numValues++
 		for c := 0; c < numCols; c++ {
-			averages[c] += float64(data.counts[c][r])
+			averages[c] += float64(data.Counts[c][r])
 		}
 	}
 
@@ -648,7 +660,7 @@ func checkCountEquilibrium(data *Columns, dataPath string, minTime, maxTime floa
 
 // checkPositiveOrZeroCounts tests that all counts of the data file are either > 0
 // (includeZero = false) or >= 0 (includeZero = true)
-func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
+func checkPositiveOrZeroCounts(data *file.Columns, dataPath string, minTime,
 	maxTime float64, includeZero bool) error {
 
 	lowerBound := 1
@@ -656,16 +668,16 @@ func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 		lowerBound = 0
 	}
 
-	numCols := len(data.counts)
-	for r, time := range data.times {
+	numCols := len(data.Counts)
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.counts[c][r] < lowerBound {
+			if data.Counts[c][r] < lowerBound {
 				return fmt.Errorf("in %s value %d in column %d in row %d is not positive (<= 0)",
-					dataPath, data.counts[c][r], c, r)
+					dataPath, data.Counts[c][r], c, r)
 			}
 		}
 	}
@@ -674,19 +686,19 @@ func checkPositiveOrZeroCounts(data *Columns, dataPath string, minTime,
 }
 
 // checkZeroCounts tests that all data counts are zero
-func checkZeroCounts(data *Columns, dataPath string, minTime,
+func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 	maxTime float64) error {
 
-	numCols := len(data.counts)
-	for r, time := range data.times {
+	numCols := len(data.Counts)
+	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.counts[c][r] != 0 {
+			if data.Counts[c][r] != 0 {
 				return fmt.Errorf("in %s value %d in column %d in row %d is non-zero",
-					dataPath, data.counts[c][r], c, r)
+					dataPath, data.Counts[c][r], c, r)
 			}
 		}
 	}
@@ -702,7 +714,7 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 
 	var fileList []string
 	for _, fileName := range fileNames {
-		files, err := generateFileList(fileName, IDRange)
+		files, err := misc.GenerateFileList(fileName, IDRange)
 		if err != nil {
 			return err
 		}
@@ -730,7 +742,7 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 
 	var badFileList []string
 	for _, fileName := range fileList {
-		filePaths, err := getDataPaths(testDir, fileName, seed, 1)
+		filePaths, err := file.GetDataPaths(testDir, fileName, seed, 1)
 		if err != nil {
 			return fmt.Errorf("failed to construct data path for file %s:\n%s",
 				fileName, err)
@@ -756,7 +768,7 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 // in seconds (+/- margin)
 func checkCheckPoint(testDir, baseName string, delay, margin float64) error {
 
-	path := getOutputDir(testDir)
+	path := file.GetOutputDir(testDir)
 
 	stamp := filepath.Join(path, baseName+".stamp")
 	stampi, err := os.Stat(stamp)
@@ -972,22 +984,22 @@ func checkASCIIVizOutput(dataPath string, surfStates, volStates []int) error {
 // binary DREAMM v3 format
 func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	surfOrientIters, surfStateIters, volPosIters, volOrientIters,
-	volStateIters intList, surfEmpty, volEmpty bool) error {
+	volStateIters jsonParser.IntList, surfEmpty, volEmpty bool) error {
 
-	s, err := createMolMeshIters(allIters, surfPosIters, surfOrientIters,
+	s, err := misc.CreateMolMeshIters(allIters, surfPosIters, surfOrientIters,
 		surfStateIters)
 	if err != nil {
 		return err
 	}
 
-	v, err := createMolMeshIters(allIters, volPosIters, volOrientIters,
+	v, err := misc.CreateMolMeshIters(allIters, volPosIters, volOrientIters,
 		volStateIters)
 	if err != nil {
 		return err
 	}
-	molIters := s.allCombined.Clone().Union(v.allCombined)
+	molIters := s.AllCombined.Clone().Union(v.AllCombined)
 
-	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
 	lastSurfPos := -1
 	lastSurfOrient := -1
 	lastSurfState := -1
@@ -995,45 +1007,45 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 	lastVolOrient := -1
 	lastVolState := -1
 
-	for _, i := range s.all {
+	for _, i := range s.All {
 		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
 		hadFrame := false
 
 		// surface positions
 		surfPosFile := filepath.Join(iterPath, "surface_molecules_positions.bin")
-		if err := checkDREAMMV3IterItems(s.pos, molIters, i, lastSurfPos,
+		if err := misc.CheckDREAMMV3IterItems(s.Pos, molIters, i, lastSurfPos,
 			surfEmpty, surfPosFile); err != nil {
 			return err
 		}
-		if s.pos.Contains(i) {
+		if s.Pos.Contains(i) {
 			lastSurfPos = i
 			hadFrame = true
 		}
 
 		// surface orientations
 		surfOrientFile := filepath.Join(iterPath, "surface_molecules_orientations.bin")
-		if err := checkDREAMMV3IterItems(s.others, molIters, i, lastSurfOrient,
+		if err := misc.CheckDREAMMV3IterItems(s.Others, molIters, i, lastSurfOrient,
 			surfEmpty, surfOrientFile); err != nil {
 			return err
 		}
-		if s.others.Contains(i) {
+		if s.Others.Contains(i) {
 			lastSurfOrient = i
 			hadFrame = true
 		}
 
 		// surface states
 		surfStateFile := filepath.Join(iterPath, "surface_molecules_states.bin")
-		if err := checkDREAMMV3IterItems(s.states, molIters, i, lastSurfState,
+		if err := misc.CheckDREAMMV3IterItems(s.States, molIters, i, lastSurfState,
 			surfEmpty, surfStateFile); err != nil {
 			return err
 		}
-		if s.states.Contains(i) {
+		if s.States.Contains(i) {
 			lastSurfState = i
 			hadFrame = true
 		}
 
 		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
-		if err := checkDREAMMV3DXItems(i, lastSurfPos, lastSurfOrient, lastSurfState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastSurfPos, lastSurfOrient, lastSurfState,
 			hadFrame, surfTemplate); err != nil {
 			return err
 		}
@@ -1041,39 +1053,39 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 		// volume positions
 		hadFrame = false
 		volPosFile := filepath.Join(iterPath, "volume_molecules_positions.bin")
-		if err := checkDREAMMV3IterItems(v.pos, molIters, i, lastVolPos,
+		if err := misc.CheckDREAMMV3IterItems(v.Pos, molIters, i, lastVolPos,
 			volEmpty, volPosFile); err != nil {
 			return err
 		}
-		if v.pos.Contains(i) {
+		if v.Pos.Contains(i) {
 			lastVolPos = i
 			hadFrame = true
 		}
 
 		// volume orientations
 		volOrientFile := filepath.Join(iterPath, "volume_molecules_orientations.bin")
-		if err := checkDREAMMV3IterItems(v.others, molIters, i, lastVolOrient,
+		if err := misc.CheckDREAMMV3IterItems(v.Others, molIters, i, lastVolOrient,
 			volEmpty, volOrientFile); err != nil {
 			return err
 		}
-		if v.others.Contains(i) {
+		if v.Others.Contains(i) {
 			lastVolOrient = i
 			hadFrame = true
 		}
 
 		// volume states
 		volStateFile := filepath.Join(iterPath, "volume_molecules_states.bin")
-		if err := checkDREAMMV3IterItems(v.states, molIters, i, lastVolState,
+		if err := misc.CheckDREAMMV3IterItems(v.States, molIters, i, lastVolState,
 			surfEmpty, volStateFile); err != nil {
 			return err
 		}
-		if v.states.Contains(i) {
+		if v.States.Contains(i) {
 			lastVolState = i
 			hadFrame = true
 		}
 
 		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
-		if err := checkDREAMMV3DXItems(i, lastVolPos, lastVolOrient, lastVolState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastVolPos, lastVolOrient, lastVolState,
 			hadFrame, volTemplate); err != nil {
 			return err
 		}
@@ -1085,72 +1097,72 @@ func checkDREAMMV3MolsBin(testDir, dataDir string, allIters, surfPosIters,
 // checkDREAMMV3MolsASCII checks the layout for molecule viz data as part of the
 // ASCII DREAMM v3 format
 func checkDREAMMV3MolsASCII(testDir, dataDir string, allIters, posIters,
-	orientIters, stateIters intList, molNames []string) error {
+	orientIters, stateIters jsonParser.IntList, molNames []string) error {
 
-	m, err := createMolMeshIters(allIters, posIters, orientIters, stateIters)
+	m, err := misc.CreateMolMeshIters(allIters, posIters, orientIters, stateIters)
 	if err != nil {
 		return err
 	}
 
-	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
 	lastPos := -1
 	lastOrient := -1
 	lastState := -1
 
-	for _, i := range m.all {
+	for _, i := range m.All {
 		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
 		hadFrame := false
 
 		// positions
 		for _, obj := range molNames {
 			posFile := filepath.Join(iterPath, obj+".positions.dat")
-			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
 				true, posFile); err != nil {
 				return err
 			}
 		}
-		if m.pos.Contains(i) {
+		if m.Pos.Contains(i) {
 			lastPos = i
-			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
 			hadFrame = true
 		}
 
 		// orientations
 		for _, obj := range molNames {
 			orientFile := filepath.Join(iterPath, obj+".orientations.dat")
-			if err := checkDREAMMV3IterItems(m.others, m.combined, i, lastOrient,
+			if err := misc.CheckDREAMMV3IterItems(m.Others, m.Combined, i, lastOrient,
 				true, orientFile); err != nil {
 				return err
 			}
 		}
-		if m.others.Contains(i) {
+		if m.Others.Contains(i) {
 			lastOrient = i
-			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
 			hadFrame = true
 		}
 
 		// states
 		for _, obj := range molNames {
 			stateFile := filepath.Join(iterPath, obj+".states.dat")
-			if err := checkDREAMMV3IterItems(m.states, m.combined, i, lastState,
+			if err := misc.CheckDREAMMV3IterItems(m.States, m.Combined, i, lastState,
 				true, stateFile); err != nil {
 				return err
 			}
 		}
-		if m.states.Contains(i) {
+		if m.States.Contains(i) {
 			lastState = i
-			unsetTrackers(i, &lastPos, &lastOrient, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
 			hadFrame = true
 		}
 
 		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
-		if err := checkDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
 			hadFrame, volTemplate); err != nil {
 			return err
 		}
 
 		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
-		if err := checkDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
 			hadFrame, surfTemplate); err != nil {
 			return err
 		}
@@ -1162,61 +1174,61 @@ func checkDREAMMV3MolsASCII(testDir, dataDir string, allIters, posIters,
 // checkDREAMMV3MeshBin checks the layout for mesh related data within the
 // DREAMM v3 viz format
 func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
-	regionIters, stateIters intList, meshEmpty bool) error {
+	regionIters, stateIters jsonParser.IntList, meshEmpty bool) error {
 
-	m, err := createMolMeshIters(allIters, posIters, regionIters, stateIters)
+	m, err := misc.CreateMolMeshIters(allIters, posIters, regionIters, stateIters)
 	if err != nil {
 		return err
 	}
 
-	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
 	lastPos := -1
 	lastRegion := -1
 	lastState := -1
 
-	for _, i := range m.all {
+	for _, i := range m.All {
 		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
 		hadFrame := false
 
 		// positions
 		posFile := filepath.Join(iterPath, "mesh_positions.bin")
-		if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+		if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
 			meshEmpty, posFile); err != nil {
 			return err
 		}
-		if m.pos.Contains(i) {
+		if m.Pos.Contains(i) {
 			lastPos = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
 		// regions
 		regionFile := filepath.Join(iterPath, "region_indices.bin")
-		if err := checkDREAMMV3IterItems(m.others, m.states, i, lastRegion,
+		if err := misc.CheckDREAMMV3IterItems(m.Others, m.States, i, lastRegion,
 			meshEmpty, regionFile); err != nil {
 			return err
 		}
-		if m.others.Contains(i) {
+		if m.Others.Contains(i) {
 			lastRegion = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
 		// states
 		statesFile := filepath.Join(iterPath, "mesh_states.bin")
 		emptySet := set.NewIntSet()
-		if err := checkDREAMMV3IterItems(m.states, emptySet, i, lastState,
+		if err := misc.CheckDREAMMV3IterItems(m.States, emptySet, i, lastState,
 			meshEmpty, statesFile); err != nil {
 			return err
 		}
-		if m.states.Contains(i) {
+		if m.States.Contains(i) {
 			lastState = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
 		template := filepath.Join(iterPath, "meshes.dx")
-		if err := checkDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
 			hadFrame, template); err != nil {
 			return err
 		}
@@ -1227,10 +1239,10 @@ func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
 // checkDREAMMV3MeshASCII checks the layout for mesh related data within the
 // DREAMM v3 viz format
 func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
-	regionIters, stateIters intList, meshEmpty bool, objects,
+	regionIters, stateIters jsonParser.IntList, meshEmpty bool, objects,
 	objectRegions []string) error {
 
-	m, err := createMolMeshIters(allIters, posIters, regionIters, stateIters)
+	m, err := misc.CreateMolMeshIters(allIters, posIters, regionIters, stateIters)
 	if err != nil {
 		return err
 	}
@@ -1239,45 +1251,45 @@ func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
 		objectRegions = objects
 	}
 
-	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
 	lastPos := -1
 	lastRegion := -1
 	lastState := -1
 
-	for _, i := range m.all {
+	for _, i := range m.All {
 		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
 		hadFrame := false
 
 		// positions
 		for _, obj := range objects {
 			posFile := filepath.Join(iterPath, obj+".positions.dat")
-			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
 				meshEmpty, posFile); err != nil {
 				return err
 			}
 			conFile := filepath.Join(iterPath, obj+".connections.dat")
-			if err := checkDREAMMV3IterItems(m.pos, m.combined, i, lastPos,
+			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
 				meshEmpty, conFile); err != nil {
 				return err
 			}
 		}
-		if m.pos.Contains(i) {
+		if m.Pos.Contains(i) {
 			lastPos = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
 		// regions
 		for _, obj := range objectRegions {
 			regionFile := filepath.Join(iterPath, obj+".region_indices.dat")
-			if err := checkDREAMMV3IterItems(m.others, m.states, i, lastRegion,
+			if err := misc.CheckDREAMMV3IterItems(m.Others, m.States, i, lastRegion,
 				meshEmpty, regionFile); err != nil {
 				return err
 			}
 		}
-		if m.others.Contains(i) {
+		if m.Others.Contains(i) {
 			lastRegion = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
@@ -1285,19 +1297,19 @@ func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
 		for _, obj := range objects {
 			statesFile := filepath.Join(iterPath, obj+".states.bin")
 			emptySet := set.NewIntSet()
-			if err := checkDREAMMV3IterItems(m.states, emptySet, i, lastState,
+			if err := misc.CheckDREAMMV3IterItems(m.States, emptySet, i, lastState,
 				meshEmpty, statesFile); err != nil {
 				return err
 			}
 		}
-		if m.states.Contains(i) {
+		if m.States.Contains(i) {
 			lastState = i
-			unsetTrackers(i, &lastPos, &lastRegion, &lastState)
+			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
 			hadFrame = true
 		}
 
 		template := filepath.Join(iterPath, "meshes.dx")
-		if err := checkDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
+		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
 			hadFrame, template); err != nil {
 			return err
 		}
@@ -1310,45 +1322,45 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 	haveMeshPos, haveRgnIdx, haveMeshState, noMeshes, haveMolPos, haveMolOrient,
 	haveMolState, noMols bool) error {
 
-	dataPath := filepath.Join(getOutputDir(testDir), dataDir)
+	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
 
 	// meshes
 	meshPath := dataPath + ".mesh_positions.1.bin"
-	if err := checkDREAMMV3GroupedItem(meshPath, haveMeshPos, noMeshes); err != nil {
+	if err := misc.CheckDREAMMV3GroupedItem(meshPath, haveMeshPos, noMeshes); err != nil {
 		return err
 	}
 
 	regionPath := dataPath + ".region_indices.1.bin"
-	if err := checkDREAMMV3GroupedItem(regionPath, haveRgnIdx, noMeshes); err != nil {
+	if err := misc.CheckDREAMMV3GroupedItem(regionPath, haveRgnIdx, noMeshes); err != nil {
 		return err
 	}
 
 	meshStatesPath := dataPath + ".mesh_states.1.bin"
-	if err := checkDREAMMV3GroupedItem(meshStatesPath, haveMeshState,
+	if err := misc.CheckDREAMMV3GroupedItem(meshStatesPath, haveMeshState,
 		noMeshes); err != nil {
 		return err
 	}
 
 	// molecules
 	molPath := dataPath + ".molecule_positions.1.bin"
-	if err := checkDREAMMV3GroupedItem(molPath, haveMolPos, noMols); err != nil {
+	if err := misc.CheckDREAMMV3GroupedItem(molPath, haveMolPos, noMols); err != nil {
 		return err
 	}
 
 	orientPath := dataPath + ".molecule_orientations.1.bin"
-	if err := checkDREAMMV3GroupedItem(orientPath, haveMolOrient, noMols); err != nil {
+	if err := misc.CheckDREAMMV3GroupedItem(orientPath, haveMolOrient, noMols); err != nil {
 		return err
 	}
 
 	molStatesPath := dataPath + ".molecule_states.1.bin"
-	if err := checkDREAMMV3GroupedItem(molStatesPath, haveMolState, noMols); err != nil {
+	if err := misc.CheckDREAMMV3GroupedItem(molStatesPath, haveMolState, noMols); err != nil {
 		return err
 	}
 
 	// iterations
 	iterPath := dataPath + ".iteration_numbers.1.bin"
 	if numIters != 0 {
-		ok, err := testFileSize(iterPath, int64(numIters*12))
+		ok, err := file.HasSize(iterPath, int64(numIters*12))
 		if err != nil {
 			return err
 		}
@@ -1356,7 +1368,7 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 			return fmt.Errorf("file %s has incorrect file size", iterPath)
 		}
 	} else {
-		ok, err := testFileNonEmpty(iterPath)
+		ok, err := file.IsNonEmpty(iterPath)
 		if err != nil {
 			return err
 		}
@@ -1368,7 +1380,7 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 	// times
 	timePath := dataPath + ".time_values.1.bin"
 	if numTimes != 0 {
-		ok, err := testFileSize(timePath, int64(numTimes*8))
+		ok, err := file.HasSize(timePath, int64(numTimes*8))
 		if err != nil {
 			return err
 		}
@@ -1376,7 +1388,7 @@ func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
 			return fmt.Errorf("file %s has incorrect file size", timePath)
 		}
 	} else {
-		ok, err := testFileNonEmpty(timePath)
+		ok, err := file.IsNonEmpty(timePath)
 		if err != nil {
 			return err
 		}
