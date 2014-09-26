@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haskelladdict/foo/util/engine"
-	"github.com/haskelladdict/foo/util/jsonParser"
-	"github.com/haskelladdict/foo/util/misc"
+	"github.com/haskelladdict/nutmeg/util/engine"
+	"github.com/haskelladdict/nutmeg/util/jsonParser"
+	"github.com/haskelladdict/nutmeg/util/misc"
 )
 
 // command line flags

@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/haskelladdict/datastruct/set/intset"
-	"github.com/haskelladdict/foo/util/file"
-	"github.com/haskelladdict/foo/util/jsonParser"
-	"github.com/haskelladdict/foo/util/misc"
+	"github.com/haskelladdict/nutmeg/util/file"
+	"github.com/haskelladdict/nutmeg/util/jsonParser"
+	"github.com/haskelladdict/nutmeg/util/misc"
 )
 
 // TestResults encapsulates the results of an individual test

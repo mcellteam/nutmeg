@@ -17,8 +17,8 @@ import (
 	"syscall"
 
 	"github.com/haskelladdict/datastruct/set/intset"
-	"github.com/haskelladdict/foo/util/file"
-	"github.com/haskelladdict/foo/util/jsonParser"
+	"github.com/haskelladdict/nutmeg/util/file"
+	"github.com/haskelladdict/nutmeg/util/jsonParser"
 )
 
 // CleanOutput removes all files leftover from a previous test run
