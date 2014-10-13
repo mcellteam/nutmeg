@@ -18,10 +18,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/util/file"
-	"github.com/haskelladdict/nutmeg/util/jsonParser"
-	"github.com/haskelladdict/nutmeg/util/misc"
-	"github.com/haskelladdict/nutmeg/util/tester"
+	"github.com/haskelladdict/nutmeg/src/file"
+	"github.com/haskelladdict/nutmeg/src/jsonParser"
+	"github.com/haskelladdict/nutmeg/src/misc"
+	"github.com/haskelladdict/nutmeg/src/tester"
 )
 
 // initialize random number generator
