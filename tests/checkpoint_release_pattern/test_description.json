@@ -1,0 +1,44 @@
+{
+    "description": "This test checks that upon restart from a checkpoint, the molecule lifetimes and release events are correctly scheduled for checkpointed simulations in which individual runs have different timesteps. In MCell v 3.2.1 and earlier this behavior was broken since MCell assumed that previous runs had timesteps identical to the current one.",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2014-10-13",
+    "keywords": [
+        "checkpoint", "regression"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test1.mdl", "test2.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "description": "Make sure pattern has decayed properly after checkpoint. Heuristiacally, a maximum value of 25 seems like an sufficiently large upper limit",
+            "dataFile": "react_data/seed_%05d/A.World.dat",
+            "haveHeader": false,
+            "minTime": 3.49e-5,
+            "maxTime": 3.5e-5,
+            "countMaximum": [
+                25
+            ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "description": "Make sure that second pulse of release patter occurs at the proper time", 
+            "dataFile": "react_data/seed_%05d/A.World.dat",
+            "haveHeader": false,
+            "minTime": 3.9999e-5,
+            "maxTime": 4.0e-5,
+            "countMinimum": [
+                200
+            ]
+        }
+
+    ]
+}
