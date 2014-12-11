@@ -1,0 +1,27 @@
+{
+    "description": "This test checks that a surface clamp for volume molecule releases molecules on the correct side of the surface",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2014-12-11",
+    "keywords": [
+        "releases"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {   "testType": "ZERO_COUNTS",
+            "dataFile": "B_outside.dat"
+        },
+        {   "testType": "ZERO_COUNTS",
+            "dataFile": "C_inside.dat"
+        }
+    ]
+}
