@@ -100,19 +100,17 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 			}
 
 		case "CHECK_NONEMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.Seed, c.FileNames,
-				c.IDRange, c.FileSize, false); testErr != nil {
+			if testErr = checkFilesEmpty(test, c, false); testErr != nil {
 				break
 			}
 
 		case "CHECK_EMPTY_FILES":
-			if testErr = checkFilesEmpty(test.Path, test.Run.Seed, c.FileNames,
-				c.IDRange, c.FileSize, true); testErr != nil {
+			if testErr = checkFilesEmpty(test, c, true); testErr != nil {
 				break
 			}
 
 		case "CHECK_CHECKPOINT":
-			if testErr = checkCheckPoint(test.Path, c.BaseName, c.Delay, c.Margin); testErr != nil {
+			if testErr = checkCheckPoint(test.Path, c); testErr != nil {
 				break
 			}
 
@@ -709,12 +707,12 @@ func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 // checkFilesEmpty tests that all simulation output files listed were
 // created by the run and are either emtpy or non-empty depending on the
 // provided switch
-func checkFilesEmpty(testDir string, seed int, fileNames []string,
-	IDRange []string, fileSize int64, empty bool) error {
+func checkFilesEmpty(test *jsonParser.TestDescription, c *jsonParser.TestCase,
+	empty bool) error {
 
 	var fileList []string
-	for _, fileName := range fileNames {
-		files, err := misc.GenerateFileList(fileName, IDRange)
+	for _, fileName := range c.FileNames {
+		files, err := misc.GenerateFileList(fileName, c.IDRange)
 		if err != nil {
 			return err
 		}
@@ -732,17 +730,17 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 		message = "non-empty"
 	} else {
 		sizeCheck = func(s int64) bool {
-			if fileSize == 0 {
+			if c.FileSize == 0 {
 				return s != 0
 			}
-			return s == fileSize
+			return s == c.FileSize
 		}
 		message = "empty"
 	}
 
 	var badFileList []string
 	for _, fileName := range fileList {
-		filePaths, err := file.GetDataPaths(testDir, fileName, seed, 1)
+		filePaths, err := file.GetDataPaths(test.Path, fileName, test.Run.Seed, 1)
 		if err != nil {
 			return fmt.Errorf("failed to construct data path for file %s:\n%s",
 				fileName, err)
@@ -766,34 +764,33 @@ func checkFilesEmpty(testDir string, seed int, fileNames []string,
 
 // checkCheckPoint tests that a checkpoint happened at the requested delay
 // in seconds (+/- margin)
-func checkCheckPoint(testDir, baseName string, delay, margin float64) error {
-
+func checkCheckPoint(testDir string, c *jsonParser.TestCase) error {
 	path := file.GetOutputDir(testDir)
 
-	stamp := filepath.Join(path, baseName+".stamp")
+	stamp := filepath.Join(path, c.BaseName+".stamp")
 	stampi, err := os.Stat(stamp)
 	if err != nil {
 		return fmt.Errorf("Failed to stat file %s", stamp)
 	}
 	stampTime := stampi.ModTime()
 
-	checkpt := filepath.Join(path, baseName+".cp")
+	checkpt := filepath.Join(path, c.BaseName+".cp")
 	checkpti, err := os.Stat(checkpt)
 	if err != nil {
 		return fmt.Errorf("Failed to stat file %s", checkpt)
 	}
 	checkTime := checkpti.ModTime()
 
-	if checkTime.Sub(stampTime).Seconds() < delay-margin {
+	if checkTime.Sub(stampTime).Seconds() < c.Delay-c.Margin {
 		return fmt.Errorf("Realtime checkpoint scheduled for %f seconds but "+
 			"time between timestamp and checkpoint is less than %f seconds",
-			delay, delay-margin)
+			c.Delay, c.Delay-c.Margin)
 	}
 
-	if checkTime.Sub(stampTime).Seconds() > delay+margin {
+	if checkTime.Sub(stampTime).Seconds() > c.Delay+c.Margin {
 		return fmt.Errorf("Realtime checkpoint scheduled for %f seconds but "+
-			"time between timestamp and checkpoint exceeds %f seconds", delay,
-			delay+margin)
+			"time between timestamp and checkpoint exceeds %f seconds", c.Delay,
+			c.Delay+c.Margin)
 	}
 
 	return nil
