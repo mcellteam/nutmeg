@@ -46,7 +46,7 @@ DEFINE_SURFACE_CLASSES
 
 DEFINE_REACTIONS
 {
-   D' @ my_surf_2; -> E'[4e3]
+   D' @ my_surf_2; -> E'[4e5]
 }
 
 
@@ -100,7 +100,7 @@ REACTION_DATA_OUTPUT
 
 REACTION_DATA_OUTPUT
 {
-   TIME_LIST = [9.9e-5, 1e-4] 
+   TIME_LIST = [0, 9.9e-5, 1e-4] 
 
    HEADER = "# "
    {
