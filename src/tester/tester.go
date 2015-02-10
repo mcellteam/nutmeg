@@ -200,6 +200,7 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 			referencePath := filepath.Join(test.Path, c.ReferenceFile)
 			refData, err := file.ReadCounts(referencePath, c.HaveHeader)
 			if err != nil {
+				testErr = err
 				break
 			}
 			for i, d := range data {
@@ -269,8 +270,7 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 // recordResults checks if a test was successfull or not, records
 // success/failure in TestResult object and sends it to the results channel
 func recordResult(result chan<- *TestResult, testType string,
-	dataPath string,
-	err error) {
+	dataPath string, err error) {
 	if err != nil {
 		result <- &TestResult{dataPath, false, testType, fmt.Sprint(err)}
 	} else {
