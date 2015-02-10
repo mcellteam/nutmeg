@@ -1,0 +1,143 @@
+{
+    "description": "Region border properties tested on sphere. REFLECTIVE/ABSORPTIVE/TRANSPARENT properties of REGION border are tested on a sphere with much more complex shape of the region and boundary of the region crossing the sphere apex. In particular, this test checks that region properties properly honor interactions from either the inside, outside, or both and with molecule orientation.",
+    "author": "Markus Dittrich <dittrich@psc.edu",
+    "date": "2014-02-10",
+    "keywords": [
+        "reactions"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COMPARE_COUNTS",
+            "haveHeader": true,
+            "dataFile": "A.dat",
+            "referenceFile": "A_ref.dat"
+        },
+
+
+        {
+            "testType": "COMPARE_COUNTS",
+            "haveHeader": true,
+            "dataFile": "B.dat",
+            "referenceFile": "B_ref.dat"
+        },
+        {
+            "testType": "ZERO_COUNTS",
+            "haveHeader": true,
+            "dataFile": "B_r2.dat"
+        },
+
+        {
+            "testType": "ZERO_COUNTS",
+            "haveHeader": true,
+            "minTime": 5e-5,
+            "dataFile": "BB.dat"
+        },
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "minTime": 1e-6,
+            "maxTime": 2e-6,
+            "dataFile": "BB.dat"
+        },
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "BC.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 100,
+                    "query": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "minTime": 1e-5,
+            "dataFile": "AP_r2.dat"
+        },
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "AA.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 100,
+                    "query": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        {
+            "testType": "ZERO_COUNTS",
+            "haveHeader": true,
+            "minTime": 1e-4,
+            "dataFile": "AB_r1.dat"
+        }, 
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "minTime": 1e-5,
+            "dataFile": "AB_r2.dat"
+        }, 
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "AB.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 100,
+                    "query": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "C.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 100,
+                    "query": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        {
+            "testType": "COUNT_CONSTRAINTS",
+            "dataFile": "r2.dat",
+            "haveHeader": true,
+            "countConstraints": [
+                {
+                    "target": 100,
+                    "query": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        }
+    ]
+}

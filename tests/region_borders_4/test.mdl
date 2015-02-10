@@ -1,0 +1,160 @@
+/*****************************************************************************
+* Test 08: Region border properties tested on sphere.
+*
+*	REFLECTIVE/ABSORPTIVE/TRANSPARENT properties of REGION border tested 
+*	on sphere with much more complex shape of the region and boundary 
+*	of the region crossing the sphere apex. Also tested HITS/CROSSINGS 
+*	statements with COUNT/TRIGGER statements.
+* Author: Markus Dittrich <dittrich@psc.edu>
+* Date:  2014-02-10
+******************************************************************************/
+
+countdir = ""
+dt = 1e-6
+TIME_STEP = dt
+TIME_STEP_MAX = dt
+ITERATIONS = 100 
+EFFECTOR_GRID_DENSITY = 10000
+
+VACANCY_SEARCH_DISTANCE = 1
+
+DEFINE_MOLECULES
+{
+   A {DIFFUSION_CONSTANT_2D = 2e-4}
+   AA {DIFFUSION_CONSTANT_2D = 2e-4}
+   AP {DIFFUSION_CONSTANT_2D = 2e-4}
+   AB {DIFFUSION_CONSTANT_2D = 2e-4}
+   B {DIFFUSION_CONSTANT_2D = 2e-3}
+   BB {DIFFUSION_CONSTANT_2D = 2e-3}
+   BC {DIFFUSION_CONSTANT_2D = 2e-3}
+   C {DIFFUSION_CONSTANT_2D = 2e-4}
+   D {D_2D = 2e-4}
+   E {D_2D = 2e-4}
+}
+
+
+DEFINE_SURFACE_CLASSES 
+{
+   my_surf_1
+   {
+      REFLECTIVE = A,  
+      REFLECTIVE = AA,  |-1|
+      REFLECTIVE = AB'  |1|
+      ABSORPTIVE = B,
+      ABSORPTIVE = BB'  |1|
+      ABSORPTIVE = BC;  |-1|
+      TRANSPARENT = C;
+   }
+   my_surf_2
+   {
+      REFLECTIVE = AP, |0|
+      REFLECTIVE = D;  
+      REFLECTIVE = E;  
+   }
+}
+
+DEFINE_REACTIONS
+{
+   D' @ my_surf_2; -> E'[4e5]
+   AA' @ my_surf_2; -> AP' [4e7]
+}
+
+
+INCLUDE_FILE = "../../common/sphere_apex_region.mdl"
+
+MODIFY_SURFACE_REGIONS {
+  Sphere[r1] 
+  {
+    MOLECULE_NUMBER {
+      AA' = 100
+      AB' = 100
+      BB' = 100
+      BC' = 100
+    }
+  }
+}
+
+INSTANTIATE world OBJECT 
+{
+   sphere OBJECT Sphere {}
+}
+
+REACTION_DATA_OUTPUT
+{
+   STEP = dt
+   HEADER = "# "
+   {
+      COUNT ["A;", world.sphere[r1]]: "r1_A",
+      COUNT ["A;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "A.dat"
+
+   {
+      COUNT ["AA;", world.sphere[r1]]: "r1_A",
+      COUNT ["AA;", world.sphere[r2]] + COUNT["AP;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "AA.dat"
+
+   {
+      COUNT ["AP;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "AP_r2.dat"
+
+   {
+      COUNT ["AB;", world.sphere[r1]]: "r1_A",
+      COUNT ["AB;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "AB.dat"
+
+   {
+      COUNT ["BC;", world.sphere[r1]]: "r1_A",
+      COUNT ["BC;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "BC.dat"
+
+   {
+      COUNT ["AB;", world.sphere[r1]]: "r1_A"
+   }	=> countdir & "AB_r1.dat"
+
+   {
+      COUNT ["AB;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "AB_r2.dat"
+
+   {
+      COUNT ["C;", world.sphere[r1]]: "r1_C",
+      COUNT ["C;", world.sphere[r2]]: "r2_C"
+   }	=> countdir & "C.dat"
+}
+
+REACTION_DATA_OUTPUT
+{
+   TIME_LIST = [0, 9.9e-5, 1e-4] 
+
+   HEADER = "# "
+   {
+      COUNT ["B;", world.sphere[r1]]: "r1_B",
+      COUNT ["B;", world.sphere[r2]]: "r2_B"
+   }	=> countdir & "B.dat"
+}
+
+REACTION_DATA_OUTPUT
+{
+   STEP= dt
+   HEADER = "# "
+   {
+      COUNT ["B;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "B_r2.dat"
+
+   {
+      COUNT ["BB;", world.sphere[r1]]: "r1_A",
+      COUNT ["BB;", world.sphere[r2]]: "r2_A"
+   }	=> countdir & "BB.dat"
+
+}
+
+REACTION_DATA_OUTPUT
+{
+   STEP = dt
+   HEADER = "# "
+   {
+      COUNT ["D;", world.sphere[r2]]: "r2_D",
+      COUNT ["E;", world.sphere[r2]]: "r2_E"
+   }	=> countdir & "r2.dat"
+
+}
+
