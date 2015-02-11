@@ -13,7 +13,7 @@ countdir = ""
 dt = 1e-6
 TIME_STEP = dt
 TIME_STEP_MAX = dt
-ITERATIONS = 100 
+ITERATIONS = 200 
 EFFECTOR_GRID_DENSITY = 10000
 
 VACANCY_SEARCH_DISTANCE = 1
@@ -30,6 +30,10 @@ DEFINE_MOLECULES
    C {DIFFUSION_CONSTANT_2D = 2e-4}
    D {D_2D = 2e-4}
    E {D_2D = 2e-4}
+   F {D_2D = 2e-4}
+   G {D_2D = 2e-4}
+   H {D_2D = 2e-4}
+   I {D_2D = 2e-4}
 }
 
 
@@ -50,12 +54,18 @@ DEFINE_SURFACE_CLASSES
       REFLECTIVE = AP, |0|
       REFLECTIVE = D;  
       REFLECTIVE = E;  
+      REFLECTIVE = F,  |0|
+      REFLECTIVE = G,  |1|
+      REFLECTIVE = H,  |0|
+      REFLECTIVE = I,  |-1|
    }
 }
 
 DEFINE_REACTIONS
 {
    D' @ my_surf_2; -> E'[4e5]
+   F' @ my_surf_2; -> G'[4e5]
+   H' @ my_surf_2; -> I'[4e5]
    AA' @ my_surf_2; -> AP' [4e7]
 }
 
@@ -72,6 +82,14 @@ MODIFY_SURFACE_REGIONS {
       BC' = 100
     }
   }
+  Sphere[r2] 
+  {
+    MOLECULE_NUMBER {
+      F' = 100
+      H' = 100
+    }
+  }
+
 }
 
 INSTANTIATE world OBJECT 
@@ -156,5 +174,24 @@ REACTION_DATA_OUTPUT
       COUNT ["E;", world.sphere[r2]]: "r2_E"
    }	=> countdir & "r2.dat"
 
+   HEADER = "# "
+   {
+      COUNT ["G;", world.sphere[r1]]: "r1_G"
+   }	=> countdir & "G_r1.dat"
+
+   HEADER = "# "
+   {
+      COUNT ["G;", world.sphere[r2]]: "r2_G"
+   }	=> countdir & "G_r2.dat"
+
+   HEADER = "# "
+   {
+      COUNT ["I;", world.sphere[r1]]: "r1_I"
+   }	=> countdir & "I_r1.dat"
+
+   HEADER = "# "
+   {
+      COUNT ["I;", world.sphere[r2]]: "r2_I"
+   }	=> countdir & "I_r2.dat"
 }
 

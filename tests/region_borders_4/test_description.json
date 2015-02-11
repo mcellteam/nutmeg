@@ -40,14 +40,7 @@
         {
             "testType": "ZERO_COUNTS",
             "haveHeader": true,
-            "minTime": 5e-5,
-            "dataFile": "BB.dat"
-        },
-        {
-            "testType": "POSITIVE_COUNTS",
-            "haveHeader": true,
-            "minTime": 1e-6,
-            "maxTime": 2e-6,
+            "minTime": 1e-4,
             "dataFile": "BB.dat"
         },
         {
@@ -87,7 +80,7 @@
         {
             "testType": "ZERO_COUNTS",
             "haveHeader": true,
-            "minTime": 1e-4,
+            "minTime": 2e-4,
             "dataFile": "AB_r1.dat"
         }, 
         {
@@ -138,6 +131,29 @@
                     ]
                 }
             ]
+        },
+        {
+            "testType": "ZERO_COUNTS",
+            "haveHeader": true,
+            "dataFile": "G_r1.dat"
+        },
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "minTime": 2e-5,
+            "dataFile": "G_r2.dat"
+        },
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "numCounts": 100,
+            "dataFile": "I_r2.dat"
+        },
+        {
+            "testType": "POSITIVE_COUNTS",
+            "haveHeader": true,
+            "numCounts": 100,
+            "dataFile": "I_r1.dat"
         }
     ]
 }
