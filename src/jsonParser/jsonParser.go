@@ -56,6 +56,7 @@ type TestCase struct {
 	testRates
 	testTrigger
 	testFileSizes
+	testPosititiveZeroCounts
 	testDiffFileContent
 	testLegacyVolOutput
 	testASCIIVizOutput
@@ -76,6 +77,13 @@ type testCommon struct {
 	DataFile    string  // name of (output) file to test
 	MinTime     float64 // ignore all data items before MinTime for testing
 	MaxTime     float64 // ignore all data items after MaxTime for testing
+}
+
+// testPositiveZeroCounts pertains to testing the number of positive or zero
+// values in data files.
+// NOTE: If NumCounts is not set all values are expected to be positive or zero
+type testPosititiveZeroCounts struct {
+	NumCounts *int // number of expected positive or zero counts.
 }
 
 // testRates pertains to testing average reaction rates

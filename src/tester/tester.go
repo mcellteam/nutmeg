@@ -221,7 +221,7 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 		case "POSITIVE_COUNTS":
 			for i, d := range data {
 				if testErr = checkPositiveOrZeroCounts(d, dataPaths[i], c.MinTime,
-					c.MaxTime, false); testErr != nil {
+					c.MaxTime, c.NumCounts, false); testErr != nil {
 					break
 				}
 			}
@@ -229,7 +229,7 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 		case "POSITIVE_OR_ZERO_COUNTS":
 			for i, d := range data {
 				if testErr = checkPositiveOrZeroCounts(d, dataPaths[i], c.MinTime,
-					c.MaxTime, true); testErr != nil {
+					c.MaxTime, c.NumCounts, true); testErr != nil {
 					break
 				}
 			}
@@ -238,7 +238,6 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 			for i, d := range data {
 				if testErr = checkZeroCounts(d, dataPaths[i], c.MinTime,
 					c.MaxTime); testErr != nil {
-					break
 				}
 			}
 
@@ -653,10 +652,12 @@ func checkCountEquilibrium(data *file.Columns, dataPath string, minTime, maxTime
 	return nil
 }
 
-// checkPositiveOrZeroCounts tests that all counts of the data file are either > 0
-// (includeZero = false) or >= 0 (includeZero = true)
+// checkPositiveOrZeroCounts tests that counts in the data file are either > 0
+// (includeZero = false) or >= 0 (includeZero = true). If numCounts is unset
+// (nil) all counts are expected to be positive, otherwise we expect at least
+// numCounts positive values
 func checkPositiveOrZeroCounts(data *file.Columns, dataPath string, minTime,
-	maxTime float64, includeZero bool) error {
+	maxTime float64, numCounts *int, includeZero bool) error {
 
 	lowerBound := 1
 	if includeZero {
@@ -664,6 +665,7 @@ func checkPositiveOrZeroCounts(data *file.Columns, dataPath string, minTime,
 	}
 
 	numCols := len(data.Counts)
+	var counts int
 	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
@@ -671,10 +673,19 @@ func checkPositiveOrZeroCounts(data *file.Columns, dataPath string, minTime,
 
 		for c := 0; c < numCols; c++ {
 			if data.Counts[c][r] < lowerBound {
-				return fmt.Errorf("in %s value %d in column %d in row %d is not positive (<= 0)",
-					dataPath, data.Counts[c][r], c, r)
+				if numCounts == nil {
+					return fmt.Errorf("in %s value %d in column %d in row %d is not positive",
+						dataPath, data.Counts[c][r], c, r)
+				}
+			} else {
+				counts++
 			}
 		}
+	}
+
+	if numCounts != nil && counts < *numCounts {
+		return fmt.Errorf("in %s expected %d positive counts but only got %d", dataPath,
+			*numCounts, counts)
 	}
 
 	return nil
