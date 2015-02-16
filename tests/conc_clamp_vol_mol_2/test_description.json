@@ -1,0 +1,33 @@
+{
+    "description": "This test checks that the proper average number of molecules is released by a concentration clamp either on both sides or a single side of a surface. The expected number of molecules is (0.2*0.2*0.2): 0.0001*6.0221417930e23*(0.2*0.2*0.2)/1e15 = 481.77, i.e., 482 number of molecules expected for release on both sides and 241 molecules for release on a single side.",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2015-02-16",
+    "keywords": [
+        "releases"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {   "testType": "COUNT_EQUILIBRIUM",
+            "minTime" : 1e-4,
+            "means"   : [241],
+            "tolerances" : [6],
+            "dataFile": "A_cube.dat"
+        },
+        {   "testType": "COUNT_EQUILIBRIUM",
+            "minTime" : 1e-4,
+            "means"   : [482],
+            "tolerances" : [6],
+            "dataFile": "B_cube.dat"
+        }
+    ]
+}
