@@ -6,7 +6,7 @@
 # sublime3 project files
 *sublime*
 
-tags
+.tags*
 nutmeg
 nutmeg.conf
 *.swp
