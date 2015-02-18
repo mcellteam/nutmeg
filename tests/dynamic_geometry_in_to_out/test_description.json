@@ -1,0 +1,39 @@
+{
+  "description": "Test if molecules move into the appropriate mesh after a dynamic geometry event.",
+  "author": "Jacob Czech",
+  "date": "2014-12-10",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["inside_to_outside.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_1.dat",
+      "referenceFile": "vm_1_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_2.dat",
+      "referenceFile": "vm_2_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_3.dat",
+      "referenceFile": "vm_3_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_4.dat",
+      "referenceFile": "vm_4_ref.dat"
+    }
+  ]
+}

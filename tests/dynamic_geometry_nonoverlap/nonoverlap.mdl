@@ -1,0 +1,160 @@
+ITERATIONS = 10
+TIME_STEP = 1e-6
+
+WARNINGS
+{
+  LARGE_MOLECULAR_DISPLACEMENT = IGNORED
+}
+
+DYNAMIC_GEOMETRY = "./list_of_geometry.txt"
+
+DEFINE_MOLECULES
+{
+  vm_1 { DIFFUSION_CONSTANT_3D = 0 }
+  vm_2 { DIFFUSION_CONSTANT_3D = 0 }
+  vm_3 { DIFFUSION_CONSTANT_3D = 0 }
+  vm_4 { DIFFUSION_CONSTANT_3D = 0 }
+  vm_5 { DIFFUSION_CONSTANT_3D = 0 }
+}
+
+INCLUDE_FILE = "./geom_1.mdl"
+
+DEFINE_SURFACE_CLASSES
+{
+  transp_out_vm_2_3_4_5
+  {
+    TRANSPARENT = vm_2,
+    TRANSPARENT = vm_3,
+    TRANSPARENT = vm_4,
+    TRANSPARENT = vm_5,
+  }
+  transp_out_vm_3_4_5
+  {
+    TRANSPARENT = vm_3,
+    TRANSPARENT = vm_4,
+    TRANSPARENT = vm_5,
+  }
+  transp_in_4_5
+  {
+    TRANSPARENT = vm_4'
+    TRANSPARENT = vm_5'
+  }
+  transp_in_5
+  {
+    TRANSPARENT = vm_5'
+  }
+}
+
+MODIFY_SURFACE_REGIONS
+{
+  Linner[ALL]
+  {
+    SURFACE_CLASS = transp_out_vm_2_3_4_5
+  }
+  Louter[ALL]
+  {
+    SURFACE_CLASS = transp_out_vm_3_4_5
+  }
+  Router[ALL]
+  {
+    SURFACE_CLASS = transp_in_4_5
+  }
+  Rinner[ALL]
+  {
+    SURFACE_CLASS = transp_in_5
+  }
+}
+
+INSTANTIATE Scene OBJECT
+{
+  Linner OBJECT Linner{}
+  Louter OBJECT Louter{}
+  Rinner OBJECT Rinner{TRANSLATE = [0.21, 0, 0]}
+  Router OBJECT Router{TRANSLATE = [0.21, 0, 0]}
+  rel_vm_1 RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm_1
+    NUMBER_TO_RELEASE = 100
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.0, 0.0, 0.0]
+  }
+  rel_vm_2 RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm_2
+    NUMBER_TO_RELEASE = 100
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.0, 0.0, 0.0]
+  }
+  rel_vm_3 RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm_3
+    NUMBER_TO_RELEASE = 100
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.0, 0.0, 0.0]
+  }
+  rel_vm_4 RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm_4
+    NUMBER_TO_RELEASE = 100
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.0, 0.0, 0.0]
+  }
+  rel_vm_5 RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm_5
+    NUMBER_TO_RELEASE = 100
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.0, 0.0, 0.0]
+  }
+}
+
+REACTION_DATA_OUTPUT
+{
+  STEP=1e-6
+  // vm_1
+  {COUNT[vm_1,Scene.Linner],
+  COUNT[vm_1,Scene.Louter]-COUNT[vm_1,Scene.Linner],
+  COUNT[vm_1,Scene.Rinner],
+  COUNT[vm_1,Scene.Router]-COUNT[vm_1,Scene.Rinner],
+  COUNT[vm_1,WORLD]-COUNT[vm_1,Scene.Louter]-COUNT[vm_1,Scene.Router]}=> "./vm_1.dat"
+  // vm_2
+  {COUNT[vm_2,Scene.Linner],
+  COUNT[vm_2,Scene.Louter]-COUNT[vm_2,Scene.Linner],
+  COUNT[vm_2,Scene.Rinner],
+  COUNT[vm_2,Scene.Router]-COUNT[vm_2,Scene.Rinner],
+  COUNT[vm_2,WORLD]-COUNT[vm_2,Scene.Louter]-COUNT[vm_2,Scene.Router]}=> "./vm_2.dat"
+  // vm_3
+  {COUNT[vm_3,Scene.Linner],
+  COUNT[vm_3,Scene.Louter]-COUNT[vm_3,Scene.Linner],
+  COUNT[vm_3,Scene.Rinner],
+  COUNT[vm_3,Scene.Router]-COUNT[vm_3,Scene.Rinner],
+  COUNT[vm_3,WORLD]-COUNT[vm_3,Scene.Louter]-COUNT[vm_3,Scene.Router]}=> "./vm_3.dat"
+  // vm_4
+  {COUNT[vm_4,Scene.Linner],
+  COUNT[vm_4,Scene.Louter]-COUNT[vm_4,Scene.Linner],
+  COUNT[vm_4,Scene.Rinner],
+  COUNT[vm_4,Scene.Router]-COUNT[vm_4,Scene.Rinner],
+  COUNT[vm_4,WORLD]-COUNT[vm_4,Scene.Louter]-COUNT[vm_4,Scene.Router]}=> "./vm_4.dat"
+  // vm_5
+  {COUNT[vm_5,Scene.Linner],
+  COUNT[vm_5,Scene.Louter]-COUNT[vm_5,Scene.Linner],
+  COUNT[vm_5,Scene.Rinner],
+  COUNT[vm_5,Scene.Router]-COUNT[vm_5,Scene.Rinner],
+  COUNT[vm_5,WORLD]-COUNT[vm_5,Scene.Louter]-COUNT[vm_5,Scene.Router]}=> "./vm_5.dat"
+}
+
+/*VIZ_OUTPUT*/
+/*{*/
+/*  MODE = CELLBLENDER*/
+/*  FILENAME = "./viz_data/Scene"*/
+/*  MOLECULES*/
+/*  {*/
+/*    NAME_LIST {ALL_MOLECULES}*/
+/*    ITERATION_NUMBERS {ALL_DATA @ ALL_ITERATIONS}*/
+/*  }*/
+/*}*/
