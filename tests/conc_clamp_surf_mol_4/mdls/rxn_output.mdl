@@ -1,0 +1,6 @@
+REACTION_DATA_OUTPUT
+{
+  STEP=1e-06
+  {COUNT[A,Scene.plane[ring]]}=> "./A.plane.ring.dat"
+}
+

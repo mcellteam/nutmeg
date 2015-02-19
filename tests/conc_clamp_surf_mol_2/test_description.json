@@ -1,0 +1,27 @@
+{
+    "description": "This test checks that the proper average number of surface molecules is released by a surface concentration clamp on _both_ sides of a clamped surface region. The total area of the sampling surface is (168+184) triangles with surface  area 0.5*0.00625*0.00625 each. Thus, the total number of expected molecules at the clamped surface is 0.5*0.00625*0.00625 * (168+184) * 5000 = 34.375. NOTE: The tolerances were chosen based on experimentation.",
+    "author": "Markus Dittrich <dittrich@psc.edu>",
+    "date": "2015-02-19",
+    "keywords": [
+        "releases"
+    ],
+    "run": {
+        "mdlfiles": [
+            "test.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {   "testType": "COUNT_EQUILIBRIUM",
+            "minTime" : 1e-3,
+            "means"   : [34.375],
+            "tolerances" : [5],
+            "dataFile": "A.plane.ring.dat"
+        }
+    ]
+}

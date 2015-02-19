@@ -1,0 +1,44 @@
+/*
+ * 
+ * This test checks that the proper average number of surface molecules is
+ * released by a surface concentration clamp on _the outer side_ 
+ * of a clamped surface region.
+ *
+ * The total area of the sampling surface is 184 triangles with surface 
+ * area 0.5*0.00625*0.00625 each. Thus, the total number of expected
+ * molecules at the clamped surface is
+ *
+ * 0.5*0.00625*0.00625 * 184 * 5000 = 17.969
+ *
+ * Test created 02/19/2015 by Markus Dittrich
+ */
+
+ITERATIONS = 3000
+TIME_STEP = 1e-06
+VACANCY_SEARCH_DISTANCE = 0.10
+// NOTE: The below setting for surface grid density is critical
+// to correctly measure the surface concentration of molecule
+// A (it curresponds to a single triangle per wall)
+SURFACE_GRID_DENSITY = 51200
+
+PARTITION_X = [[-0.1 TO 0.1 STEP 0.02]]
+PARTITION_Y = [[-0.1 TO 0.1 STEP 0.02]]
+PARTITION_Z = [[-0.1 TO 0.1 STEP 0.02]]
+
+INCLUDE_FILE = "mdls/molecules.mdl"
+
+INCLUDE_FILE = "mdls/surface_classes.mdl"
+
+INCLUDE_FILE = "mdls/geometry.mdl"
+
+INCLUDE_FILE = "mdls/mod_surf_regions.mdl"
+
+INSTANTIATE Scene OBJECT
+{
+  plane OBJECT plane {}
+}
+
+sprintf(seed,"%05g",SEED)
+
+INCLUDE_FILE = "mdls/rxn_output.mdl"
+

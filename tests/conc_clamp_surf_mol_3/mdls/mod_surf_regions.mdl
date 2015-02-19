@@ -1,0 +1,8 @@
+MODIFY_SURFACE_REGIONS
+{
+  plane[inner]
+  {
+    SURFACE_CLASS = clamper
+  }
+}
+
