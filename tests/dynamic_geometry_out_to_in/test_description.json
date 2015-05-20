@@ -1,7 +1,7 @@
 {
   "description": "Test if molecules move into the appropriate mesh after a dynamic geometry event.",
   "author": "Jacob Czech",
-  "date": "2014-12-10",
+  "date": "2015-05-20",
   "keywords": [
     "dynamic geometry"
   ],
