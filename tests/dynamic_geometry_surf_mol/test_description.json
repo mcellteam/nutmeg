@@ -1,0 +1,29 @@
+{
+  "description": "Make sure we don't lose any surface molecules after a dynamic geometry event",
+  "author": "Jacob Czech",
+  "date": "2015-05-20",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["surf_mol.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.cube.dat",
+      "referenceFile": "sm.cube_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.world.dat",
+      "referenceFile": "sm.world_ref.dat"
+    }
+  ]
+}
