@@ -1,0 +1,29 @@
+{
+  "description": "Test if regions can be added and removed during a dynamic geometry event.",
+  "author": "Jacob Czech",
+  "date": "2015-05-21",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["add_remove_regions.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.sr1.dat",
+      "referenceFile": "sm.sr1_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.sr2.dat",
+      "referenceFile": "sm.sr2_ref.dat"
+    }
+  ]
+}
