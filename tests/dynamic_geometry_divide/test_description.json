@@ -1,0 +1,29 @@
+{
+  "description": "Make sure molecules don't leak out of the dividing mesh.",
+  "author": "Jacob Czech",
+  "date": "2015-06-09",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["main.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_World.dat",
+      "referenceFile": "vm_World_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_Icosphere.dat",
+      "referenceFile": "vm_Icosphere_ref.dat"
+    }
+  ]
+}
