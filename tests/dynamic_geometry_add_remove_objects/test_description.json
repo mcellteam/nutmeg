@@ -26,9 +26,14 @@
        "templateFile": "vm_1_B_ref.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_1_C.dat",
-      "referenceFile": "vm_1_C_ref.dat"
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_1_C.dat",
+       "templateFile": "vm_1_C_ref.dat"
+    },
+    {
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_1_D.dat",
+       "templateFile": "vm_1_D_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
