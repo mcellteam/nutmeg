@@ -122,6 +122,6 @@ INSTANTIATE Scene OBJECT
 {
   Linner OBJECT Linner{TRANSLATE = [-0.21, 0, 0]}
   Louter OBJECT Louter{TRANSLATE = [-0.21, 0, 0]}
-  Rinner OBJECT Rinner{TRANSLATE = [-0.21, 0, 0]}
-  Router OBJECT Router{TRANSLATE = [-0.21, 0, 0]}
+  Rinner OBJECT Rinner{TRANSLATE = [ 0, 0, 0]}
+  Router OBJECT Router{TRANSLATE = [ 0, 0, 0]}
 }
