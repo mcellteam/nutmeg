@@ -16,14 +16,14 @@
       "testType": "CHECK_SUCCESS"
     },
     {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_1_A.dat",
-      "referenceFile": "vm_1_A_ref.dat"
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_1_A.dat",
+       "templateFile": "vm_1_A_ref.dat"
     },
     {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_1_B.dat",
-      "referenceFile": "vm_1_B_ref.dat"
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_1_B.dat",
+       "templateFile": "vm_1_B_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
