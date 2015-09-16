@@ -1,0 +1,212 @@
+{
+    "description": "This test is to make sure that all count types (triggers, hits, crossings, all_enclosed, reactions) work when using dynamic geometries with reactions",
+    "author": "Jacob Czech",
+    "date": "2015-09-15",
+    "keywords": [
+        "parser"
+    ],
+    "run": {
+        "mdlfiles": [
+            "main_dg.mdl",
+            "main_no_dg.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/rxn1.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/rxn1.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/rxn2.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/rxn2.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/rxn3.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/rxn3.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm1.SmallCube.dat",
+          "referenceFile": "output/dat/no_dg/sm1.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm1.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/sm1.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm2.SmallCube.dat",
+          "referenceFile": "output/dat/no_dg/sm2.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm2.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/sm2.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.all_enclosed.dat",
+          "referenceFile": "output/dat/no_dg/vm1.all_enclosed.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.allreg_all_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.allreg_all_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.allreg_back_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.allreg_back_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.allreg_front_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.allreg_front_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.SmallCube.dat",
+          "referenceFile": "output/dat/no_dg/vm1.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.sr_all_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.sr_all_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.sr_back_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.sr_back_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.sr_front_hits.dat",
+          "referenceFile": "output/dat/no_dg/vm1.sr_front_hits.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm1.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/vm1.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm2.all_enclosed.dat",
+          "referenceFile": "output/dat/no_dg/vm2.all_enclosed.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm2.SmallCube.dat",
+          "referenceFile": "output/dat/no_dg/vm2.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm2.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/vm2.WORLD.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm3.all_enclosed.dat",
+          "referenceFile": "output/dat/no_dg/vm3.all_enclosed.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm3.SmallCube.dat",
+          "referenceFile": "output/dat/no_dg/vm3.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/vm3.WORLD.dat",
+          "referenceFile": "output/dat/no_dg/vm3.WORLD.dat"
+        },
+        {
+            "testType": "CHECK_TRIGGERS",
+            "description": "",
+            "dataFile": "dat/dg/inert.trigger.dat",
+            "triggerType": "molCounts",
+            "outputTime": 1e-6,
+            "haveExactTime": true,
+            "xrange": [
+                -0.1,
+                0.1
+            ],
+            "yrange": [
+                -0.1,
+                0.1
+            ],
+            "zrange": [
+                -0.1,
+                0.1
+            ]
+        },
+        {
+            "testType": "CHECK_TRIGGERS",
+            "description": "",
+            "dataFile": "dat/dg/inert.all_crossings.dat",
+            "triggerType": "hits",
+            "outputTime": 1e-6,
+            "haveExactTime": true,
+            "xrange": [
+                -0.1,
+                0.1
+            ],
+            "yrange": [
+                -0.1,
+                0.1
+            ],
+            "zrange": [
+                -0.1,
+                0.1
+            ]
+        },
+        {
+            "testType": "CHECK_TRIGGERS",
+            "description": "",
+            "dataFile": "dat/dg/inert.back_crossings.dat",
+            "triggerType": "hits",
+            "outputTime": 1e-6,
+            "haveExactTime": true,
+            "xrange": [
+                -0.1,
+                0.1
+            ],
+            "yrange": [
+                -0.1,
+                0.1
+            ],
+            "zrange": [
+                -0.1,
+                0.1
+            ]
+        },
+        {
+            "testType": "CHECK_TRIGGERS",
+            "description": "",
+            "dataFile": "dat/dg/inert.front_crossings.dat",
+            "triggerType": "hits",
+            "outputTime": 1e-6,
+            "haveExactTime": true,
+            "xrange": [
+                -0.1,
+                0.1
+            ],
+            "yrange": [
+                -0.1,
+                0.1
+            ],
+            "zrange": [
+                -0.1,
+                0.1
+            ]
+        }
+    ]
+}
