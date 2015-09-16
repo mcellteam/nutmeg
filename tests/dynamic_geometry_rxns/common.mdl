@@ -54,7 +54,7 @@ INSTANTIATE Scene OBJECT
   }
   rel_sm1 RELEASE_SITE
   {
-    SHAPE = Scene.Cube
+    SHAPE = Scene.SmallCube
     MOLECULE = sm1'
     NUMBER_TO_RELEASE = 1000
   }
@@ -78,6 +78,9 @@ REACTION_DATA_OUTPUT
   {COUNT[sm1, Scene.SmallCube]}=> "./dat/" & main_id & "/sm1.SmallCube.dat"
   {COUNT[sm2, Scene.SmallCube]}=> "./dat/" & main_id & "/sm2.SmallCube.dat"
 
+  {COUNT[sm1, Scene.SmallCube[sr]]}=> "./dat/" & main_id & "/sm1.SmallCube_sr.dat"
+  {COUNT[sm2, Scene.SmallCube[sr]]}=> "./dat/" & main_id & "/sm2.SmallCube_sr.dat"
+
   {COUNT[vm1, Scene.Cube[sr], ALL_HITS]}=> "./dat/" & main_id & "/vm1.sr_all_hits.dat"
   {COUNT[vm1, Scene.Cube[ALL], ALL_HITS]}=> "./dat/" & main_id & "/vm1.allreg_all_hits.dat"
 
@@ -87,6 +90,8 @@ REACTION_DATA_OUTPUT
   {COUNT[vm1, Scene.Cube[sr], BACK_HITS]}=> "./dat/" & main_id & "/vm1.sr_back_hits.dat"
   {COUNT[vm1, Scene.Cube[ALL], BACK_HITS]}=> "./dat/" & main_id & "/vm1.allreg_back_hits.dat"
 
+  {COUNT[sm1, Scene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/sm1.all_enclosed.dat"
+  {COUNT[sm2, Scene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/sm2.all_enclosed.dat"
   {COUNT[vm1, Scene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm1.all_enclosed.dat"
   {COUNT[vm2, Scene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm2.all_enclosed.dat"
   {COUNT[vm3, Scene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm3.all_enclosed.dat"

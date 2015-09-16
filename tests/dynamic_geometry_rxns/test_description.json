@@ -35,8 +35,18 @@
         },
         {
           "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm1.all_enclosed.dat",
+          "referenceFile": "output/dat/no_dg/sm1.all_enclosed.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
           "dataFile": "dat/dg/sm1.SmallCube.dat",
           "referenceFile": "output/dat/no_dg/sm1.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm1.SmallCube_sr.dat",
+          "referenceFile": "output/dat/no_dg/sm1.SmallCube_sr.dat"
         },
         {
           "testType": "COMPARE_COUNTS",
@@ -45,8 +55,18 @@
         },
         {
           "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm2.all_enclosed.dat",
+          "referenceFile": "output/dat/no_dg/sm2.all_enclosed.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
           "dataFile": "dat/dg/sm2.SmallCube.dat",
           "referenceFile": "output/dat/no_dg/sm2.SmallCube.dat"
+        },
+        {
+          "testType": "COMPARE_COUNTS",
+          "dataFile": "dat/dg/sm2.SmallCube_sr.dat",
+          "referenceFile": "output/dat/no_dg/sm2.SmallCube_sr.dat"
         },
         {
           "testType": "COMPARE_COUNTS",
