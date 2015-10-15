@@ -1,0 +1,44 @@
+{
+  "description": "Test if include files work with dynamic geometries.",
+  "author": "Jacob Czech",
+  "date": "2015-10-06",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["includes.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_A.dat",
+       "templateFile": "vm_A_ref.dat"
+    },
+    {
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_B.dat",
+       "templateFile": "vm_B_ref.dat"
+    },
+    {
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_C.dat",
+       "templateFile": "vm_C_ref.dat"
+    },
+    {
+       "testType": "DIFF_FILE_CONTENT",
+       "dataFile": "vm_D.dat",
+       "templateFile": "vm_D_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm_world.dat",
+      "referenceFile": "vm_world_ref.dat"
+    }
+  ]
+}

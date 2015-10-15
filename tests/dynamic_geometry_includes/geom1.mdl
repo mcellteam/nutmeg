@@ -1,0 +1,3 @@
+INCLUDE_FILE = "c.mdl"
+INCLUDE_FILE = "b.mdl"
+INCLUDE_FILE = "a.mdl"
