@@ -1,0 +1,17 @@
+INCLUDE_FILE = "./cube.mdl"
+
+Meta OBJECT {
+  Cube OBJECT Cube{}
+  rel_vm RELEASE_SITE
+  {
+    SHAPE = Meta.Cube
+    MOLECULE = vm
+    NUMBER_TO_RELEASE = 100
+  }
+  rel_sm RELEASE_SITE
+  {
+    SHAPE = Meta.Cube
+    MOLECULE = sm'
+    NUMBER_TO_RELEASE = 100
+  }
+}
