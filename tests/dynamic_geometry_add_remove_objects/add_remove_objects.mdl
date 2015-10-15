@@ -10,7 +10,7 @@ DYNAMIC_GEOMETRY = "./geom.txt"
 
 DEFINE_MOLECULES
 {
-  vm_1 { DIFFUSION_CONSTANT_3D = 0 }
+  vm { DIFFUSION_CONSTANT_3D = 0 }
 }
 
 INCLUDE_FILE = "./geom1.mdl"
@@ -20,10 +20,10 @@ INSTANTIATE Scene OBJECT
   A OBJECT A{}
   B OBJECT B{}
   C OBJECT C{}
-  rel_vm_1 RELEASE_SITE
+  rel_vm RELEASE_SITE
   {
     SHAPE = Scene.A
-    MOLECULE = vm_1
+    MOLECULE = vm
     NUMBER_TO_RELEASE = 1000
     SITE_DIAMETER = 0.0
     LOCATION = [0.0, 0.0, 0.0]
@@ -34,9 +34,9 @@ REACTION_DATA_OUTPUT
 {
   STEP=1e-06
   HEADER=OFF
-  {COUNT[vm_1,WORLD]}=> "./vm_1_world.dat"
-  {COUNT[vm_1,Scene.A]}=> "./vm_1_A.dat"
-  {COUNT[vm_1,Scene.B]}=> "./vm_1_B.dat"
-  {COUNT[vm_1,Scene.C]}=> "./vm_1_C.dat"
-  {COUNT[vm_1,Scene.D]}=> "./vm_1_D.dat"
+  {COUNT[vm,WORLD]}=> "./vm_world.dat"
+  {COUNT[vm,Scene.A]}=> "./vm_A.dat"
+  {COUNT[vm,Scene.B]}=> "./vm_B.dat"
+  {COUNT[vm,Scene.C]}=> "./vm_C.dat"
+  {COUNT[vm,Scene.D]}=> "./vm_D.dat"
 }
