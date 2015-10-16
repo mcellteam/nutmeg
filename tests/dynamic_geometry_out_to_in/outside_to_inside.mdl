@@ -10,50 +10,50 @@ DYNAMIC_GEOMETRY = "./list_of_geometry.txt"
 
 DEFINE_MOLECULES
 {
-  vm_1 { DIFFUSION_CONSTANT_3D = 1e-08 }
-  vm_2 { DIFFUSION_CONSTANT_3D = 1e-08 }
-  vm_3 { DIFFUSION_CONSTANT_3D = 1e-08 }
-  vm_4 { DIFFUSION_CONSTANT_3D = 1e-08 }
+  vm1 { DIFFUSION_CONSTANT_3D = 1e-08 }
+  vm2 { DIFFUSION_CONSTANT_3D = 1e-08 }
+  vm3 { DIFFUSION_CONSTANT_3D = 1e-08 }
+  vm4 { DIFFUSION_CONSTANT_3D = 1e-08 }
 }
 
 INCLUDE_FILE = "./geom_1.mdl"
 
 DEFINE_SURFACE_CLASSES
 {
-  transp_vm_2_3_4
+  transp_vm234
   {
-    TRANSPARENT = vm_2'
-    TRANSPARENT = vm_3'
-    TRANSPARENT = vm_4'
+    TRANSPARENT = vm2'
+    TRANSPARENT = vm3'
+    TRANSPARENT = vm4'
   }
-  transp_vm_3_4
+  transp_vm34
   {
-    TRANSPARENT = vm_3'
-    TRANSPARENT = vm_4'
+    TRANSPARENT = vm3'
+    TRANSPARENT = vm4'
   }
-  transp_vm_4
+  transp_vm4
   {
-    TRANSPARENT = vm_4'
+    TRANSPARENT = vm4'
   }
 }
 
-// Block vm_1 from entering outermost cube (C)
-// Block vm_2 from entering middle cube (B)
-// Block vm_3 from enter inner cube (A)
-// Let vm_4 pass through everything to center
+// Block vm1 from entering outermost cube (C)
+// Block vm2 from entering middle cube (B)
+// Block vm3 from enter inner cube (A)
+// Let vm4 pass through everything to center
 MODIFY_SURFACE_REGIONS
 {
   C[ALL]
   {
-    SURFACE_CLASS = transp_vm_2_3_4
+    SURFACE_CLASS = transp_vm234
   }
   B[ALL]
   {
-    SURFACE_CLASS = transp_vm_3_4
+    SURFACE_CLASS = transp_vm34
   }
   A[ALL]
   {
-    SURFACE_CLASS = transp_vm_4
+    SURFACE_CLASS = transp_vm4
   }
 }
 
@@ -62,34 +62,34 @@ INSTANTIATE Scene OBJECT
   A OBJECT A{}
   B OBJECT B{}
   C OBJECT C{}
-  rel_vm_1 RELEASE_SITE
+  rel_vm1 RELEASE_SITE
   {
     SHAPE = CUBIC
-    MOLECULE = vm_1
+    MOLECULE = vm1
     NUMBER_TO_RELEASE = 100
     SITE_DIAMETER = 0.0
     LOCATION = [0.31, 0.0, 0.0]
   }
-  rel_vm_2 RELEASE_SITE
+  rel_vm2 RELEASE_SITE
   {
     SHAPE = CUBIC
-    MOLECULE = vm_2
+    MOLECULE = vm2
     NUMBER_TO_RELEASE = 100
     SITE_DIAMETER = 0.0
     LOCATION = [0.31, 0.0, 0.0]
   }
-  rel_vm_3 RELEASE_SITE
+  rel_vm3 RELEASE_SITE
   {
     SHAPE = CUBIC
-    MOLECULE = vm_3
+    MOLECULE = vm3
     NUMBER_TO_RELEASE = 100
     SITE_DIAMETER = 0.0
     LOCATION = [0.31, 0.0, 0.0]
   }
-  rel_vm_4 RELEASE_SITE
+  rel_vm4 RELEASE_SITE
   {
     SHAPE = CUBIC
-    MOLECULE = vm_4
+    MOLECULE = vm4
     NUMBER_TO_RELEASE = 100
     SITE_DIAMETER = 0.0
     LOCATION = [0.31, 0.0, 0.0]
@@ -101,26 +101,26 @@ REACTION_DATA_OUTPUT
 {
   STEP=1e-06
   HEADER=OFF
-  // vm_1
-  {COUNT[vm_1,Scene.A]:"A",
-   COUNT[vm_1,Scene.B]-COUNT[vm_1,Scene.A]:"B",
-   COUNT[vm_1,Scene.C]-COUNT[vm_1,Scene.B]:"C",
-   COUNT[vm_1,WORLD]-COUNT[vm_1,Scene.C]:"WORLD"}=> "./vm_1.dat"
-  // vm_2
-  {COUNT[vm_2,Scene.A]:"A",
-   COUNT[vm_2,Scene.B]-COUNT[vm_2,Scene.A]:"B",
-   COUNT[vm_2,Scene.C]-COUNT[vm_2,Scene.B]:"C",
-   COUNT[vm_2,WORLD]-COUNT[vm_2,Scene.C]:"WORLD"}=> "./vm_2.dat"
-  // vm_3
-  {COUNT[vm_3,Scene.A]:"A",
-   COUNT[vm_3,Scene.B]-COUNT[vm_3,Scene.A]:"B",
-   COUNT[vm_3,Scene.C]-COUNT[vm_3,Scene.B]:"C",
-   COUNT[vm_3,WORLD]-COUNT[vm_3,Scene.C]:"WORLD"}=> "./vm_3.dat"
-  // vm_4
-  {COUNT[vm_4,Scene.A]:"A",
-   COUNT[vm_4,Scene.B]-COUNT[vm_4,Scene.A]:"B",
-   COUNT[vm_4,Scene.C]-COUNT[vm_4,Scene.B]:"C",
-   COUNT[vm_4,WORLD]-COUNT[vm_4,Scene.C]:"WORLD"}=> "./vm_4.dat"
+  // vm1
+  {COUNT[vm1,Scene.A]:"A",
+   COUNT[vm1,Scene.B]-COUNT[vm1,Scene.A]:"B",
+   COUNT[vm1,Scene.C]-COUNT[vm1,Scene.B]:"C",
+   COUNT[vm1,WORLD]-COUNT[vm1,Scene.C]:"WORLD"}=> "./vm1.dat"
+  // vm2
+  {COUNT[vm2,Scene.A]:"A",
+   COUNT[vm2,Scene.B]-COUNT[vm2,Scene.A]:"B",
+   COUNT[vm2,Scene.C]-COUNT[vm2,Scene.B]:"C",
+   COUNT[vm2,WORLD]-COUNT[vm2,Scene.C]:"WORLD"}=> "./vm2.dat"
+  // vm3
+  {COUNT[vm3,Scene.A]:"A",
+   COUNT[vm3,Scene.B]-COUNT[vm3,Scene.A]:"B",
+   COUNT[vm3,Scene.C]-COUNT[vm3,Scene.B]:"C",
+   COUNT[vm3,WORLD]-COUNT[vm3,Scene.C]:"WORLD"}=> "./vm3.dat"
+  // vm4
+  {COUNT[vm4,Scene.A]:"A",
+   COUNT[vm4,Scene.B]-COUNT[vm4,Scene.A]:"B",
+   COUNT[vm4,Scene.C]-COUNT[vm4,Scene.B]:"C",
+   COUNT[vm4,WORLD]-COUNT[vm4,Scene.C]:"WORLD"}=> "./vm4.dat"
 }
 
 /*VIZ_OUTPUT*/

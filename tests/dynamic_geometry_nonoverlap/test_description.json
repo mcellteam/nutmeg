@@ -17,28 +17,28 @@
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_1.dat",
-      "referenceFile": "vm_1_ref.dat"
+      "dataFile": "vm1.dat",
+      "referenceFile": "vm1_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_2.dat",
-      "referenceFile": "vm_2_ref.dat"
+      "dataFile": "vm2.dat",
+      "referenceFile": "vm2_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_3.dat",
-      "referenceFile": "vm_3_ref.dat"
+      "dataFile": "vm3.dat",
+      "referenceFile": "vm3_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_4.dat",
-      "referenceFile": "vm_4_ref.dat"
+      "dataFile": "vm4.dat",
+      "referenceFile": "vm4_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm_5.dat",
-      "referenceFile": "vm_5_ref.dat"
+      "dataFile": "vm5.dat",
+      "referenceFile": "vm5_ref.dat"
     }
   ]
 }
