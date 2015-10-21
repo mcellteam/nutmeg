@@ -1,0 +1,49 @@
+{
+  "description": "Test if release patterns work with dynamic geometries.",
+  "author": "Jacob Czech",
+  "date": "2015-10-20",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["release_pattern.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+      "testType": "CHECK_SUCCESS"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm.Cube.dat",
+      "referenceFile": "vm.Cube_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm.all.dat",
+      "referenceFile": "vm.all_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "vm.WORLD.dat",
+      "referenceFile": "vm.WORLD_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.Cube.dat",
+      "referenceFile": "sm.Cube_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.all.dat",
+      "referenceFile": "sm.all_ref.dat"
+    },
+    {
+      "testType": "COMPARE_COUNTS",
+      "dataFile": "sm.WORLD.dat",
+      "referenceFile": "sm.WORLD_ref.dat"
+    }
+  ]
+}

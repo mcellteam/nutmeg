@@ -1,0 +1,6 @@
+INCLUDE_FILE = "./cube.mdl"
+
+INSTANTIATE Scene OBJECT
+{
+  Cube OBJECT Cube {}
+}
