@@ -1,0 +1,25 @@
+{
+  "description": "Test if concentration clamps work with dynamic geometries.",
+  "author": "Jacob Czech",
+  "date": "2015-10-21",
+  "keywords": [
+    "dynamic geometry"
+  ],
+  "run": {
+      "mdlfiles": ["conc_clamp.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+        "testType": "CHECK_SUCCESS"
+    },
+    {   "testType": "ZERO_COUNTS",
+        "dataFile": "A_outside.dat"
+    },
+    {   "testType": "ZERO_COUNTS",
+        "dataFile": "B_inside.dat"
+    }
+  ]
+}
