@@ -17,28 +17,8 @@
     },
     {
       "testType": "COMPARE_COUNTS",
-      "dataFile": "vm.Cube.dat",
-      "referenceFile": "vm.Cube_ref.dat"
-    },
-    {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "vm.all.dat",
-      "referenceFile": "vm.all_ref.dat"
-    },
-    {
-      "testType": "COMPARE_COUNTS",
       "dataFile": "vm.WORLD.dat",
       "referenceFile": "vm.WORLD_ref.dat"
-    },
-    {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "sm.Cube.dat",
-      "referenceFile": "sm.Cube_ref.dat"
-    },
-    {
-      "testType": "COMPARE_COUNTS",
-      "dataFile": "sm.all.dat",
-      "referenceFile": "sm.all_ref.dat"
     },
     {
       "testType": "COMPARE_COUNTS",

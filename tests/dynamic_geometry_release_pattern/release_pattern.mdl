@@ -48,9 +48,5 @@ REACTION_DATA_OUTPUT
 {
   STEP=1e-06
   {COUNT[sm,WORLD]}=> "./sm.WORLD.dat"
-  {COUNT[sm,Scene.Cube]}=> "./sm.Cube.dat"
-  {COUNT[sm,Scene.Cube[ALL]]}=> "./sm.all.dat"
   {COUNT[vm,WORLD]}=> "./vm.WORLD.dat"
-  {COUNT[vm,Scene.Cube]}=> "./vm.Cube.dat"
-  {COUNT[vm,Scene.Cube[ALL]]}=> "./vm.all.dat"
 }
