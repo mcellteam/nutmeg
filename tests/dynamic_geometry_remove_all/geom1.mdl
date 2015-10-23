@@ -34,3 +34,8 @@ A POLYGON_LIST
     }
   }
 }
+
+INSTANTIATE DGScene OBJECT
+{
+  A OBJECT A{}
+}

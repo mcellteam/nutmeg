@@ -37,7 +37,7 @@ A POLYGON_LIST
 
 // By removing the instantiate block completely, all objects will be removed
 // during this dynamic geometry event.
-/*INSTANTIATE Scene OBJECT*/
+/*INSTANTIATE DGScene OBJECT*/
 /*{*/
 /*  A OBJECT A{TRANSLATE=[0.35,0,0]}*/
 /*}*/
