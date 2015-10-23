@@ -13,16 +13,11 @@ DEFINE_MOLECULES
   vm { DIFFUSION_CONSTANT_3D = 0 }
 }
 
-INCLUDE_FILE = "./geom1.mdl"
-
 INSTANTIATE Scene OBJECT
 {
-  A OBJECT A{}
-  B OBJECT B{}
-  C OBJECT C{}
   rel_vm RELEASE_SITE
   {
-    SHAPE = Scene.A
+    SHAPE = DGScene.A
     MOLECULE = vm
     NUMBER_TO_RELEASE = 1000
     SITE_DIAMETER = 0.0
@@ -35,8 +30,8 @@ REACTION_DATA_OUTPUT
   STEP=1e-06
   HEADER=OFF
   {COUNT[vm,WORLD]}=> "./vm_world.dat"
-  {COUNT[vm,Scene.A]}=> "./vm_A.dat"
-  {COUNT[vm,Scene.B]}=> "./vm_B.dat"
-  {COUNT[vm,Scene.C]}=> "./vm_C.dat"
-  {COUNT[vm,Scene.D]}=> "./vm_D.dat"
+  {COUNT[vm,DGScene.A]}=> "./vm_A.dat"
+  {COUNT[vm,DGScene.B]}=> "./vm_B.dat"
+  {COUNT[vm,DGScene.C]}=> "./vm_C.dat"
+  {COUNT[vm,DGScene.D]}=> "./vm_D.dat"
 }
