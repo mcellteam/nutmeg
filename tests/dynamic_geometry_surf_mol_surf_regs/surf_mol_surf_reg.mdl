@@ -8,26 +8,18 @@ DEFINE_MOLECULES
   sm { DIFFUSION_CONSTANT_2D = 1e-07 }
 }
 
-DYNAMIC_GEOMETRY = "./geom.txt"
-
-INCLUDE_FILE = "./geom1.mdl"
-
 DEFINE_SURFACE_CLASSES
 {
   sc { REFLECTIVE = sm }
 }
 
-MODIFY_SURFACE_REGIONS
-{
-  Cube[sr1] { SURFACE_CLASS = sc }
-}
+DYNAMIC_GEOMETRY = "./geom.txt"
 
 INSTANTIATE Scene OBJECT
 {
-  Cube OBJECT Cube{}
   Release_Site RELEASE_SITE
   {
-    SHAPE = Scene.Cube[sr1]
+    SHAPE = DGScene.Cube[sr1]
     MOLECULE = sm'
     NUMBER_TO_RELEASE = 100
   }
@@ -36,6 +28,6 @@ INSTANTIATE Scene OBJECT
 REACTION_DATA_OUTPUT
 {
   STEP=1e-06
-  {COUNT[sm,Scene.Cube[sr1]]}=> "./sm.sr1.dat"
-  {COUNT[sm,Scene.Cube[sr2]]}=> "./sm.sr2.dat"
+  {COUNT[sm,DGScene.Cube[sr1]]}=> "./sm.sr1.dat"
+  {COUNT[sm,DGScene.Cube[sr2]]}=> "./sm.sr2.dat"
 }
