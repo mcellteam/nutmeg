@@ -10,6 +10,26 @@
 
 */
 
+// Block vm1 from even leaving inner cube (A)
+// Block vm2 from leaving middle cube (B)
+// Block vm3 from leaving outer cube (C)
+// Let vm4 pass through everything
+MODIFY_SURFACE_REGIONS
+{
+  A[ALL]
+  {
+    SURFACE_CLASS = transp_vm234
+  }
+  B[ALL]
+  {
+    SURFACE_CLASS = transp_vm34
+  }
+  C[ALL]
+  {
+    SURFACE_CLASS = transp_vm4
+  }
+}
+
 // Outer cube
 C POLYGON_LIST
 {
@@ -124,4 +144,11 @@ A POLYGON_LIST
       INCLUDE_ELEMENTS = [1]
     }
   }
+}
+
+INSTANTIATE DGScene OBJECT
+{
+  A OBJECT A{}
+  B OBJECT B{}
+  C OBJECT C{}
 }
