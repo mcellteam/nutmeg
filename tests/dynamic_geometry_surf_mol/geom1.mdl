@@ -29,3 +29,8 @@ Cube POLYGON_LIST
     [ 5, 6, 2 ] // 11 - front
   }
 }
+
+INSTANTIATE DGScene OBJECT
+{
+  Cube OBJECT Cube{}
+}
