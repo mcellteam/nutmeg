@@ -41,7 +41,7 @@ Cube POLYGON_LIST
   }
 }
 
-INSTANTIATE Scene OBJECT
+INSTANTIATE DGScene OBJECT
 {
   Cube OBJECT Cube{}
 }

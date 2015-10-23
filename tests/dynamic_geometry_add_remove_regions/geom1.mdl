@@ -40,3 +40,13 @@ Cube POLYGON_LIST
     }
   }
 }
+
+MODIFY_SURFACE_REGIONS
+{
+  Cube[sr1] { SURFACE_CLASS = refl }
+}
+
+INSTANTIATE DGScene OBJECT
+{
+  Cube OBJECT Cube{}
+}
