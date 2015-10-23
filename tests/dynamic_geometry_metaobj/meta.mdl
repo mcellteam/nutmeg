@@ -9,18 +9,27 @@ DEFINE_MOLECULES
 
 DYNAMIC_GEOMETRY = "./list.txt"
 
-INCLUDE_FILE = "./geom1.mdl"
-
 INSTANTIATE Scene OBJECT
 {
-  Meta OBJECT Meta{}
+  rel_vm RELEASE_SITE
+  {
+    SHAPE = DGScene.Meta.Cube
+    MOLECULE = vm
+    NUMBER_TO_RELEASE = 100
+  }
+  rel_sm RELEASE_SITE
+  {
+    SHAPE = DGScene.Meta.Cube
+    MOLECULE = sm'
+    NUMBER_TO_RELEASE = 100
+  }
 }
 
 REACTION_DATA_OUTPUT
 {
   STEP=1e-6
   {COUNT[vm,WORLD]}=> "./vm.WORLD.dat"
-  {COUNT[vm,Scene.Meta.Cube]}=> "./vm.Scene.Meta.Cube.dat"
+  {COUNT[vm,DGScene.Meta.Cube]}=> "./vm.Scene.Meta.Cube.dat"
   {COUNT[sm,WORLD]}=> "./sm.WORLD.dat"
-  {COUNT[sm,Scene.Meta.Cube]}=> "./sm.Scene.Meta.Cube.dat"
+  {COUNT[sm,DGScene.Meta.Cube]}=> "./sm.Scene.Meta.Cube.dat"
 }
