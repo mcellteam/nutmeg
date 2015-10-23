@@ -123,3 +123,10 @@ A POLYGON_LIST
     }
   }
 }
+
+INSTANTIATE DGScene OBJECT
+{
+  A OBJECT A{}
+  B OBJECT B{}
+  C OBJECT C{}
+}

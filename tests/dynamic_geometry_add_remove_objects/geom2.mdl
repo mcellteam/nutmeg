@@ -162,7 +162,7 @@ D POLYGON_LIST
   }
 }
 
-INSTANTIATE Scene OBJECT
+INSTANTIATE DGScene OBJECT
 {
   // D is new to this DG event
   D OBJECT D{}
