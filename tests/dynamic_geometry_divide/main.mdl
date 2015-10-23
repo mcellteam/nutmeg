@@ -12,14 +12,11 @@ DEFINE_MOLECULES
   vm { DIFFUSION_CONSTANT_3D = 1e-05 }
 }
 
-INCLUDE_FILE = "divide.001.mdl"
-
 INSTANTIATE Scene OBJECT
 {
-  Icosphere OBJECT Icosphere{}
   Release_Site RELEASE_SITE
   {
-    SHAPE = Scene.Icosphere
+    SHAPE = DGScene.Icosphere
     MOLECULE = vm
     NUMBER_TO_RELEASE = 100
   }
@@ -31,5 +28,5 @@ REACTION_DATA_OUTPUT
 {
   STEP=1e-05
   {COUNT[vm,WORLD]}=> "./vm_World.dat"
-  {COUNT[vm,Scene.Icosphere]}=> "./vm_Icosphere.dat"
+  {COUNT[vm,DGScene.Icosphere]}=> "./vm_Icosphere.dat"
 }

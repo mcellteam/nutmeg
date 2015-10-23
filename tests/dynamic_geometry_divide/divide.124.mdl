@@ -15372,7 +15372,7 @@ Icosphere POLYGON_LIST
   }
 }
 
-INSTANTIATE Scene OBJECT
+INSTANTIATE DGScene OBJECT
 {
   Icosphere OBJECT Icosphere{}
 }
