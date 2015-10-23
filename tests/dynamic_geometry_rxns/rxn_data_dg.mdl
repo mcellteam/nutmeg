@@ -1,0 +1,45 @@
+REACTION_DATA_OUTPUT
+{
+  STEP=1e-05
+
+  {COUNT[vm1, WORLD]}=> "./dat/" & main_id & "/vm1.WORLD.dat"
+  {COUNT[vm2, WORLD]}=> "./dat/" & main_id & "/vm2.WORLD.dat"
+  {COUNT[vm3, WORLD]}=> "./dat/" & main_id & "/vm3.WORLD.dat"
+  {COUNT[sm1, WORLD]}=> "./dat/" & main_id & "/sm1.WORLD.dat"
+  {COUNT[sm2, WORLD]}=> "./dat/" & main_id & "/sm2.WORLD.dat"
+
+  {COUNT[vm1, DGScene.SmallCube]*0.5}=> "./dat/" & main_id & "/vm1x0.5.SmallCube.dat"
+
+  {COUNT[vm1, DGScene.SmallCube]}=> "./dat/" & main_id & "/vm1.SmallCube.dat"
+  {COUNT[vm2, DGScene.SmallCube]}=> "./dat/" & main_id & "/vm2.SmallCube.dat"
+  {COUNT[vm3, DGScene.SmallCube]}=> "./dat/" & main_id & "/vm3.SmallCube.dat"
+  {COUNT[sm1, DGScene.SmallCube]}=> "./dat/" & main_id & "/sm1.SmallCube.dat"
+  {COUNT[sm2, DGScene.SmallCube]}=> "./dat/" & main_id & "/sm2.SmallCube.dat"
+
+  {COUNT[sm1, DGScene.SmallCube[sr]]}=> "./dat/" & main_id & "/sm1.SmallCube_sr.dat"
+  {COUNT[sm2, DGScene.SmallCube[sr]]}=> "./dat/" & main_id & "/sm2.SmallCube_sr.dat"
+
+  {COUNT[vm1, DGScene.Cube[sr], ALL_HITS]}=> "./dat/" & main_id & "/vm1.sr_all_hits.dat"
+  {COUNT[vm1, DGScene.Cube[ALL], ALL_HITS]}=> "./dat/" & main_id & "/vm1.allreg_all_hits.dat"
+
+  {COUNT[vm1, DGScene.Cube[sr], FRONT_HITS]}=> "./dat/" & main_id & "/vm1.sr_front_hits.dat"
+  {COUNT[vm1, DGScene.Cube[ALL], FRONT_HITS]}=> "./dat/" & main_id & "/vm1.allreg_front_hits.dat"
+
+  {COUNT[vm1, DGScene.Cube[sr], BACK_HITS]}=> "./dat/" & main_id & "/vm1.sr_back_hits.dat"
+  {COUNT[vm1, DGScene.Cube[ALL], BACK_HITS]}=> "./dat/" & main_id & "/vm1.allreg_back_hits.dat"
+
+  {COUNT[sm1, DGScene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/sm1.all_enclosed.dat"
+  {COUNT[sm2, DGScene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/sm2.all_enclosed.dat"
+  {COUNT[vm1, DGScene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm1.all_enclosed.dat"
+  {COUNT[vm2, DGScene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm2.all_enclosed.dat"
+  {COUNT[vm3, DGScene.Cube[ALL], ALL_ENCLOSED]}=> "./dat/" & main_id & "/vm3.all_enclosed.dat"
+
+  {TRIGGER[inert, DGScene.SmallCube[ALL]]}=> "./dat/" & main_id & "/inert.trigger.dat"
+  {TRIGGER[inert, DGScene.SmallCube[ALL], FRONT_CROSSINGS]}=> "./dat/" & main_id & "/inert.front_crossings.dat"
+  {TRIGGER[inert, DGScene.SmallCube[ALL], BACK_CROSSINGS]}=> "./dat/" & main_id & "/inert.back_crossings.dat"
+  {TRIGGER[inert, DGScene.SmallCube[ALL], ALL_CROSSINGS]}=> "./dat/" & main_id & "/inert.all_crossings.dat"
+
+  {COUNT[rxn1, WORLD]}=> "./dat/" & main_id & "/rxn1.WORLD.dat"
+  {COUNT[rxn2, WORLD]}=> "./dat/" & main_id & "/rxn2.WORLD.dat"
+  {COUNT[rxn3, WORLD]}=> "./dat/" & main_id & "/rxn3.WORLD.dat"
+}
