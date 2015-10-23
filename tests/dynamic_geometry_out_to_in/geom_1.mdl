@@ -125,3 +125,30 @@ A POLYGON_LIST
     }
   }
 }
+
+// Block vm1 from entering outermost cube (C)
+// Block vm2 from entering middle cube (B)
+// Block vm3 from enter inner cube (A)
+// Let vm4 pass through everything to center
+MODIFY_SURFACE_REGIONS
+{
+  C[ALL]
+  {
+    SURFACE_CLASS = transp_vm234
+  }
+  B[ALL]
+  {
+    SURFACE_CLASS = transp_vm34
+  }
+  A[ALL]
+  {
+    SURFACE_CLASS = transp_vm4
+  }
+}
+
+INSTANTIATE DGScene OBJECT
+{
+  A OBJECT A{}
+  B OBJECT B{}
+  C OBJECT C{}
+}

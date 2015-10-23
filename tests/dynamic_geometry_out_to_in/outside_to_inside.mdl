@@ -3,10 +3,8 @@ TIME_STEP = 1e-6
 
 WARNINGS
 {
-    LARGE_MOLECULAR_DISPLACEMENT = IGNORED
+  LARGE_MOLECULAR_DISPLACEMENT = IGNORED
 }
-
-DYNAMIC_GEOMETRY = "./list_of_geometry.txt"
 
 DEFINE_MOLECULES
 {
@@ -15,8 +13,6 @@ DEFINE_MOLECULES
   vm3 { DIFFUSION_CONSTANT_3D = 1e-08 }
   vm4 { DIFFUSION_CONSTANT_3D = 1e-08 }
 }
-
-INCLUDE_FILE = "./geom_1.mdl"
 
 DEFINE_SURFACE_CLASSES
 {
@@ -37,31 +33,10 @@ DEFINE_SURFACE_CLASSES
   }
 }
 
-// Block vm1 from entering outermost cube (C)
-// Block vm2 from entering middle cube (B)
-// Block vm3 from enter inner cube (A)
-// Let vm4 pass through everything to center
-MODIFY_SURFACE_REGIONS
-{
-  C[ALL]
-  {
-    SURFACE_CLASS = transp_vm234
-  }
-  B[ALL]
-  {
-    SURFACE_CLASS = transp_vm34
-  }
-  A[ALL]
-  {
-    SURFACE_CLASS = transp_vm4
-  }
-}
+DYNAMIC_GEOMETRY = "./list_of_geometry.txt"
 
 INSTANTIATE Scene OBJECT
 {
-  A OBJECT A{}
-  B OBJECT B{}
-  C OBJECT C{}
   rel_vm1 RELEASE_SITE
   {
     SHAPE = CUBIC
@@ -94,7 +69,6 @@ INSTANTIATE Scene OBJECT
     SITE_DIAMETER = 0.0
     LOCATION = [0.31, 0.0, 0.0]
   }
-  
 }
 
 REACTION_DATA_OUTPUT
@@ -102,34 +76,23 @@ REACTION_DATA_OUTPUT
   STEP=1e-06
   HEADER=OFF
   // vm1
-  {COUNT[vm1,Scene.A]:"A",
-   COUNT[vm1,Scene.B]-COUNT[vm1,Scene.A]:"B",
-   COUNT[vm1,Scene.C]-COUNT[vm1,Scene.B]:"C",
-   COUNT[vm1,WORLD]-COUNT[vm1,Scene.C]:"WORLD"}=> "./vm1.dat"
+  {COUNT[vm1,DGScene.A]:"A",
+   COUNT[vm1,DGScene.B]-COUNT[vm1,DGScene.A]:"B",
+   COUNT[vm1,DGScene.C]-COUNT[vm1,DGScene.B]:"C",
+   COUNT[vm1,WORLD]-COUNT[vm1,DGScene.C]:"WORLD"}=> "./vm1.dat"
   // vm2
-  {COUNT[vm2,Scene.A]:"A",
-   COUNT[vm2,Scene.B]-COUNT[vm2,Scene.A]:"B",
-   COUNT[vm2,Scene.C]-COUNT[vm2,Scene.B]:"C",
-   COUNT[vm2,WORLD]-COUNT[vm2,Scene.C]:"WORLD"}=> "./vm2.dat"
+  {COUNT[vm2,DGScene.A]:"A",
+   COUNT[vm2,DGScene.B]-COUNT[vm2,DGScene.A]:"B",
+   COUNT[vm2,DGScene.C]-COUNT[vm2,DGScene.B]:"C",
+   COUNT[vm2,WORLD]-COUNT[vm2,DGScene.C]:"WORLD"}=> "./vm2.dat"
   // vm3
-  {COUNT[vm3,Scene.A]:"A",
-   COUNT[vm3,Scene.B]-COUNT[vm3,Scene.A]:"B",
-   COUNT[vm3,Scene.C]-COUNT[vm3,Scene.B]:"C",
-   COUNT[vm3,WORLD]-COUNT[vm3,Scene.C]:"WORLD"}=> "./vm3.dat"
+  {COUNT[vm3,DGScene.A]:"A",
+   COUNT[vm3,DGScene.B]-COUNT[vm3,DGScene.A]:"B",
+   COUNT[vm3,DGScene.C]-COUNT[vm3,DGScene.B]:"C",
+   COUNT[vm3,WORLD]-COUNT[vm3,DGScene.C]:"WORLD"}=> "./vm3.dat"
   // vm4
-  {COUNT[vm4,Scene.A]:"A",
-   COUNT[vm4,Scene.B]-COUNT[vm4,Scene.A]:"B",
-   COUNT[vm4,Scene.C]-COUNT[vm4,Scene.B]:"C",
-   COUNT[vm4,WORLD]-COUNT[vm4,Scene.C]:"WORLD"}=> "./vm4.dat"
+  {COUNT[vm4,DGScene.A]:"A",
+   COUNT[vm4,DGScene.B]-COUNT[vm4,DGScene.A]:"B",
+   COUNT[vm4,DGScene.C]-COUNT[vm4,DGScene.B]:"C",
+   COUNT[vm4,WORLD]-COUNT[vm4,DGScene.C]:"WORLD"}=> "./vm4.dat"
 }
-
-/*VIZ_OUTPUT*/
-/*{*/
-/*  MODE = CELLBLENDER*/
-/*  FILENAME = "./viz_data/Scene"*/
-/*  MOLECULES*/
-/*  {*/
-/*    NAME_LIST {ALL_MOLECULES}*/
-/*    ITERATION_NUMBERS {ALL_DATA @ ALL_ITERATIONS}*/
-/*  }*/
-/*}*/
