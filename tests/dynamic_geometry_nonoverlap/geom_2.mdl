@@ -118,7 +118,7 @@ Router POLYGON_LIST
   }
 }
 
-INSTANTIATE Scene OBJECT
+INSTANTIATE DGScene OBJECT
 {
   Linner OBJECT Linner{TRANSLATE = [-0.21, 0, 0]}
   Louter OBJECT Louter{TRANSLATE = [-0.21, 0, 0]}

@@ -117,3 +117,31 @@ Router POLYGON_LIST
     [ 5, 6, 2 ]
   }
 }
+
+MODIFY_SURFACE_REGIONS
+{
+  Linner[ALL]
+  {
+    SURFACE_CLASS = transp_out_vm2345
+  }
+  Louter[ALL]
+  {
+    SURFACE_CLASS = transp_out_vm345
+  }
+  Router[ALL]
+  {
+    SURFACE_CLASS = transp_in_45
+  }
+  Rinner[ALL]
+  {
+    SURFACE_CLASS = transp_in_5
+  }
+}
+
+INSTANTIATE DGScene OBJECT
+{
+  Linner OBJECT Linner{}
+  Louter OBJECT Louter{}
+  Rinner OBJECT Rinner{TRANSLATE = [0.21, 0, 0]}
+  Router OBJECT Router{TRANSLATE = [0.21, 0, 0]}
+}
