@@ -1,0 +1,33 @@
+{
+    "description": "Tests that traditional periodic boundary code works for counting volume molecules in regions.",
+    "author": "Jacob Czech <jczech@psc.edu>",
+    "date": "2015-11-25",
+    "keywords": [
+        "reactions"
+    ],
+    "run": {
+        "mdlfiles": [
+            "periodic_traditional.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "vm.sampling_box.dat",
+            "minTime": 0.00005,
+            "maxTime": 0.00005,
+            "countMinimum": [
+                400
+            ],
+            "countMaximum": [
+                600
+            ]
+        }
+    ]
+}
