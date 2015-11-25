@@ -1,0 +1,45 @@
+{
+    "description": "Tests that periodic boundary conditions work for counting in regions.",
+    "author": "Jacob Czech <jczech@psc.edu>",
+    "date": "2015-11-25",
+    "keywords": [
+        "reactions"
+    ],
+    "run": {
+        "mdlfiles": [
+            "periodic.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "vm.000.dat",
+            "minTime": 0.00001,
+            "maxTime": 0.00001,
+            "countMinimum": [
+                400
+            ],
+            "countMaximum": [
+                600
+            ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "vm.100.dat",
+            "minTime": 0.00001,
+            "maxTime": 0.00001,
+            "countMinimum": [
+                400
+            ],
+            "countMaximum": [
+                600
+            ]
+        }
+    ]
+}

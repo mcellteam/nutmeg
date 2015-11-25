@@ -1,0 +1,63 @@
+dt = 1e-8
+
+ITERATIONS = 1000
+TIME_STEP = dt
+
+PARTITION_X = [[-0.21 TO 0.21 STEP 0.02]]
+PARTITION_Y = [[-0.21 TO 0.21 STEP 0.02]]
+PARTITION_Z = [[-0.21 TO 0.21 STEP 0.02]]
+
+DEFINE_MOLECULES
+{
+  vm { DIFFUSION_CONSTANT_3D = 1e-06 }
+}
+
+PERIODIC_BOX
+{
+  CORNERS = [-0.2, -0.2, -0.2],[0.2, 0.2, 0.2]
+  PERIODIC_TRADITIONAL = FALSE
+  PERIODIC_X = TRUE
+  PERIODIC_Y = TRUE
+  PERIODIC_Z = TRUE
+}
+
+boxy BOX
+{
+  CORNERS = [-0.199999, -0.199999, -0.199999],[0.199999, 0.199999, 0.199999]
+}
+
+DEFINE_SURFACE_CLASSES
+{
+  transp
+  {
+    TRANSPARENT = ALL_MOLECULES;
+  }
+}
+
+MODIFY_SURFACE_REGIONS
+{
+  boxy[ALL]
+  {
+    SURFACE_CLASS = transp
+  }
+}
+
+INSTANTIATE Scene OBJECT
+{
+  boxy OBJECT boxy {}
+  rel_vm RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = vm
+    NUMBER_TO_RELEASE = 1000
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.19999, 0.0, 0.0]
+  }
+}
+
+REACTION_DATA_OUTPUT
+{
+  STEP=dt
+  {COUNT[vm,Scene.boxy,[0,0,0]]}=> "./vm.000.dat"
+  {COUNT[vm,Scene.boxy,[1,0,0]]}=> "./vm.100.dat"
+}
