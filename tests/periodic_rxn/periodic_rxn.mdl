@@ -1,0 +1,92 @@
+dt = 1e-8
+
+ITERATIONS = 1000
+TIME_STEP = dt
+
+PARTITION_X = [[-0.21 TO 0.21 STEP 0.02]]
+PARTITION_Y = [[-0.21 TO 0.21 STEP 0.02]]
+PARTITION_Z = [[-0.21 TO 0.21 STEP 0.02]]
+
+DEFINE_MOLECULES
+{
+  A { DIFFUSION_CONSTANT_3D = 1e-06 }
+  B { DIFFUSION_CONSTANT_3D = 1e-06 }
+  C { DIFFUSION_CONSTANT_3D = 1e-06 }
+}
+
+PERIODIC_BOX
+{
+  CORNERS = [-0.2, -0.2, -0.2],[0.2, 0.2, 0.2]
+  PERIODIC_TRADITIONAL = FALSE
+  PERIODIC_X = TRUE
+  PERIODIC_Y = TRUE
+  PERIODIC_Z = TRUE
+}
+
+boxy BOX
+{
+  CORNERS = [-0.199999, -0.199999, -0.199999],[0.199999, 0.199999, 0.199999]
+}
+
+DEFINE_SURFACE_CLASSES
+{
+  transp
+  {
+    TRANSPARENT = ALL_MOLECULES;
+  }
+}
+
+MODIFY_SURFACE_REGIONS
+{
+  boxy[ALL]
+  {
+    SURFACE_CLASS = transp
+  }
+}
+
+DEFINE_REACTIONS
+{
+  A + B -> C [1e8] : rxn
+}
+
+INSTANTIATE Scene OBJECT
+{
+  boxy OBJECT boxy {}
+  relB RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = B
+    NUMBER_TO_RELEASE = 1000
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.19999, 0.0, 0.0]
+  }
+  relA RELEASE_SITE
+  {
+    SHAPE = CUBIC
+    MOLECULE = A
+    NUMBER_TO_RELEASE = 1000
+    SITE_DIAMETER = 0.0
+    LOCATION = [0.19999, 0.0, 0.0]
+  }
+}
+
+sprintf(seed,"%05g",SEED)
+
+REACTION_DATA_OUTPUT
+{
+  STEP=dt
+  /*{COUNT[rxn,WORLD]}=> "./rxn.WORLD.dat"*/
+  {COUNT[rxn,Scene.boxy,[0,0,0]]}=> "./rxn.000.dat"
+  {COUNT[rxn,Scene.boxy,[1,0,0]]}=> "./rxn.100.dat"
+}
+
+/*VIZ_OUTPUT*/
+/*{*/
+/*  MODE = CELLBLENDER*/
+/*  FILENAME = "./viz_data/mirror/Scene"*/
+/*  MOLECULES*/
+/*  {*/
+/*    NAME_LIST {ALL_MOLECULES}*/
+/*    ITERATION_NUMBERS {ALL_DATA @ ALL_ITERATIONS}*/
+/*  }*/
+/*}*/
