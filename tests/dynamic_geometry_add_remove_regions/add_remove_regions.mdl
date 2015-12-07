@@ -25,7 +25,7 @@ INSTANTIATE Scene OBJECT
 
 REACTION_DATA_OUTPUT
 {
-  STEP=1e-06
+  ITERATION_LIST = [[0 TO 15 STEP 1]]
   {COUNT[sm,DGScene.Cube[sr1]]}=> "./sm.sr1.dat"
   {COUNT[sm,DGScene.Cube[sr2]]}=> "./sm.sr2.dat"
   {COUNT[sm,DGScene.Cube[sr3]]}=> "./sm.sr3.dat"

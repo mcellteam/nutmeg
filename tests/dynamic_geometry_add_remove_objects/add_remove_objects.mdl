@@ -27,8 +27,7 @@ INSTANTIATE Scene OBJECT
 
 REACTION_DATA_OUTPUT
 {
-  STEP=1e-06
-  HEADER=OFF
+  ITERATION_LIST = [[0 TO 15 STEP 1]]
   {COUNT[vm,WORLD]}=> "./vm_world.dat"
   {COUNT[vm,DGScene.A]}=> "./vm_A.dat"
   {COUNT[vm,DGScene.B]}=> "./vm_B.dat"
