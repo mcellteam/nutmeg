@@ -14,8 +14,6 @@ DEFINE_MOLECULES
 
 DYNAMIC_GEOMETRY = "./geom.txt"
 
-INCLUDE_FILE = "./geom1.mdl"
-
 INSTANTIATE Scene OBJECT
 {
   Release_Site RELEASE_SITE
