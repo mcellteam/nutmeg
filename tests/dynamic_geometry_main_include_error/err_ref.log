@@ -1,2 +1,0 @@
-Fatal error: On line: 14 of file ./a.mdl
-When using dynamic geometries, polygon objects should only be defined/instantiated through the dynamic geometry file.
