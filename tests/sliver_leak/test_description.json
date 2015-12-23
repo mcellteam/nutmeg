@@ -28,10 +28,10 @@
             "minTime": 0.00049,
             "maxTime": 0.0005,
             "countMinimum": [
-                40
+                30
             ],
             "countMaximum": [
-                60
+                65
             ]
         }
 
