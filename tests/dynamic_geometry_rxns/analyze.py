@@ -6,7 +6,16 @@
 import os
 import numpy as np
 
+num_seeds = 100
+mcell_name = "mcell"
+mdl_name = "main_no_dg.mdl"
+print("Begin running MCell simulations")
+for i in range(1, num_seeds+1):
+    print('\tSeed: %i' % i)
+    os.popen("%s -quiet -seed %i %s" % (mcell_name, i, mdl_name))
+print("Done running MCell simulations")
 
+print("Begin running analysis")
 mol_counts = None
 mol_means = None
 mol_stds = None
@@ -44,9 +53,11 @@ for obs_num in range(1, observables_num):
     
     mol_counts = None
 
+print("\tWrite means.dat")
 with open('means.dat', 'w') as f:
    np.savetxt(f, mol_means)
 
+print("\tWrite stds.dat")
 with open('stds.dat', 'w') as f:
    np.savetxt(f, mol_stds)
 
@@ -66,6 +77,7 @@ minmax_str = """
        },"""
 
 dt = 1e-5
+print("\tWrite test_description_partial.json")
 with open("test_description_partial.json", "w") as test_descript_file, \
         open('means.dat', 'r') as means_file, \
         open('stds.dat', 'r') as stds_file:
@@ -81,3 +93,5 @@ with open("test_description_partial.json", "w") as test_descript_file, \
             cmins += ",\n               ".join(str(int(float(m)-float(s)*3)) for m, s in zip(means, stds))
             cmaxes += ",\n               ".join(str(int(float(m)+float(s)*3)) for m, s in zip(means, stds))
             test_descript_file.write(minmax_str % (idx*dt, idx*dt, cmins, cmaxes))
+
+print("Done running analysis")
