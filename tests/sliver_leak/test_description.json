@@ -1,0 +1,39 @@
+{
+    "description": "Make sure that volume molecule products created in sharp corners don't leak out of the mesh.",
+    "author": "Jacob Czech <jczech@psc.edu>",
+    "date": "2015-12-23",
+    "keywords": [
+        "leak"
+    ],
+    "run": {
+        "mdlfiles": [
+            "sliver_leak.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "checks": [
+        {
+            "testType": "CHECK_SUCCESS"
+        },
+        {
+            "testType": "ZERO_COUNTS",
+            "dataFile": "vm.diff.dat"
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "vm.sliver.dat",
+            "haveHeader": false,
+            "minTime": 0.00049,
+            "maxTime": 0.0005,
+            "countMinimum": [
+                30
+            ],
+            "countMaximum": [
+                65
+            ]
+        }
+
+    ]
+}

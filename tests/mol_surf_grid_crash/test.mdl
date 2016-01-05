@@ -45,26 +45,11 @@ INSTANTIATE world OBJECT
                 ELEMENT_LIST = [ALL_ELEMENTS]
                 SURFACE_CLASS = clamp
             }
-        }
-    }
-
-    sample POLYGON_LIST {
-        VERTEX_LIST {
-            [-0.01, -0.01, -0.01 ]
-            [-0.01,  0.01, -0.01 ]
-            [-0.01, -0.01,  0.01 ]
-            [-0.01,  0.01,  0.01 ]
-        }
-        ELEMENT_CONNECTIONS {
-            [0,3,1]
-            [0,2,3]
-        }
-        DEFINE_SURFACE_REGIONS {
             reg {
-                ELEMENT_LIST = [ALL_ELEMENTS]
-                SURFACE_CLASS = trans
+                ELEMENT_LIST = [LEFT]
             }
         }
+
     }
 }
 
@@ -75,6 +60,6 @@ INSTANTIATE world OBJECT
  */
 REACTION_DATA_OUTPUT {
     STEP = 1e-5
-    {COUNT [Ca,world.sample[reg],ESTIMATE_CONCENTRATION]} => "./conc_Ca.dat"
-    {COUNT [B,world.sample[reg],ESTIMATE_CONC]} => "./conc_B.dat"
+    {COUNT [Ca,world.container[reg],ESTIMATE_CONCENTRATION]} => "./conc_Ca.dat"
+    {COUNT [B,world.container[reg],ESTIMATE_CONC]} => "./conc_B.dat"
 }
