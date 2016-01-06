@@ -33,21 +33,21 @@ INSTANTIATE Scene OBJECT
   }
 }
 
-VIZ_OUTPUT
-{
-  MODE = CELLBLENDER
-  FILENAME = "./viz_data/Scene"
-  MOLECULES
-  {
-    NAME_LIST {ALL_MOLECULES}
-    ITERATION_NUMBERS {ALL_DATA @ ALL_ITERATIONS}
-  }
-}
+/*VIZ_OUTPUT*/
+/*{*/
+/*  MODE = CELLBLENDER*/
+/*  FILENAME = "./viz_data/Scene"*/
+/*  MOLECULES*/
+/*  {*/
+/*    NAME_LIST {ALL_MOLECULES}*/
+/*    ITERATION_NUMBERS {ALL_DATA @ ALL_ITERATIONS}*/
+/*  }*/
+/*}*/
 
 REACTION_DATA_OUTPUT
 {
   STEP=1e-6
-  {COUNT[vm,WORLD]}=> "./vm.world.dat"
+  /*{COUNT[vm,WORLD]}=> "./vm.world.dat"*/
   {COUNT[vm,DGScene.sliver]}=> "./vm.sliver.dat"
   {COUNT[vm,WORLD]-COUNT[vm,DGScene.sliver]}=> "./vm.diff.dat"
 }
