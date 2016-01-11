@@ -7,7 +7,7 @@
     ],
     "run": {
         "mdlfiles": [
-            "invalid-085.mdl"
+            "error.mdl"
         ],
         "commandlineOpts": [
             "-quiet"
