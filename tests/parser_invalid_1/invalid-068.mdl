@@ -14,6 +14,7 @@ DEFINE_MOLECULE m { DIFFUSION_CONSTANT_3D = 1e-6 }
 INSTANTIATE world OBJECT { box1 BOX { CORNERS = [0, 0, 0], [1, 1, 1] } }
 REACTION_DATA_OUTPUT
 {
+    STEP = 1e-6
     {
       COUNT[m, world.box1] * TRIGGER[m, world.box1]
     } => countdir & "counting-1.txt"
