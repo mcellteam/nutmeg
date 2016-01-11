@@ -13,6 +13,7 @@ countdir = "dat/invalid-069/"
 DEFINE_MOLECULE m { DIFFUSION_CONSTANT_3D = 1e-6 }
 REACTION_DATA_OUTPUT
 {
+    STEP = 1e-6
     {
       COUNT["*", WORLD] : "maybe lots of molecules"
     } => countdir & "counting-1.txt"
