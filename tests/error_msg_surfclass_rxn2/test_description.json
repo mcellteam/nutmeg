@@ -1,0 +1,22 @@
+{
+  "description": "Verify that an error is generated when trying to put a surface class inside a catalytic arror (e.g. --sc-->)",
+  "author": "Jacob Czech",
+  "date": "2016-01-11",
+  "keywords": [
+    "error messages"
+  ],
+  "run": {
+      "mdlfiles": ["error.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+       "testType": "FILE_MATCH_PATTERN",
+       "dataFile": "err_%d.0.log",
+       "matchPattern": "Fatal error: A surface class may not appear inside a catalytic arrow",
+       "numMatches": 1
+    }
+  ]
+}
