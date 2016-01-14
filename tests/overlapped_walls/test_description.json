@@ -20,7 +20,7 @@
         {                                                                
             "testType": "FILE_MATCH_PATTERN",                            
             "dataFile": "err_%d.0.log",                                  
-            "matchPattern": "Fatal error: Walls are overlapped: wall \\d+ from 'Scene.SpineHead' and wall \\d+ from 'Scene.SpineHead'",
+            "matchPattern": "Error: walls are overlapped: wall \\d+ from 'Scene.SpineHead' and wall \\d+ from 'Scene.SpineHead'",
             "numMatches": 1                                              
         }   
     ]

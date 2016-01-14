@@ -15,7 +15,7 @@
     {
        "testType": "FILE_MATCH_PATTERN",
        "dataFile": "err_%d.0.log",
-       "matchPattern": "Warning: Negative diffusion constant found, setting to zero and continuing.",
+       "matchPattern": "Warning: negative diffusion constant found, setting to zero and continuing.",
        "numMatches": 1
     }
   ]

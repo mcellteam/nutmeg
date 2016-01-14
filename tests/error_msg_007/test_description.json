@@ -32,7 +32,7 @@
         {
            "testType": "FILE_MATCH_PATTERN",
            "dataFile": "err_%d.0.log",
-           "matchPattern": "Error: Molecule orientation must not be less than -32768",
+           "matchPattern": "Error: molecule orientation must not be less than -32768",
            "numMatches": 1
         }
 

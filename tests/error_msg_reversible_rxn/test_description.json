@@ -15,7 +15,7 @@
     {
        "testType": "FILE_MATCH_PATTERN",
        "dataFile": "err_%d.0.log",
-       "matchPattern": "Fatal error: Reversible reaction indicated but no reverse rate supplied.",
+       "matchPattern": "Error: reversible reaction indicated but no reverse rate supplied.",
        "numMatches": 1
     }
   ]
