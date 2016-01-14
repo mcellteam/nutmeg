@@ -15,7 +15,7 @@
     {
        "testType": "FILE_MATCH_PATTERN",
        "dataFile": "err_%d.0.log",
-       "matchPattern": "Warning: negative reaction rate -1000.000000; setting to zero and continuing.",
+       "matchPattern": "Warning: negative reaction rate constant -1000.000000; setting to zero and continuing.",
        "numMatches": 1
     }
   ]
