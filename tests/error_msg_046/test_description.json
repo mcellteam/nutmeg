@@ -32,7 +32,7 @@
         {
            "testType": "FILE_MATCH_PATTERN",
            "dataFile": "err_%d.0.log",
-           "matchPattern": "Error: When two reaction rates are specified, one must be a forward rate, and one must be a reverse rate",
+           "matchPattern": "Error: when two reaction rates are specified, one must be a forward rate, and one must be a reverse rate",
            "numMatches": 1
         }
 
