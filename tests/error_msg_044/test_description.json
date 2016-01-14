@@ -32,7 +32,7 @@
         {
            "testType": "FILE_MATCH_PATTERN",
            "dataFile": "err_%d.0.log",
-           "matchPattern": "Invalid reaction rate specification: must specify a forward rate.",
+           "matchPattern": "Error: invalid reaction rate specification: must specify a forward rate.",
            "numMatches": 1
         }
 

@@ -32,7 +32,7 @@
         {
            "testType": "FILE_MATCH_PATTERN",
            "dataFile": "err_%d.0.log",
-           "matchPattern": "Molecules are already specified in a list--cannot set number or density.",
+           "matchPattern": "Error: molecules are already specified in a list--cannot set number or density.",
            "numMatches": 1
         }
 
