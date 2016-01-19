@@ -1,0 +1,40 @@
+{
+    "description": "Print error message if Z-axis is not partitioned.",
+    "author": "Jed Wing <jed@salk.edu>, updated by Jacob Czech <jczech@psc.edu>",
+    "date": "2016-01-19",
+    "keywords": [
+        "error messages"
+    ],
+    "run": {
+        "mdlfiles": [
+            "error.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "includes" : [
+                  "exit_code_1"
+    ],
+    "checks": [
+        {
+            "testType": "CHECK_NONEMPTY_FILES",
+            "fileNames": [
+                "err_%d.0.log"
+            ]
+        },
+        {
+            "testType": "CHECK_EMPTY_FILES",
+            "fileNames": [
+                "run_%d.0.log"
+            ]
+        },
+        {
+           "testType": "FILE_MATCH_PATTERN",
+           "dataFile": "err_%d.0.log",
+           "matchPattern": "Error: Some axes are partitioned, but the Z-axis is not.",
+           "numMatches": 1
+        }
+
+    ]
+}
