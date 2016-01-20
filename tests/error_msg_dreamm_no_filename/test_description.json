@@ -1,0 +1,40 @@
+{
+    "description": "Print error message if FILENAME is not used with DREAMM output mode",
+    "author": "Jed Wing <jed@salk.edu>, updated by Jacob Czech <jczech@psc.edu>",
+    "date": "2008-04-04, updated on 2016-01-11",
+    "keywords": [
+        "parser"
+    ],
+    "run": {
+        "mdlfiles": [
+            "invalid-070.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "includes" : [
+                  "exit_code_1"
+    ],
+    "checks": [
+        {
+            "testType": "CHECK_NONEMPTY_FILES",
+            "fileNames": [
+                "err_%d.0.log"
+            ]
+        },
+        {
+            "testType": "CHECK_EMPTY_FILES",
+            "fileNames": [
+                "run_%d.0.log"
+            ]
+        },
+        {
+           "testType": "FILE_MATCH_PATTERN",
+           "dataFile": "err_%d.0.log",
+           "matchPattern": "DREAMM output mode requested, but the required keyword FILENAME has not been supplied.",
+           "numMatches": 1
+        }
+
+    ]
+}

@@ -1,0 +1,40 @@
+{
+    "description": "Print error message",
+    "author": "Jed Wing <jed@salk.edu>, updated by Jacob Czech <jczech@psc.edu>",
+    "date": "2008-04-04, updated on 2016-01-12",
+    "keywords": [
+        "parser"
+    ],
+    "run": {
+        "mdlfiles": [
+            "invalid-029.mdl"
+        ],
+        "commandlineOpts": [
+            "-quiet"
+        ]
+    },
+    "includes" : [
+                  "exit_code_1"
+    ],
+    "checks": [
+        {
+            "testType": "CHECK_NONEMPTY_FILES",
+            "fileNames": [
+                "err_%d.0.log"
+            ]
+        },
+        {
+            "testType": "CHECK_EMPTY_FILES",
+            "fileNames": [
+                "run_%d.0.log"
+            ]
+        },
+        {
+           "testType": "FILE_MATCH_PATTERN",
+           "dataFile": "err_%d.0.log",
+           "matchPattern": "Realtime checkpoint requested at 300 seconds, but a checkpoint is already scheduled for 30 seconds.",
+           "numMatches": 1
+        }
+
+    ]
+}

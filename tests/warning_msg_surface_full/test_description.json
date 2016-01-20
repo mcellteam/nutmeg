@@ -1,0 +1,22 @@
+{
+  "description": "Verify that a warning is generated when the surface is full.",
+  "author": "Jacob Czech",
+  "date": "2016-01-13",
+  "keywords": [
+    "warning messages"
+  ],
+  "run": {
+      "mdlfiles": ["warning.mdl"],
+      "commandlineOpts": [
+        "-quiet"
+      ]
+  },
+  "checks": [
+    {
+       "testType": "FILE_MATCH_PATTERN",
+       "dataFile": "err_%d.0.log",
+       "matchPattern": "Warning: Could not release 88 of sm \\(surface full\\).",
+       "numMatches": 1
+    }
+  ]
+}
