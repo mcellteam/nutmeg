@@ -211,7 +211,7 @@ VIZ_OUTPUT
     FILENAME = thisvizdir & "world2"
     MOLECULES
     {
-        NAME_LIST { "s_*" c_s_0 }
+        NAME_LIST { "s_*" }
         TIME_POINTS
         {
             ALL_DATA     @ [[0 TO 1e-4 STEP 1e-5]]
@@ -455,7 +455,7 @@ VIZ_OUTPUT
     FILENAME = thisvizdir & "world2"
     MOLECULES
     {
-        NAME_LIST { "s_*" c_s_0 }
+        NAME_LIST { "s_*" }
         TIME_POINTS
         {
             ALL_DATA     @ [[0 TO 1e-4 STEP 1e-5]]

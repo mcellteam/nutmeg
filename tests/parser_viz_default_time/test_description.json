@@ -186,7 +186,10 @@
                 "dat/counting-%d.txt"
             ],
             "IDRange": [
-                "1:21"
+                "1:12",
+                "14",
+                "15",
+                "19:21"
             ]
         },
         {
@@ -308,9 +311,6 @@
             "testType": "CHECK_DREAMM_V3_MOLS_ASCII",
             "vizPath": "viz_dat/world_viz_data/",
             "molnames": [
-                "c_s_0",
-                "c_v_0",
-                "c_v_1",
                 "m_g_0",
                 "m_g_1",
                 "m_g_2",

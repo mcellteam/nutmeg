@@ -24,7 +24,7 @@ VIZ_OUTPUT
     FILENAME = vizdir & "world2"
     MOLECULES
     {
-        NAME_LIST { "s_*" c_s_0 }
+        NAME_LIST { "s_*" }
         TIME_POINTS
         {
             ALL_DATA     @ ALL_TIMES

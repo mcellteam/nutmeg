@@ -186,7 +186,10 @@
                 "dat/counting-%d.txt"
             ],
             "IDRange": [
-                "1:21"
+                "1:12",
+                "14",
+                "15",
+                "19:21"
             ]
         },
         {
@@ -217,12 +220,6 @@
                 "parser_silent-expressions.dat",
                 "parser_silent.dat",
                 "run_%d.0.log"
-            ]
-        },
-        {
-            "testType": "CHECK_EMPTY_FILES",
-            "fileNames": [
-                "err_%d.0.log"
             ]
         },
         {
