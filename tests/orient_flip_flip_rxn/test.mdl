@@ -68,20 +68,3 @@ REACTION_DATA_OUTPUT
     COUNT[b, WORLD]                                       : "b_total"
   } => "counts.txt"
 }
-
-VIZ_OUTPUT
-{
-  MODE = DREAMM_V3_GROUPED
-   FILENAME = "world"
-   MOLECULES
-   {
-     NAME_LIST { ALL_MOLECULES }
-     TIME_POINTS { ALL_DATA @ [0, 1] }
-   }
-  MESHES
-  {
-    NAME_LIST { ALL_MESHES }
-    TIME_POINTS { ALL_DATA @ [0] }
-  }
-
-}

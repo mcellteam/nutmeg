@@ -26,10 +26,7 @@ DEFINE_SURFACE_CLASS s_sc_2
     }
 }
 
-DEFINE_SURFACE_CLASS s_sc_3
-{
-    VIZ_VALUE = 2
-}
+DEFINE_SURFACE_CLASS s_sc_3 {}
 
 DEFINE_SURFACE_CLASS s_sc_4
 {
@@ -49,5 +46,4 @@ DEFINE_SURFACE_CLASS s_sc_4
         s_g_4, = 200
         s_g_5; = 100
     }
-    VIZ_VALUE = 1
 }
