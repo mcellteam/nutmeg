@@ -95,9 +95,9 @@ func main() {
 		engine.ShowTestDescription(nutmegConf, tests)
 
 	case categorySelection != "":
-		testSelection = strings.TrimSpace(testSelection)
+		categorySelection = strings.TrimSpace(categorySelection)
 		categoryMap := extractCategories(nutmegConf, testNames)
-		if ts, ok := categoryMap[testSelection]; ok {
+		if ts, ok := categoryMap[categorySelection]; ok {
 			spawnTests(nutmegConf, ts, startTime)
 		}
 
