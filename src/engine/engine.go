@@ -40,8 +40,9 @@ func RunTests(conf *jsonParser.Config, tests []string,
 		return 0, nil, err
 	}
 
+	testResults := make(chan *tester.TestResult, len(tests))
 	simJobs := make(chan *jsonParser.TestDescription, numSimJobs)
-	go createSimJobs(conf.IncludeDir, tests, simJobs)
+	go createSimJobs(conf.IncludeDir, tests, simJobs, testResults)
 
 	// framework for running simulations
 	simOutput := make(chan *jsonParser.TestDescription, len(tests))
@@ -56,7 +57,6 @@ func RunTests(conf *jsonParser.Config, tests []string,
 	go collectSimResults(testInput, simOutput)
 
 	// framework for running tests
-	testResults := make(chan *tester.TestResult, len(tests))
 	testsDone := make(chan struct{}, numTestJobs)
 	for i := 0; i < numTestJobs; i++ {
 		go runTestJobs(testResults, testInput, testsDone)
@@ -172,13 +172,15 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
 func createSimJobs(includePath string, testPaths []string,
-	simJobs chan *jsonParser.TestDescription) {
+	simJobs chan *jsonParser.TestDescription, testResults chan *tester.TestResult) {
 	runID := 0
 	for _, testDir := range testPaths {
 		testFile := filepath.Join(testDir, "test_description.json")
 		testDescription, err := jsonParser.Parse(testFile, includePath)
 		if err != nil {
-			log.Printf("Error parsing test description in %s: %v", testDir, err)
+			msg := ddfmt.Sprintf("Error parsing test description in %s: %v", testDir, err)
+			testResults <- &tester.TestResult{Path: testFile, Success: false,
+				TestName: "parse description", ErrorMessage: msg}
 			continue
 		}
 
