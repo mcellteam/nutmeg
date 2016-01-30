@@ -31,7 +31,7 @@ type TestDescription struct {
 	Includes    []string // names of JSON test description files to be included
 	Run         RunSpec  // simulation runs to conduct as part of this test
 	Checks      []*TestCase
-	SimStatus   []RunStatus // status of all simulation runs
+	//	SimStatus   []RunStatus // status of all simulation runs
 }
 
 // RunSpec describes an individual run to be conducted as part of a single
@@ -247,7 +247,7 @@ type IntList []string
 // Copy member function for a TestDescription
 func (t *TestDescription) Copy() *TestDescription {
 	newT := TestDescription{t.Description, t.Path, t.KeyWords, t.Includes,
-		t.Run, t.Checks, nil}
+		t.Run, t.Checks}
 	return &newT
 }
 
@@ -298,6 +298,7 @@ func ReadConfig() (*Config, error) {
 	return &myConf, nil
 }
 
+/*
 // RunStatus encapsulates the status of running N mdl files which make
 // up a single test case
 // NOTE: a run might fail for a number of reasons, e.g., during preparation of
@@ -311,3 +312,4 @@ type RunStatus struct {
 	StdErrContent string
 	ExitCode      int // this is only used if mcell was actually run
 }
+*/

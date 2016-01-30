@@ -22,6 +22,24 @@ import (
 	"github.com/mcellteam/nutmeg/src/misc"
 )
 
+// RunStatus encapsulates the status of running N mdl files which make
+// up a single test case
+// NOTE: a run might fail for a number of reasons, e.g., during preparation of
+// a run and patching in stderr, or during running of MCell itself. If running
+// MCell failed we try to figure out the exit code.
+type RunStatus struct {
+	Success       bool // indicates if prepping/running the simulation succeeded
+	ExitMessage   string
+	StdErrContent string
+	ExitCode      int // this is only used if mcell was actually run
+}
+
+// TestData contains the description of the test as well as the simulation status
+type TestData struct {
+	*jsonParser.TestDescription
+	SimStatus []RunStatus
+}
+
 // TestResult encapsulates the results of an individual test
 type TestResult struct {
 	Path         string // path to test which was run
@@ -32,7 +50,7 @@ type TestResult struct {
 
 // Run analyses the TestDescriptions coming from an MCell run on a
 // test and analyses them as requested per the TestDescription.
-func Run(test *jsonParser.TestDescription, result chan *TestResult) {
+func Run(test *TestData, result chan *TestResult) {
 
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
@@ -670,7 +688,7 @@ func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 // checkFilesEmpty tests that all simulation output files listed were
 // created by the run and are either emtpy or non-empty depending on the
 // provided switch
-func checkFilesEmpty(test *jsonParser.TestDescription, c *jsonParser.TestCase,
+func checkFilesEmpty(test *TestData, c *jsonParser.TestCase,
 	empty bool) error {
 
 	var fileList []string
