@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// test_engine contains the actual test functions analysing
+
+// Package engine contains the actual test functions analysing
 // the output of the run MCell simulations
 package engine
 
@@ -31,7 +31,7 @@ func init() {
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// runTests runs the specified list of tests
+// RunTests runs the specified list of tests
 func RunTests(conf *jsonParser.Config, tests []string,
 	numSimJobs, numTestJobs int) (int, []*tester.TestResult, error) {
 

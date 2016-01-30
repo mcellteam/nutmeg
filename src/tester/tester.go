@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// test_engine contains the actual test functions analysing
+
+// Package tester contains the actual test functions analysing
 // the output of the run MCell simulations
 package tester
 
@@ -23,7 +23,7 @@ import (
 	"github.com/haskelladdict/nutmeg/src/misc"
 )
 
-// TestResults encapsulates the results of an individual test
+// TestResult encapsulates the results of an individual test
 type TestResult struct {
 	Path         string // path to test which was run
 	Success      bool   // was test successful
