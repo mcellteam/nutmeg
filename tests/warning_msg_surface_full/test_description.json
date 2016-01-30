@@ -15,7 +15,7 @@
     {
        "testType": "FILE_MATCH_PATTERN",
        "dataFile": "err_%d.0.log",
-       "matchPattern": "Warning: Could not release 88 of sm \\(surface full\\).",
+       "matchPattern": "Warning: Could not release 88 of sm \(surface full\\).",
        "numMatches": 1
     }
   ]

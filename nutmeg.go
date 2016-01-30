@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/src/engine"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/engine"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/misc"
 )
 
 // command line flags

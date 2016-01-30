@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/src/file"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/file"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/misc"
 )
 
 // TestResult encapsulates the results of an individual test

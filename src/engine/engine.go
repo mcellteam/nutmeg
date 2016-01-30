@@ -18,10 +18,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/src/file"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
-	"github.com/haskelladdict/nutmeg/src/tester"
+	"github.com/mcellteam/nutmeg/src/file"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/tester"
 )
 
 // initialize random number generator
@@ -178,7 +178,7 @@ func createSimJobs(includePath string, testPaths []string,
 		testFile := filepath.Join(testDir, "test_description.json")
 		testDescription, err := jsonParser.Parse(testFile, includePath)
 		if err != nil {
-			msg := ddfmt.Sprintf("Error parsing test description in %s: %v", testDir, err)
+			msg := fmt.Sprintf("Error parsing test description in %s: %v", testDir, err)
 			testResults <- &tester.TestResult{Path: testFile, Success: false,
 				TestName: "parse description", ErrorMessage: msg}
 			continue
@@ -187,7 +187,6 @@ func createSimJobs(includePath string, testPaths []string,
 		// create output directory
 		outputDir := file.GetOutputDir(testDir)
 		if err := os.Mkdir(outputDir, 0744); err != nil {
-			log.Print(err)
 			continue
 		}
 
