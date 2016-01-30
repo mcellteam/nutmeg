@@ -117,7 +117,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 
 		if err := misc.WriteCmdLine(mcellPath, outputDir, argList); err != nil {
 			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+				jsonParser.RunStatus{Success: false, ExitMessage: fmt.Sprint(err),
+					StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -127,7 +128,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		stdOut, err := os.Create(filepath.Join(outputDir, stdOutPath))
 		if err != nil {
 			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+				jsonParser.RunStatus{Success: false, ExitMessage: fmt.Sprint(err),
+					StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -138,7 +140,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		stdErr, err := os.Create(filepath.Join(outputDir, stdErrPath))
 		if err != nil {
 			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+				jsonParser.RunStatus{Success: false, ExitMessage: fmt.Sprint(err),
+					StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -147,17 +150,18 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 
 		err = cmd.Run()
 		if err != nil {
-			stdErrContent, _ := ioutil.ReadFile(filepath.Join(outputDir, errLog))
+			stdErr, _ := ioutil.ReadFile(filepath.Join(outputDir, errLog))
 			exitCode, err := misc.DetermineExitCode(err)
 			if err != nil {
 				exitCode = -1
 			}
 			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err),
-					string(stdErrContent), exitCode})
+				jsonParser.RunStatus{Success: false, ExitMessage: fmt.Sprint(err),
+					StdErrContent: string(stdErr), ExitCode: exitCode})
 		} else {
 			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{true, "", "", 0})
+				jsonParser.RunStatus{Success: true, ExitMessage: "", StdErrContent: "",
+					ExitCode: 0})
 		}
 	}
 	output <- test

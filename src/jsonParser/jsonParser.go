@@ -232,18 +232,6 @@ type testDREAMMV3GroupedOutput struct {
 	NoMols        bool // true if no molecules are present
 }
 
-// runStatus encapsulates the status of running of of N mdl files which make
-// up a single test case
-// NOTE: a run might fail for a number of reasons, e.g., during preparation of
-// a run and patching in stderr, or during running of MCell itself. If running
-// MCell failed we try to figure out the exit code.
-type RunStatus struct {
-	Success       bool // indicates if prepping/running the simulation succeeded
-	ExitMessage   string
-	StdErrContent string
-	ExitCode      int // this is only used if mcell was actually run
-}
-
 // ConstraintSpec encapsulates a single constraint specification.
 type ConstraintSpec struct {
 	Target int
@@ -308,4 +296,18 @@ func ReadConfig() (*Config, error) {
 		return nil, err
 	}
 	return &myConf, nil
+}
+
+// RunStatus encapsulates the status of running N mdl files which make
+// up a single test case
+// NOTE: a run might fail for a number of reasons, e.g., during preparation of
+// a run and patching in stderr, or during running of MCell itself. If running
+// MCell failed we try to figure out the exit code.
+// NOTE: This function should not be part of jsonParser (engine would be better
+// or perhaps a shared include)
+type RunStatus struct {
+	Success       bool // indicates if prepping/running the simulation succeeded
+	ExitMessage   string
+	StdErrContent string
+	ExitCode      int // this is only used if mcell was actually run
 }
