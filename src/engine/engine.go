@@ -187,6 +187,9 @@ func createSimJobs(includePath string, testPaths []string,
 		// create output directory
 		outputDir := file.GetOutputDir(testDir)
 		if err := os.Mkdir(outputDir, 0744); err != nil {
+			msg := fmt.Sprint(err)
+			testResults <- &tester.TestResult{Path: testFile, Success: false,
+				TestName: "create test output directory", ErrorMessage: msg}
 			continue
 		}
 
