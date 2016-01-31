@@ -327,3 +327,12 @@ func CheckDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) er
 	}
 	return nil
 }
+
+// below are some useful math functions
+
+// Abs returns the absolute value of integer i
+func Abs(i int) int {
+	var isize uint = strconv.IntSize - 1
+	t := i >> isize
+	return t ^ (i + t)
+}

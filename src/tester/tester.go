@@ -181,6 +181,12 @@ func Run(test *TestData, result chan *TestResult) {
 			}
 
 		case "COMPARE_COUNTS":
+			// only one of absDeviation or relDeviation can be defined
+			if (len(c.AbsDeviation) > 0) && (len(c.RelDeviation) > 0) {
+				testErr = fmt.Errorf("absDeviation and relDeviation are mutually exclusive")
+				break
+			}
+
 			referencePath := filepath.Join(test.Path, c.ReferenceFile)
 			refData, err := file.ReadCounts(referencePath, c.HaveHeader)
 			if err != nil {
@@ -188,8 +194,8 @@ func Run(test *TestData, result chan *TestResult) {
 				break
 			}
 			for i, d := range data {
-				if testErr = compareCounts(d, refData, dataPaths[i], c.MinTime,
-					c.MaxTime); testErr != nil {
+				if testErr = compareCounts(d, refData, c.AbsDeviation, c.RelDeviation,
+					dataPaths[i], c.MinTime, c.MaxTime); testErr != nil {
 					break
 				}
 			}
@@ -356,8 +362,8 @@ func fileMatchPattern(filePath string, matchPattern string,
 
 // compareCounts checks that the test data matches the provided column counts
 // exactly
-func compareCounts(data, refData *file.Columns, dataPath string, minTime,
-	maxTime float64) error {
+func compareCounts(data, refData *file.Columns, absDev []int, relDev []float64,
+	dataPath string, minTime, maxTime float64) error {
 
 	if len(refData.Times) != len(data.Times) {
 		return fmt.Errorf(
@@ -372,15 +378,29 @@ func compareCounts(data, refData *file.Columns, dataPath string, minTime,
 	}
 
 	numCols := len(data.Counts)
+	// pad absDev and relDev arrays with zeros if necessary
+	for i := len(absDev); i < numCols; i++ {
+		absDev = append(absDev, 0)
+	}
+	for i := len(relDev); i < numCols; i++ {
+		relDev = append(relDev, 0.0)
+	}
+
 	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.Counts[c][r] != refData.Counts[c][r] {
-				return fmt.Errorf("in %s: reference and actual data differ in row %d and col %d",
-					dataPath, r, c)
+			// determine allowed deviation if definied via absDeviation or relDeviation
+			dev := absDev[c]
+			if dev == 0 {
+				dev = int(relDev[c] * float64(refData.Counts[c][r]))
+			}
+			if misc.Abs(data.Counts[c][r]-refData.Counts[c][r]) > dev {
+				return fmt.Errorf("in %s: reference and actual data differ in row %d "+
+					"and col %d (exptected: %d +/- %d actual value: %d)", dataPath, r, c,
+					refData.Counts[c][r], dev, data.Counts[c][r])
 			}
 		}
 	}
@@ -838,7 +858,8 @@ func checkExpressions(filePath string) error {
 // diffFileContent matches the content of datafile with the one provided in
 // the template file. The template file can contain format string parameters
 // which will be filled with the template parameters as requested by the
-// test file.
+// test file. Currently available template parameters are:
+//   TODAY_DAY: todays weekday name (Monday, Tuesday, ....)
 func diffFileContent(path, dataPath, templateFile string,
 	templateParams []string) error {
 
