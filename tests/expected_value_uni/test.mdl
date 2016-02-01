@@ -75,7 +75,7 @@ REACTION_DATA_OUTPUT
 {
   OUTPUT_BUFFER_SIZE = 50
   STEP = 1e-6
-  HEADER = "# "
+  /*HEADER = "# "*/
   {
     COUNT[sm1, Scene.Icosphere] : "sm1",
     COUNT[sm2, Scene.Icosphere] : "sm2",
