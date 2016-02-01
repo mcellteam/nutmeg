@@ -399,7 +399,7 @@ func compareCounts(data, refData *file.Columns, absDev []int, relDev []float64,
 			}
 			if misc.Abs(data.Counts[c][r]-refData.Counts[c][r]) > dev {
 				return fmt.Errorf("in %s: reference and actual data differ in row %d "+
-					"and col %d (exptected: %d +/- %d actual value: %d)", dataPath, r, c,
+					"and col %d (expected: %d +/- %d actual value: %d)", dataPath, r, c,
 					refData.Counts[c][r], dev, data.Counts[c][r])
 			}
 		}
