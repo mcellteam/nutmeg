@@ -41,17 +41,8 @@ REACTION_DATA_OUTPUT
         12
     } => countdir & "counting-11.txt"
     {COUNT["s_g_1'", world.big_object.box1]} => countdir & "counting-12.txt"
-    {COUNT[rxn1, WORLD]} => countdir & "counting-13.txt"
     {COUNT[s_g_1{0}, world.big_object.box1]} => countdir & "counting-14.txt"
     {COUNT[s_g_1{2}, world.big_object.box1], COUNT[s_g_1{-3}, world.big_object.box1]} => countdir & "counting-15.txt"
-    {COUNT[SUBUNIT{c_s_0 : s_g_0}, WORLD]} => countdir & "counting-16.txt"
-    {COUNT[SUBUNIT{c_s_0 : s_g_0 [r0001 == s_g_1 & r0010 == s_g_2]}, WORLD]} => countdir & "counting-17.txt"
-}
-REACTION_DATA_OUTPUT
-{
-    OUTPUT_BUFFER_SIZE = 12
-    TIME_LIST = [[1e-6 TO 20e-6 STEP 7e-6]]
-    {COUNT["c_s_0", WORLD]} => countdir & "counting-18.txt"
 }
 REACTION_DATA_OUTPUT
 {

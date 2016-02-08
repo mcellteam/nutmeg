@@ -1,4 +1,4 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 //
@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/src/engine"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/engine"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/misc"
 )
 
 // command line flags
@@ -95,9 +95,9 @@ func main() {
 		engine.ShowTestDescription(nutmegConf, tests)
 
 	case categorySelection != "":
-		testSelection = strings.TrimSpace(testSelection)
+		categorySelection = strings.TrimSpace(categorySelection)
 		categoryMap := extractCategories(nutmegConf, testNames)
-		if ts, ok := categoryMap[testSelection]; ok {
+		if ts, ok := categoryMap[categorySelection]; ok {
 			spawnTests(nutmegConf, ts, startTime)
 		}
 

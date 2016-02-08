@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// jsonParser parses a test description file for consumption by the
+
+// Package jsonParser parses a test description file for consumption by the
 // test framework
 package jsonParser
 
@@ -31,7 +31,7 @@ type TestDescription struct {
 	Includes    []string // names of JSON test description files to be included
 	Run         RunSpec  // simulation runs to conduct as part of this test
 	Checks      []*TestCase
-	SimStatus   []RunStatus // status of all simulation runs
+	//	SimStatus   []RunStatus // status of all simulation runs
 }
 
 // RunSpec describes an individual run to be conducted as part of a single
@@ -107,12 +107,17 @@ type testPatternMatch struct {
 	NumMatches   int    // number of expected pattern matches
 }
 
-// testCompareCounts pertains to checks comparing data against exact reference
-// counts
+// testCompareCounts pertains to checks comparing data against reference
+// counts. If absDeviation or relDeviation are provided the actual data
+// is compared to the reference data taking into account the relative or
+// absolute deviation. If absDeviation or relDeviation are not provided
+// they are assumed to be 0. Both absDeviation and relDeviation are arrays with
+// one value per data column. Any non-specified columns are assumed to be zero,
+// any additional values are ignored.
 type testCompareCounts struct {
-	ReferenceFile string  // name of file with reference counts to compare against
-	Delay         float64 // delay in seconds at which checkpoint should happen
-	Margin        float64 // acceptable margin for checkpoint delay in seconds
+	ReferenceFile string    // name of file with reference counts to compare against
+	AbsDeviation  []int     // allowed absolute deviation from reference, one per column
+	RelDeviation  []float64 // allowed relative deviation from reference, one per column
 }
 
 // testMeans pertaints to checks testing that data values have a certain mean
@@ -172,6 +177,8 @@ type testASCIIVizOutput struct {
 // testCheckPoint does basic timing tests involving checkpoints
 type testCheckPoint struct {
 	BaseName string
+	Delay    float64 // delay in seconds at which checkpoint should happen
+	Margin   float64 // acceptable margin for checkpoint delay in seconds
 }
 
 // testDREAMMV3MeshCommon contains common items used in DREAMM V3 molecule
@@ -232,18 +239,6 @@ type testDREAMMV3GroupedOutput struct {
 	NoMols        bool // true if no molecules are present
 }
 
-// runStatus encapsulates the status of running of of N mdl files which make
-// up a single test case
-// NOTE: a run might fail for a number of reasons, e.g., during preparation of
-// a run and patching in stderr, or during running of MCell itself. If running
-// MCell failed we try to figure out the exit code.
-type RunStatus struct {
-	Success       bool // indicates if prepping/running the simulation succeeded
-	ExitMessage   string
-	StdErrContent string
-	ExitCode      int // this is only used if mcell was actually run
-}
-
 // ConstraintSpec encapsulates a single constraint specification.
 type ConstraintSpec struct {
 	Target int
@@ -259,7 +254,7 @@ type IntList []string
 // Copy member function for a TestDescription
 func (t *TestDescription) Copy() *TestDescription {
 	newT := TestDescription{t.Description, t.Path, t.KeyWords, t.Includes,
-		t.Run, t.Checks, nil}
+		t.Run, t.Checks}
 	return &newT
 }
 

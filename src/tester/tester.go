@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// test_engine contains the actual test functions analysing
+
+// Package tester contains the actual test functions analysing
 // the output of the run MCell simulations
 package tester
 
@@ -17,13 +17,30 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haskelladdict/datastruct/set/intset"
-	"github.com/haskelladdict/nutmeg/src/file"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/file"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/misc"
 )
 
-// TestResults encapsulates the results of an individual test
+// RunStatus encapsulates the status of running N mdl files which make
+// up a single test case
+// NOTE: a run might fail for a number of reasons, e.g., during preparation of
+// a run and patching in stderr, or during running of MCell itself. If running
+// MCell failed we try to figure out the exit code.
+type RunStatus struct {
+	Success       bool // indicates if prepping/running the simulation succeeded
+	ExitMessage   string
+	StdErrContent string
+	ExitCode      int // this is only used if mcell was actually run
+}
+
+// TestData contains the description of the test as well as the simulation status
+type TestData struct {
+	*jsonParser.TestDescription
+	SimStatus []RunStatus
+}
+
+// TestResult encapsulates the results of an individual test
 type TestResult struct {
 	Path         string // path to test which was run
 	Success      bool   // was test successful
@@ -33,15 +50,12 @@ type TestResult struct {
 
 // Run analyses the TestDescriptions coming from an MCell run on a
 // test and analyses them as requested per the TestDescription.
-func Run(test *jsonParser.TestDescription, result chan *TestResult) {
+func Run(test *TestData, result chan *TestResult) {
 
 	// tests which don't require loading of reaction data output
 	nonDataParseTests := []string{"DIFF_FILE_CONTENT", "FILE_MATCH_PATTERN",
 		"CHECK_TRIGGERS", "CHECK_EXPRESSIONS", "CHECK_LEGACY_VOL_OUTPUT",
-		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT",
-		"CHECK_DREAMM_V3_MOLS_BIN", "CHECK_DREAMM_V3_MESH_BIN",
-		"CHECK_DREAMM_V3_MESH_ASCII", "CHECK_DREAMM_V3_MOLS_ASCII",
-		"CHECK_DREAMM_V3_GROUPED"}
+		"CHECK_EMPTY_FILE", "CHECK_ASCII_VIZ_OUTPUT", "CHECK_CHECKPOINT"}
 
 	for _, c := range test.Checks {
 
@@ -128,36 +142,6 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 				}
 			}
 
-		case "CHECK_DREAMM_V3_MOLS_BIN":
-			if testErr = checkDREAMMV3MolsBin(test.Path, c); testErr != nil {
-				break
-			}
-
-		case "CHECK_DREAMM_V3_MOLS_ASCII":
-			if testErr = checkDREAMMV3MolsASCII(test.Path, c); testErr != nil {
-				break
-			}
-
-		case "CHECK_DREAMM_V3_MESH_BIN":
-			if testErr = checkDREAMMV3MeshBin(test.Path, c.VizPath, c.AllIters,
-				c.PosIters, c.RegionIters, c.StateIters, c.MeshEmpty); testErr != nil {
-				break
-			}
-
-		case "CHECK_DREAMM_V3_MESH_ASCII":
-			if testErr = checkDREAMMV3MeshASCII(test.Path, c.VizPath, c.AllIters,
-				c.PosIters, c.RegionIters, c.StateIters, c.MeshEmpty, c.Objects,
-				c.ObjectRegions); testErr != nil {
-				break
-			}
-
-		case "CHECK_DREAMM_V3_GROUPED":
-			if testErr = checkDREAMMV3Grouped(test.Path, c.VizPath, c.NumIters,
-				c.NumTimes, c.HaveMeshPos, c.HaveRgnIdx, c.HaveMeshState, c.NoMeshes,
-				c.HaveMolPos, c.HaveMolOrient, c.HaveMolState, c.NoMols); testErr != nil {
-				break
-			}
-
 		case "DIFF_FILE_CONTENT":
 			for _, p := range dataPaths {
 				if testErr = diffFileContent(test.Path, p, c.TemplateFile,
@@ -197,6 +181,12 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 			}
 
 		case "COMPARE_COUNTS":
+			// only one of absDeviation or relDeviation can be defined
+			if (len(c.AbsDeviation) > 0) && (len(c.RelDeviation) > 0) {
+				testErr = fmt.Errorf("absDeviation and relDeviation are mutually exclusive")
+				break
+			}
+
 			referencePath := filepath.Join(test.Path, c.ReferenceFile)
 			refData, err := file.ReadCounts(referencePath, c.HaveHeader)
 			if err != nil {
@@ -204,8 +194,8 @@ func Run(test *jsonParser.TestDescription, result chan *TestResult) {
 				break
 			}
 			for i, d := range data {
-				if testErr = compareCounts(d, refData, dataPaths[i], c.MinTime,
-					c.MaxTime); testErr != nil {
+				if testErr = compareCounts(d, refData, c.AbsDeviation, c.RelDeviation,
+					dataPaths[i], c.MinTime, c.MaxTime); testErr != nil {
 					break
 				}
 			}
@@ -372,8 +362,8 @@ func fileMatchPattern(filePath string, matchPattern string,
 
 // compareCounts checks that the test data matches the provided column counts
 // exactly
-func compareCounts(data, refData *file.Columns, dataPath string, minTime,
-	maxTime float64) error {
+func compareCounts(data, refData *file.Columns, absDev []int, relDev []float64,
+	dataPath string, minTime, maxTime float64) error {
 
 	if len(refData.Times) != len(data.Times) {
 		return fmt.Errorf(
@@ -388,15 +378,29 @@ func compareCounts(data, refData *file.Columns, dataPath string, minTime,
 	}
 
 	numCols := len(data.Counts)
+	// pad absDev and relDev arrays with zeros if necessary
+	for i := len(absDev); i < numCols; i++ {
+		absDev = append(absDev, 0)
+	}
+	for i := len(relDev); i < numCols; i++ {
+		relDev = append(relDev, 0.0)
+	}
+
 	for r, time := range data.Times {
 		if (minTime > 0 && time < minTime) || (maxTime > 0 && time > maxTime) {
 			continue
 		}
 
 		for c := 0; c < numCols; c++ {
-			if data.Counts[c][r] != refData.Counts[c][r] {
-				return fmt.Errorf("in %s: reference and actual data differ in row %d and col %d",
-					dataPath, r, c)
+			// determine allowed deviation if definied via absDeviation or relDeviation
+			dev := absDev[c]
+			if dev == 0 {
+				dev = int(relDev[c] * float64(refData.Counts[c][r]))
+			}
+			if misc.Abs(data.Counts[c][r]-refData.Counts[c][r]) > dev {
+				return fmt.Errorf("in %s: reference and actual data differ in row %d "+
+					"and col %d (expected: %d +/- %d actual value: %d)", dataPath, r, c,
+					refData.Counts[c][r], dev, data.Counts[c][r])
 			}
 		}
 	}
@@ -704,7 +708,7 @@ func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 // checkFilesEmpty tests that all simulation output files listed were
 // created by the run and are either emtpy or non-empty depending on the
 // provided switch
-func checkFilesEmpty(test *jsonParser.TestDescription, c *jsonParser.TestCase,
+func checkFilesEmpty(test *TestData, c *jsonParser.TestCase,
 	empty bool) error {
 
 	var fileList []string
@@ -854,7 +858,8 @@ func checkExpressions(filePath string) error {
 // diffFileContent matches the content of datafile with the one provided in
 // the template file. The template file can contain format string parameters
 // which will be filled with the template parameters as requested by the
-// test file.
+// test file. Currently available template parameters are:
+//   TODAY_DAY: todays weekday name (Monday, Tuesday, ....)
 func diffFileContent(path, dataPath, templateFile string,
 	templateParams []string) error {
 
@@ -968,423 +973,6 @@ func checkASCIIVizOutput(dataPath string) error {
 					dataPath, i, v)
 			}
 			sum += math.Abs(x)
-		}
-	}
-
-	return nil
-}
-
-// checkDREAMMV3MolsBin checks the layout for molecule viz data as part of the
-// binary DREAMM v3 format
-func checkDREAMMV3MolsBin(testDir string, c *jsonParser.TestCase) error {
-
-	s, err := misc.CreateMolMeshIters(c.AllIters, c.SurfPosIters, c.SurfOrientIters,
-		c.SurfStateIters)
-	if err != nil {
-		return err
-	}
-
-	v, err := misc.CreateMolMeshIters(c.AllIters, c.VolPosIters, c.VolOrientIters,
-		c.VolStateIters)
-	if err != nil {
-		return err
-	}
-	molIters := s.AllCombined.Clone().Union(v.AllCombined)
-
-	dataPath := filepath.Join(file.GetOutputDir(testDir), c.VizPath)
-	lastSurfPos := -1
-	lastSurfOrient := -1
-	lastSurfState := -1
-	lastVolPos := -1
-	lastVolOrient := -1
-	lastVolState := -1
-
-	for _, i := range s.All {
-		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
-		hadFrame := false
-
-		// surface positions
-		surfPosFile := filepath.Join(iterPath, "surface_molecules_positions.bin")
-		if err := misc.CheckDREAMMV3IterItems(s.Pos, molIters, i, lastSurfPos,
-			c.SurfEmpty, surfPosFile); err != nil {
-			return err
-		}
-		if s.Pos.Contains(i) {
-			lastSurfPos = i
-			hadFrame = true
-		}
-
-		// surface orientations
-		surfOrientFile := filepath.Join(iterPath, "surface_molecules_orientations.bin")
-		if err := misc.CheckDREAMMV3IterItems(s.Others, molIters, i, lastSurfOrient,
-			c.SurfEmpty, surfOrientFile); err != nil {
-			return err
-		}
-		if s.Others.Contains(i) {
-			lastSurfOrient = i
-			hadFrame = true
-		}
-
-		// surface states
-		surfStateFile := filepath.Join(iterPath, "surface_molecules_states.bin")
-		if err := misc.CheckDREAMMV3IterItems(s.States, molIters, i, lastSurfState,
-			c.SurfEmpty, surfStateFile); err != nil {
-			return err
-		}
-		if s.States.Contains(i) {
-			lastSurfState = i
-			hadFrame = true
-		}
-
-		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastSurfPos, lastSurfOrient, lastSurfState,
-			hadFrame, surfTemplate); err != nil {
-			return err
-		}
-
-		// volume positions
-		hadFrame = false
-		volPosFile := filepath.Join(iterPath, "volume_molecules_positions.bin")
-		if err := misc.CheckDREAMMV3IterItems(v.Pos, molIters, i, lastVolPos,
-			c.VolEmpty, volPosFile); err != nil {
-			return err
-		}
-		if v.Pos.Contains(i) {
-			lastVolPos = i
-			hadFrame = true
-		}
-
-		// volume orientations
-		volOrientFile := filepath.Join(iterPath, "volume_molecules_orientations.bin")
-		if err := misc.CheckDREAMMV3IterItems(v.Others, molIters, i, lastVolOrient,
-			c.VolEmpty, volOrientFile); err != nil {
-			return err
-		}
-		if v.Others.Contains(i) {
-			lastVolOrient = i
-			hadFrame = true
-		}
-
-		// volume states
-		volStateFile := filepath.Join(iterPath, "volume_molecules_states.bin")
-		if err := misc.CheckDREAMMV3IterItems(v.States, molIters, i, lastVolState,
-			c.SurfEmpty, volStateFile); err != nil {
-			return err
-		}
-		if v.States.Contains(i) {
-			lastVolState = i
-			hadFrame = true
-		}
-
-		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastVolPos, lastVolOrient, lastVolState,
-			hadFrame, volTemplate); err != nil {
-			return err
-		}
-
-	}
-	return nil
-}
-
-// checkDREAMMV3MolsASCII checks the layout for molecule viz data as part of the
-// ASCII DREAMM v3 format
-func checkDREAMMV3MolsASCII(testDir string, c *jsonParser.TestCase) error {
-
-	m, err := misc.CreateMolMeshIters(c.AllIters, c.PosIters, c.OrientIters, c.StateIters)
-	if err != nil {
-		return err
-	}
-
-	dataPath := filepath.Join(file.GetOutputDir(testDir), c.VizPath)
-	lastPos := -1
-	lastOrient := -1
-	lastState := -1
-
-	for _, i := range m.All {
-		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
-		hadFrame := false
-
-		// positions
-		for _, obj := range c.MolNames {
-			posFile := filepath.Join(iterPath, obj+".positions.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
-				true, posFile); err != nil {
-				return err
-			}
-		}
-		if m.Pos.Contains(i) {
-			lastPos = i
-			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
-			hadFrame = true
-		}
-
-		// orientations
-		for _, obj := range c.MolNames {
-			orientFile := filepath.Join(iterPath, obj+".orientations.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.Others, m.Combined, i, lastOrient,
-				true, orientFile); err != nil {
-				return err
-			}
-		}
-		if m.Others.Contains(i) {
-			lastOrient = i
-			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
-			hadFrame = true
-		}
-
-		// states
-		for _, obj := range c.MolNames {
-			stateFile := filepath.Join(iterPath, obj+".states.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.States, m.Combined, i, lastState,
-				true, stateFile); err != nil {
-				return err
-			}
-		}
-		if m.States.Contains(i) {
-			lastState = i
-			misc.UnsetTrackers(i, &lastPos, &lastOrient, &lastState)
-			hadFrame = true
-		}
-
-		volTemplate := filepath.Join(iterPath, "volume_molecules.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
-			hadFrame, volTemplate); err != nil {
-			return err
-		}
-
-		surfTemplate := filepath.Join(iterPath, "surface_molecules.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastOrient, lastState,
-			hadFrame, surfTemplate); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// checkDREAMMV3MeshBin checks the layout for mesh related data within the
-// DREAMM v3 viz format
-func checkDREAMMV3MeshBin(testDir, dataDir string, allIters, posIters,
-	regionIters, stateIters jsonParser.IntList, meshEmpty bool) error {
-
-	m, err := misc.CreateMolMeshIters(allIters, posIters, regionIters, stateIters)
-	if err != nil {
-		return err
-	}
-
-	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
-	lastPos := -1
-	lastRegion := -1
-	lastState := -1
-
-	for _, i := range m.All {
-		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
-		hadFrame := false
-
-		// positions
-		posFile := filepath.Join(iterPath, "mesh_positions.bin")
-		if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
-			meshEmpty, posFile); err != nil {
-			return err
-		}
-		if m.Pos.Contains(i) {
-			lastPos = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		// regions
-		regionFile := filepath.Join(iterPath, "region_indices.bin")
-		if err := misc.CheckDREAMMV3IterItems(m.Others, m.States, i, lastRegion,
-			meshEmpty, regionFile); err != nil {
-			return err
-		}
-		if m.Others.Contains(i) {
-			lastRegion = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		// states
-		statesFile := filepath.Join(iterPath, "mesh_states.bin")
-		emptySet := set.NewIntSet()
-		if err := misc.CheckDREAMMV3IterItems(m.States, emptySet, i, lastState,
-			meshEmpty, statesFile); err != nil {
-			return err
-		}
-		if m.States.Contains(i) {
-			lastState = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		template := filepath.Join(iterPath, "meshes.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
-			hadFrame, template); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// checkDREAMMV3MeshASCII checks the layout for mesh related data within the
-// DREAMM v3 viz format
-func checkDREAMMV3MeshASCII(testDir, dataDir string, allIters, posIters,
-	regionIters, stateIters jsonParser.IntList, meshEmpty bool, objects,
-	objectRegions []string) error {
-
-	m, err := misc.CreateMolMeshIters(allIters, posIters, regionIters, stateIters)
-	if err != nil {
-		return err
-	}
-
-	if len(objectRegions) == 0 {
-		objectRegions = objects
-	}
-
-	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
-	lastPos := -1
-	lastRegion := -1
-	lastState := -1
-
-	for _, i := range m.All {
-		iterPath := filepath.Join(dataPath, "frame_data", "iteration_%d")
-		hadFrame := false
-
-		// positions
-		for _, obj := range objects {
-			posFile := filepath.Join(iterPath, obj+".positions.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
-				meshEmpty, posFile); err != nil {
-				return err
-			}
-			conFile := filepath.Join(iterPath, obj+".connections.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.Pos, m.Combined, i, lastPos,
-				meshEmpty, conFile); err != nil {
-				return err
-			}
-		}
-		if m.Pos.Contains(i) {
-			lastPos = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		// regions
-		for _, obj := range objectRegions {
-			regionFile := filepath.Join(iterPath, obj+".region_indices.dat")
-			if err := misc.CheckDREAMMV3IterItems(m.Others, m.States, i, lastRegion,
-				meshEmpty, regionFile); err != nil {
-				return err
-			}
-		}
-		if m.Others.Contains(i) {
-			lastRegion = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		// states
-		for _, obj := range objects {
-			statesFile := filepath.Join(iterPath, obj+".states.bin")
-			emptySet := set.NewIntSet()
-			if err := misc.CheckDREAMMV3IterItems(m.States, emptySet, i, lastState,
-				meshEmpty, statesFile); err != nil {
-				return err
-			}
-		}
-		if m.States.Contains(i) {
-			lastState = i
-			misc.UnsetTrackers(i, &lastPos, &lastRegion, &lastState)
-			hadFrame = true
-		}
-
-		template := filepath.Join(iterPath, "meshes.dx")
-		if err := misc.CheckDREAMMV3DXItems(i, lastPos, lastRegion, lastState,
-			hadFrame, template); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// checkDREAMMV3Grouped checks the layout for DREAMM V3 grouped format
-func checkDREAMMV3Grouped(testDir, dataDir string, numIters, numTimes int,
-	haveMeshPos, haveRgnIdx, haveMeshState, noMeshes, haveMolPos, haveMolOrient,
-	haveMolState, noMols bool) error {
-
-	dataPath := filepath.Join(file.GetOutputDir(testDir), dataDir)
-
-	// meshes
-	meshPath := dataPath + ".mesh_positions.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(meshPath, haveMeshPos, noMeshes); err != nil {
-		return err
-	}
-
-	regionPath := dataPath + ".region_indices.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(regionPath, haveRgnIdx, noMeshes); err != nil {
-		return err
-	}
-
-	meshStatesPath := dataPath + ".mesh_states.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(meshStatesPath, haveMeshState,
-		noMeshes); err != nil {
-		return err
-	}
-
-	// molecules
-	molPath := dataPath + ".molecule_positions.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(molPath, haveMolPos, noMols); err != nil {
-		return err
-	}
-
-	orientPath := dataPath + ".molecule_orientations.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(orientPath, haveMolOrient, noMols); err != nil {
-		return err
-	}
-
-	molStatesPath := dataPath + ".molecule_states.1.bin"
-	if err := misc.CheckDREAMMV3GroupedItem(molStatesPath, haveMolState, noMols); err != nil {
-		return err
-	}
-
-	// iterations
-	iterPath := dataPath + ".iteration_numbers.1.bin"
-	if numIters != 0 {
-		ok, err := file.HasSize(iterPath, int64(numIters*12))
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s has incorrect file size", iterPath)
-		}
-	} else {
-		ok, err := file.IsNonEmpty(iterPath)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s is not non-empty", iterPath)
-		}
-	}
-
-	// times
-	timePath := dataPath + ".time_values.1.bin"
-	if numTimes != 0 {
-		ok, err := file.HasSize(timePath, int64(numTimes*8))
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s has incorrect file size", timePath)
-		}
-	} else {
-		ok, err := file.IsNonEmpty(timePath)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s is not non-empty", timePath)
 		}
 	}
 

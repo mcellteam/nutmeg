@@ -55,26 +55,3 @@ REACTION_DATA_OUTPUT
     COUNT[m, world.box] : "mi"
   } => "molecules.txt"
 }
-
-VIZ_OUTPUT
-{
-  MODE = DREAMM_V3_GROUPED
-  FILENAME = "viz_dat/world"
-  MOLECULES
-  {
-    NAME_LIST { ALL_MOLECULES }
-    TIME_POINTS
-    {
-      ALL_DATA     @ [[0 TO 0.1 STEP 1e-4]]
-    }
-  }
-  MESHES
-  {
-    NAME_LIST { ALL_MESHES }
-    TIME_POINTS
-    {
-      ALL_DATA @ [0]
-    }
-  }
-}
-

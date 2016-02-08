@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// misc provides helper function for the nutmeg unit testing framework
+
+// Package misc provides helper function for the nutmeg unit testing framework
 package misc
 
 import (
@@ -17,8 +17,8 @@ import (
 	"syscall"
 
 	"github.com/haskelladdict/datastruct/set/intset"
-	"github.com/haskelladdict/nutmeg/src/file"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/file"
+	"github.com/mcellteam/nutmeg/src/jsonParser"
 )
 
 // CleanOutput removes all files leftover from a previous test run
@@ -55,7 +55,7 @@ func DetermineExitCode(err error) (int, error) {
 	return 0, err
 }
 
-// containsString checks if a given string is part of the provided string slice
+// ContainsString checks if a given string is part of the provided string slice
 // and returns true if yes and false otherwise
 func ContainsString(ss []string, item string) bool {
 	for _, s := range ss {
@@ -66,7 +66,7 @@ func ContainsString(ss []string, item string) bool {
 	return false
 }
 
-// generateFileList takes a filename which could be a format string and a
+// GenerateFileList takes a filename which could be a format string and a
 // range and creates the corresponding list of filenames.
 func GenerateFileList(name string, IDStringRange jsonParser.IntList) ([]string, error) {
 
@@ -157,7 +157,7 @@ func ConvertRangeToList(rangeStatement string) ([]int, error) {
 	return newRange, nil
 }
 
-// CheckDREAMMV2IterItems examines the viz iterations directory for
+// CheckDREAMMV3IterItems examines the viz iterations directory for
 // a specific items (surface positions, orientations, etc.)
 func CheckDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	isEmpty bool, fileTemplate string) error {
@@ -199,7 +199,7 @@ func CheckDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
 	return nil
 }
 
-// CheckDREAMMV3DXitems checks the presence of the correct dx files/symlinks
+// CheckDREAMMV3DXItems checks the presence of the correct dx files/symlinks
 // in a given viz iteration directory.
 // NOTE: lastProperty could refer to molecule orientations or regions for meshes
 func CheckDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
@@ -247,7 +247,7 @@ func CheckDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
 	return nil
 }
 
-// meshIters is a small helper struct to bundle all frame data related to
+// molMeshIters is a small helper struct to bundle all frame data related to
 // DREAMM V3 binary mesh data
 type molMeshIters struct {
 	All                   []int
@@ -255,7 +255,7 @@ type molMeshIters struct {
 	Combined, AllCombined *set.IntSet
 }
 
-// CreateMeshIters is a helper function for converting the list of
+// CreateMolMeshIters is a helper function for converting the list of
 // input specified iterations at which mesh positions, regions and
 // states were output into corresponding lists of integer values.
 func CreateMolMeshIters(allIters, posIters, otherIters,
@@ -297,7 +297,7 @@ func CreateMolMeshIters(allIters, posIters, otherIters,
 	return &m, nil
 }
 
-// unsetTrackers resets the trackers used to keep track of symlinks used in
+// UnsetTrackers resets the trackers used to keep track of symlinks used in
 // the binary viz data test routines
 func UnsetTrackers(s int, xs ...*int) {
 	for _, x := range xs {
@@ -326,4 +326,13 @@ func CheckDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) er
 		}
 	}
 	return nil
+}
+
+// below are some useful math functions
+
+// Abs returns the absolute value of integer i
+func Abs(i int) int {
+	var isize uint = strconv.IntSize - 1
+	t := i >> isize
+	return t ^ (i + t)
 }
