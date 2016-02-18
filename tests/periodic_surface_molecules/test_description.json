@@ -36,6 +36,20 @@
             "countMaximum": [
                 1
             ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "sm.lrg_enclosed.dat",
+            "countMinimum": [
+                1
+            ],
+            "countMaximum": [
+                1
+            ]
+        },
+        {
+            "testType": "POSITIVE_OR_ZERO_COUNTS",
+            "dataFile": "sm.enclosed.dat"
         }
     ]
 }
