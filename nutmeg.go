@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/mcellteam/nutmeg/src/engine"
-	"github.com/mcellteam/nutmeg/src/jsonParser"
 	"github.com/mcellteam/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
 // command line flags
@@ -48,7 +48,7 @@ func init() {
 // main routine
 func main() {
 
-	nutmegConf, err := jsonParser.ReadConfig()
+	nutmegConf, err := tomlParser.ReadConfig()
 	if err != nil {
 		log.Fatal("Error reading nutmeg.conf: ", err)
 	}
@@ -201,11 +201,11 @@ func gatherTests(testDir string) ([]string, error) {
 
 // extractCategories extracts the available test categories from the provided
 // test selection (x, x:y, 'all', etc.)
-func extractCategories(conf *jsonParser.Config, testNames []string) map[string][]string {
+func extractCategories(conf *tomlParser.Config, testNames []string) map[string][]string {
 	tests := extractAllTestCases(conf.TestDir, testNames)
 	categoryMap := make(map[string][]string)
 	for _, t := range tests {
-		p, err := jsonParser.Parse(filepath.Join(t, "test_description.json"), conf.IncludeDir)
+		p, err := tomlParser.Parse(filepath.Join(t, "test_description.toml"), conf.IncludeDir)
 		if err != nil {
 			continue
 		}
@@ -222,7 +222,7 @@ func extractCategories(conf *jsonParser.Config, testNames []string) map[string][
 
 // spawnTests starts the test engine with the user selected tests and
 // prints a status message once they're all finished.
-func spawnTests(conf *jsonParser.Config, tests []string, startTime time.Time) {
+func spawnTests(conf *tomlParser.Config, tests []string, startTime time.Time) {
 	numGoodTests, badTests, _ := engine.RunTests(conf, tests, numSimJobs, numTestJobs)
 	numBadTests := len(badTests)
 	fmt.Println("-------------------------------------")

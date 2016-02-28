@@ -1,0 +1,55 @@
+author = ""
+date = ""
+description = ""
+includes = ["success_check"]
+keywords = [""]
+
+[[checks]]
+  testType = "CHECK_SUCCESS"
+
+[[checks]]
+  exitCode = 1
+  testType = "CHECK_EXIT_CODE"
+
+[[checks]]
+  dataFile = ""
+  haveHeader = true
+  maxTime = 0.0
+  means = [0.0]
+  minTime = 0.0
+  testType = "COUNT_EQUILIBRIUM"
+  tolerances = [0.0]
+
+[[checks]]
+  dataFile = ""
+  haveHeader = true
+  maxTime = 0.0
+  minTime = 0.0
+  testType = "COUNT_CONSTRAINTS"
+
+  [[checks.countConstraints]]
+    query = [0, 0, 0, 0, 0]
+    target = 0
+
+[[checks]]
+  countMaximum = [0, 0, 0, 0, 0]
+  countMinimum = [0, 0, 0, 0, 0]
+  dataFile = ""
+  haveHeader = true
+  minTime = 0.0
+  testType = "COUNT_MINMAX"
+
+[[checks]]
+  dataFile = ""
+  haveHeader = true
+  testType = "POSITIVE_COUNTS"
+
+[[checks]]
+  dataFile = ""
+  referenceFile = ""
+  testType = "COMPARE_COUNTS"
+
+[run]
+  commandlineOpts = [""]
+  mdlfiles = [""]
+

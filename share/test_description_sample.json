@@ -26,8 +26,8 @@
       "testType": "COUNT_EQUILIBRIUM",
       "dataFile": "",
       "haveHeader": true,
-      "minTime": 0.0
-      "maxTime": 0.0
+      "minTime": 0.0,
+      "maxTime": 0.0,
       "means": [
         0.0
       ],
@@ -39,8 +39,8 @@
       "testType": "COUNT_CONSTRAINTS",
       "dataFile": "",
       "haveHeader": true,
-      "minTime": 0.0
-      "maxTime": 0.0
+      "minTime": 0.0,
+      "maxTime": 0.0,
       "countConstraints": [
         {
           "target": 0,
@@ -52,6 +52,7 @@
             0
           ]
         }
+      ]
     },
     {
       "testType": "COUNT_MINMAX",
@@ -83,9 +84,5 @@
       "dataFile": "",
       "referenceFile": ""
     }
-
-
-
-
   ]
 }
