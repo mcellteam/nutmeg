@@ -57,5 +57,25 @@
                 1
             ]
         }
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "sm.small_enclosed.dat",
+            "countMinimum": [
+                0
+            ],
+            "countMaximum": [
+                1
+            ]
+        },
+        {
+            "testType": "COUNT_MINMAX",
+            "dataFile": "sm.big_enclosed.dat",
+            "countMinimum": [
+                1
+            ],
+            "countMaximum": [
+                1
+            ]
+        }
     ]
 }
