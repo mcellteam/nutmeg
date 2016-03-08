@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/mcellteam/nutmeg/src/file"
-	"github.com/mcellteam/nutmeg/src/jsonParser"
 	"github.com/mcellteam/nutmeg/src/misc"
 	"github.com/mcellteam/nutmeg/src/tester"
+	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
 // initialize random number generator
@@ -32,7 +32,7 @@ func init() {
 }
 
 // RunTests runs the specified list of tests
-func RunTests(conf *jsonParser.Config, tests []string,
+func RunTests(conf *tomlParser.Config, tests []string,
 	numSimJobs, numTestJobs int) (int, []*tester.TestResult, error) {
 
 	if err := misc.CleanOutput(tests); err != nil {
@@ -171,8 +171,8 @@ func createSimJobs(includePath string, testPaths []string,
 	simJobs chan *tester.TestData, testResults chan *tester.TestResult) {
 	runID := 0
 	for _, testDir := range testPaths {
-		testFile := filepath.Join(testDir, "test_description.json")
-		testDescription, err := jsonParser.Parse(testFile, includePath)
+		testFile := filepath.Join(testDir, "test_description.toml")
+		testDescription, err := tomlParser.Parse(testFile, includePath)
 		if err != nil {
 			msg := fmt.Sprintf("Error parsing test description in %s: %v", testDir, err)
 			testResults <- &tester.TestResult{Path: testFile, Success: false,
@@ -217,9 +217,9 @@ func createSimJobs(includePath string, testPaths []string,
 
 // ShowTestDescription shows the description for the selected set of
 // tests.
-func ShowTestDescription(conf *jsonParser.Config, testPaths []string) {
+func ShowTestDescription(conf *tomlParser.Config, testPaths []string) {
 	for _, testDir := range testPaths {
-		testDescription, err := jsonParser.Parse(filepath.Join(testDir, "test_description.json"),
+		testDescription, err := tomlParser.Parse(filepath.Join(testDir, "test_description.toml"),
 			conf.IncludeDir)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)

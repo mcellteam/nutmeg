@@ -18,7 +18,7 @@ import (
 
 	"github.com/haskelladdict/datastruct/set/intset"
 	"github.com/mcellteam/nutmeg/src/file"
-	"github.com/mcellteam/nutmeg/src/jsonParser"
+	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
 // CleanOutput removes all files leftover from a previous test run
@@ -68,7 +68,7 @@ func ContainsString(ss []string, item string) bool {
 
 // GenerateFileList takes a filename which could be a format string and a
 // range and creates the corresponding list of filenames.
-func GenerateFileList(name string, IDStringRange jsonParser.IntList) ([]string, error) {
+func GenerateFileList(name string, IDStringRange tomlParser.IntList) ([]string, error) {
 
 	// if no range is given we pass the name through as is
 	if len(IDStringRange) == 0 {
@@ -90,7 +90,7 @@ func GenerateFileList(name string, IDStringRange jsonParser.IntList) ([]string, 
 
 // convertIntList converts an intList expression into a sorted list of unique
 // integers
-func convertIntList(list jsonParser.IntList) ([]int, error) {
+func convertIntList(list tomlParser.IntList) ([]int, error) {
 
 	intMap := make(map[int]bool)
 	for _, r := range list {
@@ -259,7 +259,7 @@ type molMeshIters struct {
 // input specified iterations at which mesh positions, regions and
 // states were output into corresponding lists of integer values.
 func CreateMolMeshIters(allIters, posIters, otherIters,
-	stateIters jsonParser.IntList) (*molMeshIters, error) {
+	stateIters tomlParser.IntList) (*molMeshIters, error) {
 
 	var m molMeshIters
 	var err error

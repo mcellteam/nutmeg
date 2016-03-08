@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"github.com/mcellteam/nutmeg/src/file"
-	"github.com/mcellteam/nutmeg/src/jsonParser"
 	"github.com/mcellteam/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
 // RunStatus encapsulates the status of running N mdl files which make
@@ -36,7 +36,7 @@ type RunStatus struct {
 
 // TestData contains the description of the test as well as the simulation status
 type TestData struct {
-	*jsonParser.TestDescription
+	*tomlParser.TestDescription
 	SimStatus []RunStatus
 }
 
@@ -271,7 +271,7 @@ func recordResult(result chan<- *TestResult, testType string,
 // checkCountConstraints tests the provided array of constraints
 // on the simulation output data contained in the file filePath
 func checkCountConstraints(data *file.Columns, dataPath string, minTime,
-	maxTime float64, constraints []*jsonParser.ConstraintSpec) error {
+	maxTime float64, constraints []*tomlParser.ConstraintSpec) error {
 
 	// check constraints for each row of data
 	for r, time := range data.Times {
@@ -708,7 +708,7 @@ func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 // checkFilesEmpty tests that all simulation output files listed were
 // created by the run and are either emtpy or non-empty depending on the
 // provided switch
-func checkFilesEmpty(test *TestData, c *jsonParser.TestCase,
+func checkFilesEmpty(test *TestData, c *tomlParser.TestCase,
 	empty bool) error {
 
 	var fileList []string
@@ -765,7 +765,7 @@ func checkFilesEmpty(test *TestData, c *jsonParser.TestCase,
 
 // checkCheckPoint tests that a checkpoint happened at the requested delay
 // in seconds (+/- margin)
-func checkCheckPoint(testDir string, c *jsonParser.TestCase) error {
+func checkCheckPoint(testDir string, c *tomlParser.TestCase) error {
 	path := file.GetOutputDir(testDir)
 
 	stamp := filepath.Join(path, c.BaseName+".stamp")
@@ -900,7 +900,7 @@ func diffFileContent(path, dataPath, templateFile string,
 // files such as presence of a header and the number of data items
 // NOTE: The header should look like
 //       # nx=25 ny=25 nz=25 time=100
-func checkLegacyVolOutput(dataPath string, c *jsonParser.TestCase) error {
+func checkLegacyVolOutput(dataPath string, c *tomlParser.TestCase) error {
 
 	file, err := ioutil.ReadFile(dataPath)
 	if err != nil {
