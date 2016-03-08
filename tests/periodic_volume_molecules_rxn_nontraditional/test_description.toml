@@ -1,0 +1,28 @@
+author = "Jacob Czech <jczech@psc.edu>"
+date = "2015-11-25"
+description = "Tests that periodic boundary conditions work for counting reactions in regions."
+keywords = ["periodic"]
+
+[[checks]]
+  testType = "CHECK_SUCCESS"
+
+[[checks]]
+  countMaximum = [600]
+  countMinimum = [400]
+  dataFile = "rxn.000.dat"
+  maxTime = 0.00001
+  minTime = 0.00001
+  testType = "COUNT_MINMAX"
+
+[[checks]]
+  countMaximum = [600]
+  countMinimum = [400]
+  dataFile = "rxn.100.dat"
+  maxTime = 0.00001
+  minTime = 0.00001
+  testType = "COUNT_MINMAX"
+
+[run]
+  commandlineOpts = ["-quiet"]
+  mdlfiles = ["periodic_rxn.mdl"]
+
