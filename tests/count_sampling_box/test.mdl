@@ -110,4 +110,7 @@ REACTION_DATA_OUTPUT
 {
   STEP=1e-06
   {COUNT[vm,Scene.box]}=> "./vm.box.dat"
+  {COUNT[vm,Scene.count_box]}=> "./vm.count_box.dat"
+  {COUNT[vm,Scene.count_box, FRONT_CROSSINGS]}=> "./vm.fc.count_box.dat"
+  {COUNT[vm,Scene.count_box, BACK_CROSSINGS]}=> "./vm.bc.count_box.dat"
 }
