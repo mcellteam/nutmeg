@@ -126,5 +126,5 @@ keywords = ["periodic"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["periodic_rxn.mdl"]
+  mdlfiles = ["main.mdl"]
 
