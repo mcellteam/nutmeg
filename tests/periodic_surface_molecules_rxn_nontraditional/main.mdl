@@ -53,6 +53,17 @@ REACTION_DATA_OUTPUT {
   {COUNT[sm,Scene.Plane[ALL],[0,0,0]]}=> "./sm.000.dat"
   {COUNT[sm,Scene.Plane[ALL],[1,0,0]]}=> "./sm.100.dat"
 
+  {COUNT["sm'",Scene.Plane[ALL],[1,0,0]]}=> "./sm'.quoted.100.dat"
+  {COUNT["sm,",Scene.Plane[ALL],[1,0,0]]}=> "./sm,.quoted.100.dat"
+  {COUNT["sm;",Scene.Plane[ALL],[1,0,0]]}=> "./sm;.quoted.100.dat"
+
+  {COUNT["sm'",Scene.Plane[ALL],[0,0,0]]}=> "./sm'.quoted.000.dat"
+  {COUNT["sm,",Scene.Plane[ALL],[0,0,0]]}=> "./sm,.quoted.000.dat"
+  {COUNT["sm;",Scene.Plane[ALL],[0,0,0]]}=> "./sm;.quoted.000.dat"
+
+  {COUNT["sm*",Scene.Plane[ALL],[0,0,0]]}=> "./sm.star.000.dat"
+  {COUNT["sm*",Scene.Plane[ALL],[1,0,0]]}=> "./sm.star.100.dat"
+
   // all possible sm orientations in left PB
   {COUNT[sm{1},Scene.Plane[ALL],[0,0,0]]}=> "./sm'.000.dat"
   {COUNT[sm{-1},Scene.Plane[ALL],[0,0,0]]}=> "./sm,.000.dat"

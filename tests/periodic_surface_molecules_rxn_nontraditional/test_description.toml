@@ -57,6 +57,41 @@ keywords = ["periodic"]
   dataFile = "sm;.100.dat"
   testType = "POSITIVE_OR_ZERO_COUNTS"
 
+# quoted counts in 000
+[[checks]]
+  dataFile = "sm'.quoted.000.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm,.quoted.000.dat"
+  testType = "ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm;.quoted.000.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+# quoted counts in 100
+[[checks]]
+  dataFile = "sm'.quoted.100.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm,.quoted.100.dat"
+  testType = "ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm;.quoted.100.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+# quoted counts with wildcard
+[[checks]]
+  dataFile = "sm.star.100.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm.star.000.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
 [run]
   commandlineOpts = ["-quiet"]
   mdlfiles = ["main.mdl"]
