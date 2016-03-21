@@ -33,6 +33,30 @@ keywords = ["periodic"]
   dataFile = "sm.100.dat"
   testType = "POSITIVE_OR_ZERO_COUNTS"
 
+[[checks]]
+  dataFile = "sm'.000.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm,.000.dat"
+  testType = "ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm;.000.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm'.100.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm,.100.dat"
+  testType = "ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "sm;.100.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
 [run]
   commandlineOpts = ["-quiet"]
   mdlfiles = ["main.mdl"]

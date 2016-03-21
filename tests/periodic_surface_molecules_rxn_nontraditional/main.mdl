@@ -49,8 +49,21 @@ INSTANTIATE Scene OBJECT
 
 REACTION_DATA_OUTPUT {
   STEP=1e-6
+  // molecule counts in "left" and "right" PB
   {COUNT[sm,Scene.Plane[ALL],[0,0,0]]}=> "./sm.000.dat"
   {COUNT[sm,Scene.Plane[ALL],[1,0,0]]}=> "./sm.100.dat"
+
+  // all possible sm orientations in left PB
+  {COUNT[sm{1},Scene.Plane[ALL],[0,0,0]]}=> "./sm'.000.dat"
+  {COUNT[sm{-1},Scene.Plane[ALL],[0,0,0]]}=> "./sm,.000.dat"
+  {COUNT[sm{0},Scene.Plane[ALL],[0,0,0]]}=> "./sm;.000.dat"
+
+  // all possible sm orientations in right PB
+  {COUNT[sm{1},Scene.Plane[ALL],[1,0,0]]}=> "./sm'.100.dat"
+  {COUNT[sm{-1},Scene.Plane[ALL],[1,0,0]]}=> "./sm,.100.dat"
+  {COUNT[sm{0},Scene.Plane[ALL],[1,0,0]]}=> "./sm;.100.dat"
+
+  // reaction counts in "left" and "right" PB
   {COUNT[rxn,Scene.Plane[ALL],[0,0,0]]}=> "./rxn.000.dat"
   {COUNT[rxn,Scene.Plane[ALL],[1,0,0]]}=> "./rxn.100.dat"
 }
