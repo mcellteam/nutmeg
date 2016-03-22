@@ -4,7 +4,7 @@ description = """
               Tests that periodic boundary conditions work for counting sm-sm \
               reactions in regions.\
               """
-keywords = ["periodic"]
+keywords = ["periodic", "reactions"]
 
 [[checks]]
   testType = "CHECK_SUCCESS"

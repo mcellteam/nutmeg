@@ -16,5 +16,5 @@ keywords = ["periodic"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["periodic_traditional.mdl"]
+  mdlfiles = ["main.mdl"]
 
