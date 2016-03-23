@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// read contains routines for reading of data files
+
+// Package file contains routines for reading of data files
 package file
 
 import (
@@ -273,7 +273,7 @@ func GetOutputDir(testPath string) string {
 	return filepath.Join(testPath, outputDirName)
 }
 
-// testFileEmpty checks that the given file exists and is empty
+// IsEmpty checks that the given file exists and is empty
 func IsEmpty(filePath string) (bool, error) {
 	fi, err := os.Stat(filePath)
 	if err != nil {
@@ -286,7 +286,7 @@ func IsEmpty(filePath string) (bool, error) {
 	return true, nil
 }
 
-// testFileNonEmpty check that the given file exists and is non-empty.
+// IsNonEmpty check that the given file exists and is non-empty.
 func IsNonEmpty(testPath string) (bool, error) {
 	fi, err := os.Stat(testPath)
 	if err != nil {
@@ -299,7 +299,7 @@ func IsNonEmpty(testPath string) (bool, error) {
 	return true, nil
 }
 
-// testFileExists checks that the given file exists
+// Exists checks that the given file exists
 func Exists(testPath string) (bool, error) {
 	_, err := os.Stat(testPath)
 	if err != nil {
@@ -308,7 +308,7 @@ func Exists(testPath string) (bool, error) {
 	return true, nil
 }
 
-// testFileSize checks that the given file exists and has the requested
+// HasSize that the given file exists and has the requested
 // file size
 func HasSize(testPath string, size int64) (bool, error) {
 	fi, err := os.Stat(testPath)
@@ -322,7 +322,7 @@ func HasSize(testPath string, size int64) (bool, error) {
 	return true, nil
 }
 
-// testNoFile checks that there is no file at the given path
+// NoFile checks that there is no file at the given path
 func NoFile(testPath string) (bool, error) {
 	if _, err := os.Stat(testPath); os.IsNotExist(err) {
 		return true, nil
@@ -330,7 +330,7 @@ func NoFile(testPath string) (bool, error) {
 	return false, nil
 }
 
-// isSymLink checkes that the given path exists, is a symlink and points to
+// IsSymLink checkes that the given path exists, is a symlink and points to
 // the provided file.
 func IsSymLink(destFilePath, filePath string) (bool, error) {
 	targetPath, err := os.Readlink(filePath)

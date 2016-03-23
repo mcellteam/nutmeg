@@ -99,21 +99,3 @@ REACTION_DATA_OUTPUT
     COUNT[llabnonnac, world.boxes.box122L] + COUNT[llabnonnac, world.boxes.box122R] : "r122"
   } => "cannonballs.txt"
 }
-
-/*
-VIZ_OUTPUT
-{
-  MODE = DREAMM_V3_GROUPED
-   FILENAME = "world"
-   MOLECULES
-   {
-     NAME_LIST { ALL_MOLECULES }
-     TIME_POINTS { ALL_DATA @ [[0 TO 1e-3 STEP 1e-5]] }
-   }
-  MESHES
-  {
-    NAME_LIST { ALL_MESHES }
-    TIME_POINTS { ALL_DATA @ [0] }
-  }
-}
-*/

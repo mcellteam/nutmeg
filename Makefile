@@ -33,8 +33,8 @@ osx_386:
 osx_amd64:
 	GOOS=darwin GOARCH=amd64 go build -o nutmeg_osx_amd64 
 
-ctags: .tags
-	ctags *.go .tags
+ctags: 
+	ctags *.go src/*
 
 .PHONY: clean
 

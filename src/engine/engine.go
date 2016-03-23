@@ -1,8 +1,8 @@
-// Copyright 2014 Markus Dittrich. All rights reserved.
+// Copyright 2014-2016 Markus Dittrich. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-//
-// test_engine contains the actual test functions analysing
+
+// Package engine contains the actual test functions analysing
 // the output of the run MCell simulations
 package engine
 
@@ -18,10 +18,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/haskelladdict/nutmeg/src/file"
-	"github.com/haskelladdict/nutmeg/src/jsonParser"
-	"github.com/haskelladdict/nutmeg/src/misc"
-	"github.com/haskelladdict/nutmeg/src/tester"
+	"github.com/mcellteam/nutmeg/src/file"
+	"github.com/mcellteam/nutmeg/src/misc"
+	"github.com/mcellteam/nutmeg/src/tester"
+	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
 // initialize random number generator
@@ -31,8 +31,8 @@ func init() {
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// runTests runs the specified list of tests
-func RunTests(conf *jsonParser.Config, tests []string,
+// RunTests runs the specified list of tests
+func RunTests(conf *tomlParser.Config, tests []string,
 	numSimJobs, numTestJobs int) (int, []*tester.TestResult, error) {
 
 	if err := misc.CleanOutput(tests); err != nil {
@@ -40,11 +40,12 @@ func RunTests(conf *jsonParser.Config, tests []string,
 		return 0, nil, err
 	}
 
-	simJobs := make(chan *jsonParser.TestDescription, numSimJobs)
-	go createSimJobs(conf.IncludeDir, tests, simJobs)
+	testResults := make(chan *tester.TestResult, len(tests))
+	simJobs := make(chan *tester.TestData, numSimJobs)
+	go createSimJobs(conf.IncludeDir, tests, simJobs, testResults)
 
 	// framework for running simulations
-	simOutput := make(chan *jsonParser.TestDescription, len(tests))
+	simOutput := make(chan *tester.TestData, len(tests))
 	simsDone := make(chan struct{}, numSimJobs)
 	for i := 0; i < numSimJobs; i++ {
 		go runSimJobs(conf.McellPath, simOutput, simJobs, simsDone)
@@ -52,11 +53,10 @@ func RunTests(conf *jsonParser.Config, tests []string,
 	go closeSimOutput(simOutput, simsDone, numSimJobs)
 
 	// framework for collecting simulation results and funneling them into tests
-	testInput := make(chan *jsonParser.TestDescription, len(tests))
+	testInput := make(chan *tester.TestData, len(tests))
 	go collectSimResults(testInput, simOutput)
 
 	// framework for running tests
-	testResults := make(chan *tester.TestResult, len(tests))
 	testsDone := make(chan struct{}, numTestJobs)
 	for i := 0; i < numTestJobs; i++ {
 		go runTestJobs(testResults, testInput, testsDone)
@@ -67,11 +67,11 @@ func RunTests(conf *jsonParser.Config, tests []string,
 
 // collectSimResults collects all simulation results (e.g. multiple Seeds) for
 // a single test case and dispatches them to the tester once they are done.
-func collectSimResults(testInput chan *jsonParser.TestDescription,
-	simOutput chan *jsonParser.TestDescription) {
+func collectSimResults(testInput chan *tester.TestData,
+	simOutput chan *tester.TestData) {
 
 	simMap := make(map[int]int)
-	var simResultsAccum []jsonParser.RunStatus
+	var simResultsAccum []tester.RunStatus
 	for sim := range simOutput {
 
 		numSeeds := sim.Run.NumSeeds
@@ -101,8 +101,8 @@ func collectSimResults(testInput chan *jsonParser.TestDescription,
 // simRunner runs mcell on the mdl file passed in as an
 // absolute path. The working directory is set to the base path
 // of the mdl file.
-func simRunner(mcellPath string, test *jsonParser.TestDescription,
-	output chan *jsonParser.TestDescription) {
+func simRunner(mcellPath string, test *tester.TestData,
+	output chan *tester.TestData) {
 
 	outputDir := file.GetOutputDir(test.Path)
 	for i, runFile := range test.Run.MdlFiles {
@@ -116,8 +116,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		cmd.Dir = outputDir
 
 		if err := misc.WriteCmdLine(mcellPath, outputDir, argList); err != nil {
-			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+			test.SimStatus = append(test.SimStatus, tester.RunStatus{Success: false,
+				ExitMessage: fmt.Sprint(err), StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -126,8 +126,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		stdOutPath := fmt.Sprintf("stdout_%d.%d.log", test.Run.Seed, i)
 		stdOut, err := os.Create(filepath.Join(outputDir, stdOutPath))
 		if err != nil {
-			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+			test.SimStatus = append(test.SimStatus, tester.RunStatus{Success: false,
+				ExitMessage: fmt.Sprint(err), StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -137,8 +137,8 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 		stdErrPath := fmt.Sprintf("stderr_%d.%d.log", test.Run.Seed, i)
 		stdErr, err := os.Create(filepath.Join(outputDir, stdErrPath))
 		if err != nil {
-			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err), "", -1})
+			test.SimStatus = append(test.SimStatus, tester.RunStatus{Success: false,
+				ExitMessage: fmt.Sprint(err), StdErrContent: "", ExitCode: -1})
 			output <- test
 			return
 		}
@@ -147,17 +147,17 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 
 		err = cmd.Run()
 		if err != nil {
-			stdErrContent, _ := ioutil.ReadFile(filepath.Join(outputDir, errLog))
+			stdErr, _ := ioutil.ReadFile(filepath.Join(outputDir, errLog))
 			exitCode, err := misc.DetermineExitCode(err)
 			if err != nil {
 				exitCode = -1
 			}
-			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{false, fmt.Sprint(err),
-					string(stdErrContent), exitCode})
+			test.SimStatus = append(test.SimStatus, tester.RunStatus{Success: false,
+				ExitMessage: fmt.Sprint(err), StdErrContent: string(stdErr), ExitCode: exitCode})
 		} else {
-			test.SimStatus = append(test.SimStatus,
-				jsonParser.RunStatus{true, "", "", 0})
+			test.SimStatus = append(test.SimStatus, tester.RunStatus{Success: true,
+				ExitMessage: "", StdErrContent: "",
+				ExitCode: 0})
 		}
 	}
 	output <- test
@@ -168,20 +168,24 @@ func simRunner(mcellPath string, test *jsonParser.TestDescription,
 // description, assembles a TestDescription struct and adds it
 // to the simulation job queue.
 func createSimJobs(includePath string, testPaths []string,
-	simJobs chan *jsonParser.TestDescription) {
+	simJobs chan *tester.TestData, testResults chan *tester.TestResult) {
 	runID := 0
 	for _, testDir := range testPaths {
-		testFile := filepath.Join(testDir, "test_description.json")
-		testDescription, err := jsonParser.Parse(testFile, includePath)
+		testFile := filepath.Join(testDir, "test_description.toml")
+		testDescription, err := tomlParser.Parse(testFile, includePath)
 		if err != nil {
-			log.Printf("Error parsing test description in %s: %v", testDir, err)
+			msg := fmt.Sprintf("Error parsing test description in %s: %v", testDir, err)
+			testResults <- &tester.TestResult{Path: testFile, Success: false,
+				TestName: "parse description", ErrorMessage: msg}
 			continue
 		}
 
 		// create output directory
 		outputDir := file.GetOutputDir(testDir)
 		if err := os.Mkdir(outputDir, 0744); err != nil {
-			log.Print(err)
+			msg := fmt.Sprint(err)
+			testResults <- &tester.TestResult{Path: testFile, Success: false,
+				TestName: "create test output directory", ErrorMessage: msg}
 			continue
 		}
 
@@ -202,10 +206,10 @@ func createSimJobs(includePath string, testPaths []string,
 				newTest := testDescription.Copy()
 				newTest.Run.Seed = i
 				testDescription.Run.Seed = i + 1
-				simJobs <- newTest
+				simJobs <- &tester.TestData{newTest, nil}
 			}
 		}
-		simJobs <- testDescription
+		simJobs <- &tester.TestData{testDescription, nil}
 		runID++
 	}
 	close(simJobs)
@@ -213,9 +217,9 @@ func createSimJobs(includePath string, testPaths []string,
 
 // ShowTestDescription shows the description for the selected set of
 // tests.
-func ShowTestDescription(conf *jsonParser.Config, testPaths []string) {
+func ShowTestDescription(conf *tomlParser.Config, testPaths []string) {
 	for _, testDir := range testPaths {
-		testDescription, err := jsonParser.Parse(filepath.Join(testDir, "test_description.json"),
+		testDescription, err := tomlParser.Parse(filepath.Join(testDir, "test_description.toml"),
 			conf.IncludeDir)
 		if err != nil {
 			log.Printf("Error parsing test description in %s: %v", testDir, err)
@@ -230,9 +234,8 @@ func ShowTestDescription(conf *jsonParser.Config, testPaths []string) {
 
 // runSimJobs loops over all available jobs and runs each of
 // them in a simRunner.
-func runSimJobs(mcellPath string, simOutput chan *jsonParser.TestDescription,
-	simJobs <-chan *jsonParser.TestDescription,
-	simsDone chan struct{}) {
+func runSimJobs(mcellPath string, simOutput chan *tester.TestData,
+	simJobs <-chan *tester.TestData, simsDone chan struct{}) {
 	for job := range simJobs {
 		simRunner(mcellPath, job, simOutput)
 	}
@@ -241,7 +244,7 @@ func runSimJobs(mcellPath string, simOutput chan *jsonParser.TestDescription,
 
 // closeSimOutput is in charge of closing the simOutput channels once all
 // simRunners have finished.
-func closeSimOutput(simOutput chan *jsonParser.TestDescription, simsDone chan struct{},
+func closeSimOutput(simOutput chan *tester.TestData, simsDone chan struct{},
 	numSimJobs int) {
 
 	for i := 0; i < numSimJobs; i++ {
@@ -252,8 +255,8 @@ func closeSimOutput(simOutput chan *jsonParser.TestDescription, simsDone chan st
 
 // runTestJobs loops over all available TestDescriptions coming from the
 // simulation engine and submits them to a test engine.
-func runTestJobs(results chan *tester.TestResult,
-	simOutput <-chan *jsonParser.TestDescription, testsDone chan struct{}) {
+func runTestJobs(results chan *tester.TestResult, simOutput <-chan *tester.TestData,
+	testsDone chan struct{}) {
 	for test := range simOutput {
 		tester.Run(test, results)
 	}

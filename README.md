@@ -14,7 +14,7 @@ nutmeg is written in go and can be compiled via
 in the top level directory. Production versions of nutmeg will be shipped with
 precompiled binaries for Linux, Mac OSX, and Windows.
 
-nutmeg expects a config file in JSON format called **nutmeg.conf** in the
+nutmeg expects a config file in TOML format called **nutmeg.conf** in the
 directory where the binary is located. Currently, this file only contains
 information on the path of the MCell executable and the location of
 the *tests/* directory. A sample *nutmeg.conf* is available in the *share/*
@@ -38,6 +38,9 @@ Here [option] can be one of
   -l
     show available test cases
 
+  -L
+    show available test categories
+
   -m
     number of concurrent test jobs (default: 2)
 
@@ -45,7 +48,11 @@ Here [option] can be one of
     number of concurrent simulation jobs (default: 2)
 
   -r test_selection
-    run specified tests
+    run specified tests (i, i:j, 'all')
+
+  -R test_category
+    run all the tests in a given category (e.g. reactions, parser)
+
 </code></pre>
 
 Here, <code>test selection</code> is a comma separated lists of test cases
@@ -62,14 +69,15 @@ physical number of cores on the test machine.
 Adding New Test Cases
 ---------------------
 
-To add a new test case, simply create a new and descriptively named subdirectory
-in **tests/**. All files pertaining to this test (including any test output) are
-contained in this directory. At a minumum, a test case consists of an MCell
-test input file in MDL format and a file called **test_description.json**,
-containing the description of this particular test case in JSON format.
-A sample test description file is available in **share/** and can be modified
-to fit the specific needs of new test cases (more details on how to add new
-tests will follow soon).
+To add a new test case, simply create a new and descriptively named
+subdirectory in **tests/**. All files pertaining to this test (including any
+test output) are contained in this directory. At a minumum, a test case
+consists of an MCell test input file in MDL format and a file called
+**test_description.toml**, containing the description of this particular test
+case in [TOML format](https://github.com/toml-lang/toml). A sample test
+description file is available in **share/** and can be modified to fit the
+specific needs of new test cases (more details on how to add new tests will
+follow soon).
 
 
 Author

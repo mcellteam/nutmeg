@@ -22,7 +22,6 @@ box1 BOX
                 s_g_4, = 200
                 s_g_5; = 100
             }
-            VIZ_VALUE = 5
         }
         r2
         {
