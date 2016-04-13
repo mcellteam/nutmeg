@@ -31,15 +31,9 @@ Plane POLYGON_LIST
   }
 }
 
-/*Boxy BOX*/
-/*{*/
-/*  CORNERS = [-0.19, -0.19, -0.19],[0.19, 0.19, 0.19]*/
-/*}*/
-
 INSTANTIATE Scene OBJECT
 {
   Plane OBJECT Plane {}
-  /*Boxy OBJECT Boxy {}*/
   Release_Site RELEASE_SITE
   {
     SHAPE = LIST
