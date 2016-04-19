@@ -18,6 +18,18 @@ keywords = ["regression"]
   haveHeader = false
   testType = "COUNT_MINMAX"
 
+[[checks]]
+  dataFile = "vm.count_box.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "vm.fc.count_box.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
+[[checks]]
+  dataFile = "vm.bc.count_box.dat"
+  testType = "POSITIVE_OR_ZERO_COUNTS"
+
 [run]
   commandlineOpts = ["-quiet"]
   mdlfiles = ["test.mdl"]
