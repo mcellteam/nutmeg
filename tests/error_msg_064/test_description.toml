@@ -14,7 +14,7 @@ keywords = ["parser"]
 
 [[checks]]
   dataFile = "err_%d.0.log"
-  matchPattern = "Region element specifier refers to sides 1000000000...1000000000, but polygon has only 1 sides."
+  matchPattern = "Region element specifier for region degeneracy\\[r1\\] refers to sides 1000000000...1000000000, but polygon has only 1 sides."
   numMatches = 1
   testType = "FILE_MATCH_PATTERN"
 
