@@ -14,7 +14,7 @@ keywords = ["periodic"]
 
 [[checks]]
   countMaximum = [100]
-  countMinimum = [95]
+  countMinimum = [90]
   dataFile = "vm1.world.dat"
   maxTime = 0.000001
   minTime = 0.0
@@ -29,7 +29,7 @@ keywords = ["periodic"]
   testType = "COUNT_MINMAX"
 
 [[checks]]
-  countMaximum = [5]
+  countMaximum = [10]
   countMinimum = [0]
   dataFile = "vm2.world.dat"
   maxTime = 0.000001
@@ -38,7 +38,7 @@ keywords = ["periodic"]
 
 [[checks]]
   countMaximum = [100]
-  countMinimum = [95]
+  countMinimum = [90]
   dataFile = "vm2.world.dat"
   maxTime = 0.001
   minTime = 0.001
@@ -66,7 +66,7 @@ keywords = ["periodic"]
 
 [[checks]]
   countMaximum = [100]
-  countMinimum = [95]
+  countMinimum = [90]
   dataFile = "vm1.top_cube.dat"
   maxTime = 0.000001
   minTime = 0.0
@@ -115,7 +115,7 @@ keywords = ["periodic"]
   testType = "COUNT_MINMAX"
 
 [[checks]]
-  countMaximum = [5]
+  countMaximum = [10]
   countMinimum = [0]
   dataFile = "vm2.bottom_cube.dat"
   maxTime = 0.000001
@@ -124,7 +124,7 @@ keywords = ["periodic"]
 
 [[checks]]
   countMaximum = [100]
-  countMinimum = [95]
+  countMinimum = [90]
   dataFile = "vm2.bottom_cube.dat"
   maxTime = 0.001
   minTime = 0.001
