@@ -13,5 +13,5 @@ keywords = ["dynamic geometry"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["remove_all.mdl"]
+  mdlfiles = ["main.mdl"]
 

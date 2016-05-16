@@ -18,5 +18,5 @@ keywords = ["dynamic geometry"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["release_pattern.mdl"]
+  mdlfiles = ["main.mdl"]
 

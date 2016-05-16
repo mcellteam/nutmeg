@@ -18,5 +18,5 @@ keywords = ["dynamic geometry"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["surf_mol_surf_reg.mdl"]
+  mdlfiles = ["main.mdl"]
 

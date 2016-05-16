@@ -16,5 +16,5 @@ keywords = ["dynamic geometry"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["conc_clamp.mdl"]
+  mdlfiles = ["main.mdl"]
 

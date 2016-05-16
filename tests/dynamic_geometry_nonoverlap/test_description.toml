@@ -33,5 +33,5 @@ keywords = ["dynamic geometry"]
 
 [run]
   commandlineOpts = ["-quiet"]
-  mdlfiles = ["nonoverlap.mdl"]
+  mdlfiles = ["main.mdl"]
 
