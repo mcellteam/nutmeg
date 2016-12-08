@@ -36,7 +36,7 @@ type TestDescription struct {
 }
 
 // RunSpec describes an individual run to be conducted as part of a single
-// mcell test.
+// MCell test.
 type RunSpec struct {
 	MdlFiles        []string // name of mdl file to run
 	NumSeeds        int      // number of seeds to run
@@ -86,7 +86,7 @@ type TestExitCode struct {
 
 // TestMinMax pertains to checks testing that data is within certain ranges
 type TestMinMax struct {
-	CountMaximum []int // test if counts are larger than provided minmum
+	CountMaximum []int // test if counts are larger than provided minimum
 	CountMinimum []int // test if counts are smaller than provided maximum
 }
 
@@ -96,7 +96,7 @@ type TestConstraints struct {
 	CountConstraints []*ConstraintSpec // test if counts fullfill the provided constraints
 }
 
-// TestPatternMatch partains to checks that test if certains string patterns
+// TestPatternMatch pertains to checks testing if certain string patterns
 // are present in output files
 type TestPatternMatch struct {
 	MatchPattern string // test pattern to match file against
@@ -116,11 +116,11 @@ type TestCompareCounts struct {
 	RelDeviation  []float64 // allowed relative deviation from reference, one per column
 }
 
-// TestMeans pertaints to checks testing that data values have a certain mean
+// TestMeans pertains to checks testing that data values have a certain mean
 // and fluctuation within the given tolerances
 type TestMeans struct {
 	Means      []float64 // target column means for count equilibrium tests
-	Tolerances []float64 // tolerances by which actual colummn means may deviate from target
+	Tolerances []float64 // tolerances by which actual column means may deviate from target
 }
 
 // TestTrigger pertains to checks testing the integrity of trigger data
@@ -130,11 +130,11 @@ type TestTrigger struct {
 	OutputTime    float64   // output time step
 	Xrange        []float64 // tuple of valid x ranges for triggered events
 	Yrange        []float64 // tuple of valid y ranges for triggered events
-	Zrange        []float64 // typle of valid z ranges for triggered events
+	Zrange        []float64 // tuple of valid z ranges for triggered events
 }
 
 // TestFileSizes pertains to checks testing that the given list of files
-// exists and each file is either emtpy or non-empty with a given size.
+// exists and each file is either empty or non-empty with a given size.
 // FileNames can contain format strings containing integer (%d) specifiers. In
 // this case IDRange needs to be a list of strings describing a range. Each item
 // can either correspond to an integer or a range of the form start:end:step.
@@ -186,7 +186,7 @@ type ConstraintSpec struct {
 // IntList is a parse time list of strings which will be converted into an
 // integer range. Each item is either a string representation of an integer or
 // an integer range of the form start:end:step.
-// Exampe: [1, 2, 3:100:5]
+// Example: [1, 2, 3:100:5]
 type IntList []string
 
 // Copy member function for a TestDescription

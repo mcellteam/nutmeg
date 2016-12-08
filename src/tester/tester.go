@@ -257,7 +257,7 @@ func Run(test *TestData, result chan *TestResult) {
 	}
 }
 
-// recordResults checks if a test was successfull or not, records
+// recordResults checks if a test was successful or not, records
 // success/failure in TestResult object and sends it to the results channel
 func recordResult(result chan<- *TestResult, testType string,
 	dataPath string, err error) {
@@ -392,7 +392,7 @@ func compareCounts(data, refData *file.Columns, absDev []int, relDev []float64,
 		}
 
 		for c := 0; c < numCols; c++ {
-			// determine allowed deviation if definied via absDeviation or relDeviation
+			// determine allowed deviation if defined via absDeviation or relDeviation
 			dev := absDev[c]
 			if dev == 0 {
 				dev = int(relDev[c] * float64(refData.Counts[c][r]))
@@ -412,7 +412,7 @@ func compareCounts(data, refData *file.Columns, absDev []int, relDev []float64,
 //
 // rate = instantaneous_count/(time_now - baseTime)
 //
-// and then averages accross the interval maxTime - minTime
+// and then averages across the interval maxTime - minTime
 func countRates(data *file.Columns, dataPath string, minTime, maxTime, baseTime float64,
 	means, tolerances []float64) error {
 
@@ -622,7 +622,7 @@ func validatePositionRanges(data *file.StringColumns, row, locationID int,
 }
 
 // checkCountEqulibrium checks that the column means of the test data match the
-// provided target mean values withih tne provided tolerances.
+// provided target mean values within the provided tolerances.
 func checkCountEquilibrium(data *file.Columns, dataPath string, minTime, maxTime float64,
 	means, tolerances []float64) error {
 
@@ -706,7 +706,7 @@ func checkZeroCounts(data *file.Columns, dataPath string, minTime,
 }
 
 // checkFilesEmpty tests that all simulation output files listed were
-// created by the run and are either emtpy or non-empty depending on the
+// created by the run and are either empty or non-empty depending on the
 // provided switch
 func checkFilesEmpty(test *TestData, c *tomlParser.TestCase,
 	empty bool) error {

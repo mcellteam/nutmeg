@@ -330,7 +330,7 @@ func NoFile(testPath string) (bool, error) {
 	return false, nil
 }
 
-// IsSymLink checkes that the given path exists, is a symlink and points to
+// IsSymLink checks that the given path exists, is a symlink, and points to
 // the provided file.
 func IsSymLink(destFilePath, filePath string) (bool, error) {
 	targetPath, err := os.Readlink(filePath)
