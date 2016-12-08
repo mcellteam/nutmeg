@@ -157,104 +157,6 @@ func ConvertRangeToList(rangeStatement string) ([]int, error) {
 	return newRange, nil
 }
 
-// CheckDREAMMV3IterItems examines the viz iterations directory for
-// a specific items (surface positions, orientations, etc.)
-func CheckDREAMMV3IterItems(molSet, molIters *set.IntSet, iter, lastPos int,
-	isEmpty bool, fileTemplate string) error {
-
-	fileName := fmt.Sprintf(fileTemplate, iter)
-	if molSet.Contains(iter) {
-		if isEmpty {
-			ok, err := file.Exists(fileName)
-			if err != nil {
-				return err
-			} else if !ok {
-				return fmt.Errorf("file %s does not exists", fileName)
-			}
-		} else {
-			ok, err := file.IsNonEmpty(fileName)
-			if err != nil {
-				return err
-			} else if !ok {
-				return fmt.Errorf("file %s is not non-empty as expected", fileName)
-			}
-		}
-	} else if lastPos >= 0 && !molIters.Contains(iter) {
-		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
-		linkName := fmt.Sprintf(fileTemplate, lastPos)
-		ok, err := file.IsSymLink(linkName, fileName)
-		if err != nil {
-			return err
-		} else if !ok {
-			return fmt.Errorf("file %s is not properly symlinked to %s", fileName, linkName)
-		}
-	} else {
-		ok, err := file.NoFile(fileName)
-		if err != nil {
-			return err
-		} else if !ok {
-			return fmt.Errorf("file %s exists but shouldn't", fileName)
-		}
-	}
-	return nil
-}
-
-// CheckDREAMMV3DXItems checks the presence of the correct dx files/symlinks
-// in a given viz iteration directory.
-// NOTE: lastProperty could refer to molecule orientations or regions for meshes
-func CheckDREAMMV3DXItems(iter, lastPos, lastProperty, lastState int,
-	hadFrame bool, fileTemplate string) error {
-
-	pos := -1
-	if lastPos >= 0 {
-		pos = lastPos
-	} else if lastProperty >= 0 {
-		pos = lastProperty
-	} else if lastState >= 0 {
-		pos = lastState
-	}
-
-	fileName := fmt.Sprintf(fileTemplate, iter)
-	if hadFrame {
-		ok, err := file.IsNonEmpty(fileName)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s is non non-empty as expected", fileName)
-		}
-	} else if pos >= 0 {
-		fileTemplate := filepath.Join("../iteration_%d", filepath.Base(fileName))
-		linkName := fmt.Sprintf(fileTemplate, pos)
-		ok, err := file.IsSymLink(linkName, fileName)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s is not properly symlinked to %s as expected",
-				fileName, linkName)
-		}
-	} else {
-		ok, err := file.NoFile(fileName)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("file %s exists but was expected to not be present",
-				fileName)
-		}
-	}
-	return nil
-}
-
-// molMeshIters is a small helper struct to bundle all frame data related to
-// DREAMM V3 binary mesh data
-type molMeshIters struct {
-	All                   []int
-	Pos, Others, States   *set.IntSet
-	Combined, AllCombined *set.IntSet
-}
-
 // CreateMolMeshIters is a helper function for converting the list of
 // input specified iterations at which mesh positions, regions and
 // states were output into corresponding lists of integer values.
@@ -305,27 +207,6 @@ func UnsetTrackers(s int, xs ...*int) {
 			*x = -1
 		}
 	}
-}
-
-// CheckDREAMMV3GroupedItem tests the viz data directory for the
-// presence/absence of the given file as part of grouped DREAMM V3 format
-func CheckDREAMMV3GroupedItem(filePath string, haveItemProperty, noItem bool) error {
-	if haveItemProperty && noItem {
-		ok, err := file.IsEmpty(filePath)
-		if err != nil {
-			return err
-		} else if !ok {
-			return fmt.Errorf("file %s does not exist or is not empty", filePath)
-		}
-	} else if haveItemProperty && !noItem {
-		ok, err := file.IsNonEmpty(filePath)
-		if err != nil {
-			return err
-		} else if !ok {
-			return fmt.Errorf("file %s is not non-empty", filePath)
-		}
-	}
-	return nil
 }
 
 // below are some useful math functions

@@ -61,11 +61,6 @@ type TestCase struct {
 	TestLegacyVolOutput
 	TestASCIIVizOutput
 	TestCheckPoint
-	TestDREAMMV3Common
-	TestDREAMMV3MolBinOutput
-	TestDREAMMV3MolASCIIOutput
-	TestDREAMMV3MeshASCIIOutput
-	TestDREAMMV3GroupedOutput
 }
 
 // TestCommon includes common options that are used by two or more tests
@@ -180,64 +175,6 @@ type TestCheckPoint struct {
 	BaseName string
 	Delay    float64 // delay in seconds at which checkpoint should happen
 	Margin   float64 // acceptable margin for checkpoint delay in seconds
-}
-
-// TestDREAMMV3Common contains common items used in DREAMM V3 molecule
-// and mesh tests
-type TestDREAMMV3Common struct {
-	AllIters    IntList // list of all frames *required*
-	PosIters    IntList // iterations with molecule/mesh positions
-	OrientIters IntList // iteractions with molecule orientations
-	RegionIters IntList // iterations with region information
-	StateIters  IntList // iterations with molecule/mesh state information
-	VizPath     string  // path to viz data output directory
-	MeshEmpty   bool    // true if no mesh info is present
-}
-
-// TestDREAMMV3MeshASCIIOutput encapsulates items specific to the ASCII format
-// of the DREAMM_V3 mesh viz data output
-type TestDREAMMV3MeshASCIIOutput struct {
-	Objects       []string // names of mesh objects which should be present
-	ObjectRegions []string // names of objects with regions
-}
-
-// TestDREAMMV3MolBinOutput test the DREAMM_V3 molecule viz data output.
-// NOTE: It is a bit tricky to split this test into more elementary tests since
-// the framework also checks the existence of the proper soft links which
-// depend on the overall iteration structure (e.g., an iteration directory
-// without a requested molecule output receives links to the most recently
-// added data in a previous iteration). Thus, it seemed better to hardcode
-// everything into a more complex single test.
-type TestDREAMMV3MolBinOutput struct {
-	SurfPosIters    IntList // iterations with surface mol. positions
-	SurfOrientIters IntList // iterations with surface mol. orientations
-	SurfStateIters  IntList // iterations with surface mol. states
-	SurfEmpty       bool    // true if no surface molecules are present
-	VolPosIters     IntList // iterations with volume mol. positions
-	VolOrientIters  IntList // iterations with surface mol. orientation iterations
-	VolStateIters   IntList // iterations with surface mol. states
-	VolEmpty        bool    // true if no volume molecules are present
-}
-
-// TestDREAMMV3MolASCIIOutput encapsulates specs related to tests for the
-// ASCII viz format of the DREAMM V3 molecule data
-type TestDREAMMV3MolASCIIOutput struct {
-	MolNames []string // names of molecules to look for
-}
-
-// TestDREAMMV3GroupedOutput encapsulates specs related to tests for DREAMM V3
-// grouped format.
-type TestDREAMMV3GroupedOutput struct {
-	NumIters      int  // number of iterations with output
-	NumTimes      int  // number of times with output
-	HaveMeshPos   bool // true if a mesh positions file is expected
-	HaveRgnIdx    bool // true if a region index file is expected
-	HaveMeshState bool // true if a mesh state file is expected
-	NoMeshes      bool // true if no mesh is present
-	HaveMolPos    bool // true if a molecule positions file is expected
-	HaveMolOrient bool // true if a molecule orientations file is expected
-	HaveMolState  bool // true if a molecule states file is expected
-	NoMols        bool // true if no molecules are present
 }
 
 // ConstraintSpec encapsulates a single constraint specification.
