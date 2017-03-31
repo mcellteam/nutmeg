@@ -16,8 +16,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/haskelladdict/datastruct/set/intset"
-	"github.com/mcellteam/nutmeg/src/file"
 	"github.com/mcellteam/nutmeg/src/tomlParser"
 )
 
@@ -155,48 +153,6 @@ func ConvertRangeToList(rangeStatement string) ([]int, error) {
 	}
 
 	return newRange, nil
-}
-
-// CreateMolMeshIters is a helper function for converting the list of
-// input specified iterations at which mesh positions, regions and
-// states were output into corresponding lists of integer values.
-func CreateMolMeshIters(allIters, posIters, otherIters,
-	stateIters tomlParser.IntList) (*molMeshIters, error) {
-
-	var m molMeshIters
-	var err error
-	if m.All, err = convertIntList(allIters); err != nil {
-		return nil, err
-	}
-
-	pos, err := convertIntList(posIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(pos) == 0 {
-		pos = m.All
-	}
-	m.Pos = set.NewIntSet(pos...)
-
-	others, err := convertIntList(otherIters)
-	if err != nil {
-		return nil, err
-	}
-	if len(others) == 0 {
-		others = m.All
-	}
-	m.Others = set.NewIntSet(others...)
-
-	states, err := convertIntList(stateIters)
-	if err != nil {
-		return nil, err
-	}
-	m.States = set.NewIntSet(states...)
-
-	m.Combined = m.Others.Clone().Union(m.States)
-	m.AllCombined = m.Combined.Clone().Union(m.Pos)
-
-	return &m, nil
 }
 
 // UnsetTrackers resets the trackers used to keep track of symlinks used in
