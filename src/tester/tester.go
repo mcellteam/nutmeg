@@ -477,6 +477,10 @@ func checkTriggers(data *file.StringColumns, dataPath string, minTime, maxTime f
 		return err
 	}
 	totalCols += typeID
+  if typeID == 2 {
+    // an extra column for molecule IDs
+    totalCols ++
+  }
 
 	numCols := len(data.Values)
 	if numCols != totalCols {
