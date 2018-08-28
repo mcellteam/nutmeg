@@ -3,16 +3,27 @@ nutmeg
 
 nutmeg is a regression test framework for the MCell simulator ([www.mcell.org](http://www.mcell.org)).
 
-
 Installation
 ------------
 
-nutmeg is written in go and can be compiled via
+The nutmeg test framework is written in go. If you don't already use go, you'll
+probably need to set your GOPATH, which you can do like this:
 
-<pre><code>go build</code></pre>
+    export GOPATH=$HOME/go
 
-in the top level directory. Production versions of nutmeg will be shipped with
-precompiled binaries for Linux, Mac OSX, and Windows.
+Note: feel free to use some other path than `$HOME/go`.
+
+To pull in nutmeg's dependencies, change into the top-level nutmeg directory
+and type this:
+
+    go get -u all
+
+Finally, to build nutmeg, enter this:
+
+    go build
+
+Production versions of nutmeg will be shipped with precompiled binaries for
+Linux, Mac OSX, and Windows.
 
 nutmeg expects a config file in TOML format called **nutmeg.conf** in the
 directory where the binary is located. Currently, this file only contains
@@ -55,16 +66,36 @@ Here [option] can be one of
 
 </code></pre>
 
-Here, <code>test selection</code> is a comma separated lists of test cases
-specified either by their numeric test ID or their name (as returned by
-<code>nutmeg -l</code>). It is also possible to specify numeric ranges via
-<code>i:j</code> with lower and upper limits i and j, respectively. The
-keyword <code>all</code> triggers testing of all available cases.
-Please note that the comma separated list of test_selections may not contain
-spaces unless the whole expression is enclosed in double quotes.
-Concurrent simulation jobs will each run as separate MCell processes. Thus, to
-optimize throughput n should be chosen as large as possible but not exceed the
-physical number of cores on the test machine.
+Here, `test_selection` is a comma separated lists of test cases specified
+either by their numeric test ID or their name (as returned by `nutmeg -l`). It
+is also possible to specify numeric ranges via `i:j` with lower and upper
+limits i and j, respectively. The keyword `all` triggers testing of all
+available cases.  Please note that the comma separated list of
+`test_selection`s may not contain spaces unless the whole expression is
+enclosed in double quotes.  Concurrent simulation jobs will each run as
+separate MCell processes. Thus, to optimize throughput n should be chosen as
+large as possible but not exceed the physical number of cores on the test
+machine.
+
+Examples
+--------
+
+Run all the tests:
+
+    ./nutmeg -r all
+
+Run the `count_enclosed` and `all_enclosed` test:
+
+    ./nutmeg -r count_enclosed,all_enclosed
+
+Run tests eighty through eighty-four (the numbers correspond to those shown by
+`nutmeg -l`):
+
+    ./nutmeg -r 80:85
+
+Run all the dynamic geometry tests:
+
+    ./nutmeg -R "dynamic geometry"
 
 Adding New Test Cases
 ---------------------
